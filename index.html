@@ -940,7 +940,7 @@
     const artists = ['Prakash Saput','Bhupu Pandey','Sunil Giri','Devendra Bablu','Wilson Bikram Rai','Kavya Band','Sarjun Rai','Asmita Adhikari','Suman Gurung','Khem Century'];
     const ticker = document.getElementById('ticker-inner');
     const items = [...artists, ...artists].map(a =>
-      `<span class="ticker-item">${a}<span class="rdot">heart-shape</span></span>`
+     `<span class="ticker-item">${a}<span class="rdot">&hearts;</span></span>`
     ).join('');
     ticker.innerHTML = items + items;
 
