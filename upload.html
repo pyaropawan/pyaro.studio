@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Upload and preview JPGs and PDFs directly in your browser — Pyaro Studio Tools." />
+  <title>File Viewer — Pyaro Studio</title>
+  <link rel="icon" type="image/svg+xml" href="Pyaro_Studio.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root, [data-theme="dark"] {
+      --red: #ec3b56; --red-glow: rgba(236,59,86,0.18); --red-mid: rgba(236,59,86,0.45);
+      --bg: #0a0a0a; --bg2: #111111; --surface: #1a1a1a;
+      --text: #f0ece6; --text-muted: rgba(240,236,230,0.38); --text-dim: rgba(240,236,230,0.15);
+      --border: rgba(240,236,230,0.07);
+      --glass-bg: rgba(255,255,255,0.032); --glass-border: rgba(255,255,255,0.09);
+      --glass-shine: rgba(255,255,255,0.055);
+      --nav-bg: rgba(14,14,14,0.75); --nav-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      --footer-bg: rgba(255,255,255,0.012);
+      --err: #ff6b6b;
+    }
+    [data-theme="light"] {
+      --bg: #f5f2ee; --bg2: #ede9e3; --surface: #e4e0da;
+      --text: #1a1616; --text-muted: rgba(26,22,22,0.5); --text-dim: rgba(26,22,22,0.18);
+      --border: rgba(26,22,22,0.1);
+      --glass-bg: rgba(255,255,255,0.55); --glass-border: rgba(0,0,0,0.09);
+      --glass-shine: rgba(255,255,255,0.85);
+      --nav-bg: rgba(245,242,238,0.85); --nav-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      --footer-bg: rgba(0,0,0,0.02);
+      --err: #c9384f;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg); color: var(--text);
+      font-family: 'DM Mono', monospace; -webkit-font-smoothing: antialiased;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    a { color: inherit; text-decoration: none; }
+    main { flex: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 16px; left: 16px; right: 16px; z-index: 300;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 20px; border-radius: 12px;
+      background: var(--nav-bg); backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 0.5px solid var(--glass-border);
+      box-shadow: inset 0 1px 0 var(--glass-shine), var(--nav-shadow);
+      transition: background 0.4s, border-color 0.4s;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-svg { height: 32px; width: auto; display: block; }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-right a { font-size: 10px; font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); transition: color 0.2s; white-space: nowrap; }
+    .nav-right a.current { color: var(--red); }
+    .nav-right a:hover { color: var(--text); }
+
+    .theme-toggle {
+      width: 34px; height: 34px; border-radius: 8px; border: 0.5px solid var(--glass-border);
+      background: var(--glass-bg); backdrop-filter: blur(12px); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      transition: background 0.3s, border-color 0.3s, transform 0.2s; flex-shrink: 0; color: var(--text);
+    }
+    .theme-toggle:hover { background: var(--red-glow); border-color: var(--red-mid); transform: scale(1.08); }
+    .theme-toggle .icon-dark { display: block; }
+    .theme-toggle .icon-light { display: none; }
+    [data-theme="light"] .theme-toggle .icon-dark { display: none; }
+    [data-theme="light"] .theme-toggle .icon-light { display: block; }
+
+    .hamburger {
+      display: none; width: 34px; height: 34px; border-radius: 8px; border: 0.5px solid var(--glass-border);
+      background: var(--glass-bg); backdrop-filter: blur(12px); cursor: pointer; flex-shrink: 0;
+      flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    }
+    .hamburger span { display: block; width: 15px; height: 1px; background: var(--text); transition: transform 0.25s ease, opacity 0.25s ease; }
+    .hamburger.active span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; position: fixed; top: 68px; left: 16px; right: 16px; z-index: 250;
+      flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px;
+      background: var(--nav-bg); backdrop-filter: blur(24px) saturate(180%);
+      border: 0.5px solid var(--glass-border); box-shadow: inset 0 1px 0 var(--glass-shine), var(--nav-shadow);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { padding: 13px 14px; border-radius: 8px; font-size: 11px; font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); transition: background 0.2s, color 0.2s; }
+    .mobile-menu a.current { color: var(--red); }
+    .mobile-menu a:hover { color: var(--text); background: rgba(236,59,86,0.08); }
+
+    /* ── PAGE HERO ── */
+    .page-hero { padding: 150px 40px 40px; position: relative; overflow: hidden; }
+    .page-hero::after {
+      content: ''; position: absolute; top: -100px; left: -80px; width: 500px; height: 400px;
+      background: radial-gradient(ellipse, rgba(236,59,86,0.08) 0%, transparent 70%); pointer-events: none;
+    }
+    .eyebrow { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 18px; display: block; position: relative; z-index: 1; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px,7vw,86px); line-height: 0.92; color: var(--text); position: relative; z-index: 1; }
+    .page-title .red { color: var(--red); }
+    .page-lede { font-family: 'Instrument Serif', serif; font-style: italic; font-size: clamp(15px,1.8vw,18px); line-height: 1.6; color: var(--text-muted); max-width: 62ch; margin-top: 20px; position: relative; z-index: 1; }
+
+    /* ── UPLOAD ZONE ── */
+    .tool-wrap { padding: 20px 40px 90px; }
+
+    .dropzone {
+      border: 1.5px dashed var(--glass-border);
+      border-radius: 16px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      padding: 56px 24px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--red-mid); background: rgba(236,59,86,0.05); }
+    .dropzone-icon {
+      width: 54px; height: 54px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--glass-bg); border: 0.5px solid var(--glass-border);
+    }
+    .dropzone-icon svg { width: 20px; height: 20px; stroke: var(--red); fill: none; stroke-width: 1.4; }
+    .dropzone-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.02em; color: var(--text); }
+    .dropzone-sub { font-size: 11px; letter-spacing: 0.05em; color: var(--text-muted); max-width: 42ch; }
+    .dropzone input[type="file"] { display: none; }
+    .browse-btn {
+      margin-top: 6px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 12px 22px; border-radius: 8px; color: var(--text);
+      background: rgba(236,59,86,0.12); border: 0.5px solid rgba(236,59,86,0.4);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .browse-btn:hover { background: rgba(236,59,86,0.22); border-color: var(--red-mid); }
+
+    .status-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; flex-wrap: wrap; }
+    .status-text { font-size: 10px; letter-spacing: 0.08em; color: var(--text-muted); }
+    .clear-btn {
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted);
+      padding: 8px 14px; border-radius: 8px; border: 0.5px solid var(--glass-border); background: var(--glass-bg);
+      cursor: pointer; transition: color 0.2s, border-color 0.2s;
+      display: none;
+    }
+    .clear-btn:hover { color: var(--red); border-color: var(--red-mid); }
+    .clear-btn.visible { display: inline-block; }
+
+    .error-note {
+      display: none;
+      margin-top: 16px; padding: 14px 18px; border-radius: 10px;
+      background: rgba(236,59,86,0.08); border: 0.5px solid rgba(236,59,86,0.35);
+      color: var(--err); font-size: 11px; letter-spacing: 0.03em; line-height: 1.6;
+    }
+    .error-note.visible { display: block; }
+
+    /* ── PREVIEW GRID ── */
+    .preview-grid { margin-top: 36px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+    .preview-card {
+      background: var(--surface); border: 0.5px solid var(--border); border-radius: 14px;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .preview-media {
+      width: 100%; height: 220px; background: var(--bg2);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+      position: relative;
+    }
+    .preview-media img { width: 100%; height: 100%; object-fit: contain; }
+    .preview-media embed, .preview-media iframe { width: 100%; height: 100%; border: none; }
+    .preview-media .pdf-fallback {
+      display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; text-align: center;
+    }
+    .preview-media .pdf-fallback svg { width: 30px; height: 30px; stroke: var(--red); fill: none; stroke-width: 1.2; }
+    .preview-media .pdf-fallback span { font-size: 10px; letter-spacing: 0.08em; color: var(--text-muted); }
+
+    .preview-meta { padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+    .preview-name { font-size: 12px; color: var(--text); word-break: break-word; }
+    .preview-detail { font-size: 10px; letter-spacing: 0.05em; color: var(--text-muted); }
+    .preview-actions { display: flex; gap: 8px; padding: 0 16px 14px; }
+    .preview-actions a, .preview-actions button {
+      font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted);
+      padding: 7px 10px; border-radius: 6px; border: 0.5px solid var(--glass-border); background: var(--glass-bg);
+      cursor: pointer; transition: color 0.2s, border-color 0.2s;
+    }
+    .preview-actions a:hover, .preview-actions button:hover { color: var(--red); border-color: var(--red-mid); }
+
+    .glass-note {
+      margin-top: 28px; padding: 18px 22px; border-radius: 12px;
+      background: var(--glass-bg); border: 0.5px solid var(--glass-border);
+      backdrop-filter: blur(16px); font-size: 11px; line-height: 1.7; color: var(--text-muted);
+    }
+    .glass-note .rlabel { color: var(--red); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+    .glass-note strong { color: var(--text); font-weight: 400; }
+
+    footer { border-top: 0.5px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; background: var(--footer-bg); flex-wrap: wrap; gap: 8px; }
+    .footer-l { font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
+    .footer-logo-svg { height: 20px; width: auto; }
+    [data-theme="light"] .footer-logo-svg { opacity: 0.6; }
+    .footer-r { font-size: 10px; color: var(--text-muted); }
+
+    @media (max-width: 768px) {
+      nav { top:10px; left:10px; right:10px; padding:10px 14px; }
+      .logo-svg { height: 26px; }
+      .nav-right a { display: none; }
+      .hamburger { display: flex; }
+      .page-hero { padding: 110px 20px 28px; }
+      .tool-wrap { padding: 16px 20px 60px; }
+      .dropzone { padding: 40px 18px; }
+    }
+    @media (max-width: 480px) {
+      .page-hero { padding: 96px 16px 24px; }
+      .tool-wrap { padding: 14px 16px 48px; }
+      .dropzone { padding: 32px 14px; }
+      .dropzone-title { font-size: 22px; }
+      .preview-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="logo"><img class="logo-svg" src="Pyaro_Studio.svg" alt="Pyaro Studio" /></a>
+    <div class="nav-right">
+      <a href="index.html#work">Work</a>
+      <a href="index.html#about">About</a>
+      <a href="distribution.html">Distribution</a>
+      <a href="upload.html" class="current">Tools</a>
+      <a href="index.html#contact">Contact</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle light / dark">
+        <span class="icon-dark">&#9788;</span><span class="icon-light">&#9790;</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#work">Work</a>
+    <a href="index.html#about">About</a>
+    <a href="distribution.html">Distribution</a>
+    <a href="upload.html" class="current">Tools</a>
+    <a href="index.html#contact">Contact</a>
+  </div>
+
+  <main>
+    <section class="page-hero">
+      <span class="eyebrow">&#8212; Pyaro Studio Tools</span>
+      <h1 class="page-title">FILE <span class="red">VIEWER</span></h1>
+      <p class="page-lede">Drop in a JPG or PDF — a poster proof, a contract, a moodboard reference — and preview it right here in the browser.</p>
+    </section>
+
+    <section class="tool-wrap">
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+        </div>
+        <div class="dropzone-title">Drop files here</div>
+        <div class="dropzone-sub">Accepts JPG, JPEG, PNG and PDF. Files are read locally in your browser — nothing is uploaded to a server.</div>
+        <button type="button" class="browse-btn" id="browseBtn">Choose files</button>
+        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" multiple />
+      </div>
+
+      <div class="error-note" id="errorNote"></div>
+
+      <div class="status-row">
+        <span class="status-text" id="statusText">No files loaded yet.</span>
+        <button type="button" class="clear-btn" id="clearBtn">Clear all</button>
+      </div>
+
+      <div class="preview-grid" id="previewGrid"></div>
+
+      <div class="glass-note">
+        <span class="rlabel">How this works</span>
+        This page runs entirely in your browser using JavaScript's file reader. Selected files are <strong>not</strong> sent anywhere or stored on Pyaro Studio's server — closing or refreshing the tab clears everything. To share a file with the team, send it directly over email or your usual file-sharing tool.
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-l"><img class="footer-logo-svg" src="Pyaro_Studio.svg" alt="Pyaro Studio" /></div>
+    <div class="footer-r">&#169; 2026</div>
+  </footer>
+
+  <script>
+    // ── THEME + NAV (shared behavior) ──
+    const html = document.documentElement;
+    const themeBtn = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('pyaro-theme');
+    if (savedTheme) html.setAttribute('data-theme', savedTheme);
+    themeBtn.addEventListener('click', () => {
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('pyaro-theme', next);
+    });
+
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburger.classList.toggle('active', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }));
+
+    // ── FILE VIEWER ──
+    const dropzone    = document.getElementById('dropzone');
+    const fileInput   = document.getElementById('fileInput');
+    const browseBtn   = document.getElementById('browseBtn');
+    const previewGrid = document.getElementById('previewGrid');
+    const statusText  = document.getElementById('statusText');
+    const clearBtn    = document.getElementById('clearBtn');
+    const errorNote   = document.getElementById('errorNote');
+
+    const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+    const ACCEPTED_EXT   = ['.jpg', '.jpeg', '.png', '.pdf'];
+    let loadedCount = 0;
+    const objectUrls = [];
+
+    browseBtn.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('click', (e) => { if (e.target === dropzone) fileInput.click(); });
+
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+    ['dragenter', 'dragover'].forEach(evt =>
+      dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); })
+    );
+    ['dragleave', 'drop'].forEach(evt =>
+      dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); })
+    );
+    dropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+    });
+
+    function showError(msg) {
+      errorNote.textContent = msg;
+      errorNote.classList.add('visible');
+    }
+    function clearError() {
+      errorNote.classList.remove('visible');
+      errorNote.textContent = '';
+    }
+
+    function isAccepted(file) {
+      const name = file.name.toLowerCase();
+      const extOk = ACCEPTED_EXT.some(ext => name.endsWith(ext));
+      const typeOk = ACCEPTED_TYPES.includes(file.type);
+      return extOk || typeOk;
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function handleFiles(fileList) {
+      clearError();
+      const files = Array.from(fileList);
+      if (!files.length) return;
+
+      const rejected = files.filter(f => !isAccepted(f));
+      const accepted = files.filter(isAccepted);
+
+      if (rejected.length) {
+        showError(
+          'Skipped ' + rejected.length + ' file' + (rejected.length > 1 ? 's' : '') +
+          ' that isn\u2019t a JPG, PNG, or PDF: ' + rejected.map(f => f.name).join(', ')
+        );
+      }
+
+      accepted.forEach(addPreviewCard);
+      fileInput.value = '';
+    }
+
+    function addPreviewCard(file) {
+      const url = URL.createObjectURL(file);
+      objectUrls.push(url);
+      loadedCount += 1;
+
+      const card = document.createElement('div');
+      card.className = 'preview-card';
+
+      const media = document.createElement('div');
+      media.className = 'preview-media';
+
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        const embed = document.createElement('embed');
+        embed.src = url;
+        embed.type = 'application/pdf';
+        media.appendChild(embed);
+      } else {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = file.name;
+        media.appendChild(img);
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'preview-meta';
+      const name = document.createElement('div');
+      name.className = 'preview-name';
+      name.textContent = file.name;
+      const detail = document.createElement('div');
+      detail.className = 'preview-detail';
+      detail.textContent = (file.type || 'unknown type') + ' \u2014 ' + formatSize(file.size);
+      meta.appendChild(name);
+      meta.appendChild(detail);
+
+      const actions = document.createElement('div');
+      actions.className = 'preview-actions';
+      const openLink = document.createElement('a');
+      openLink.href = url;
+      openLink.target = '_blank';
+      openLink.rel = 'noopener';
+      openLink.textContent = 'Open full size';
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Remove';
+      removeBtn.addEventListener('click', () => {
+        URL.revokeObjectURL(url);
+        card.remove();
+        loadedCount = Math.max(0, loadedCount - 1);
+        updateStatus();
+      });
+      actions.appendChild(openLink);
+      actions.appendChild(removeBtn);
+
+      card.appendChild(media);
+      card.appendChild(meta);
+      card.appendChild(actions);
+      previewGrid.appendChild(card);
+
+      updateStatus();
+    }
+
+    function updateStatus() {
+      statusText.textContent = loadedCount === 0
+        ? 'No files loaded yet.'
+        : loadedCount + ' file' + (loadedCount > 1 ? 's' : '') + ' loaded in this browser tab.';
+      clearBtn.classList.toggle('visible', loadedCount > 0);
+    }
+
+    clearBtn.addEventListener('click', () => {
+      objectUrls.forEach(u => URL.revokeObjectURL(u));
+      objectUrls.length = 0;
+      previewGrid.innerHTML = '';
+      loadedCount = 0;
+      clearError();
+      updateStatus();
+    });
+  </script>
+</body>
+</html>
