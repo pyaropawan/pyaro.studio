@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- Hide from all search engines: redundant directives for different crawlers -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="bingbot" content="noindex, nofollow">
+<title>Jumbo Camp — Pyaro Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0B0D;
+    --bg-2: #131315;
+    --glass: rgba(255,255,255,0.045);
+    --glass-strong: rgba(255,255,255,0.07);
+    --line: rgba(255,255,255,0.10);
+    --text: #F2EFE9;
+    --muted: #9A968E;
+    --red: #C1442E;
+    --red-dim: rgba(193,68,46,0.16);
+    --gold: #D4A24C;
+    --owe: #C1442E;
+    --owed: #7FA97F;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html{ background: var(--bg); }
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 15% -10%, #1c1414 0%, transparent 45%),
+      radial-gradient(ellipse at 90% 10%, #17140f 0%, transparent 40%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    position:relative;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* film-grain + vignette signature texture */
+  body::before{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+  body::after{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    box-shadow: inset 0 0 160px 40px rgba(0,0,0,0.65);
+  }
+  .wrap{
+    max-width: 860px; margin:0 auto; position:relative; z-index:1;
+    padding: calc(44px + env(safe-area-inset-top)) 18px calc(120px + env(safe-area-inset-bottom));
+  }
+  header{ margin-bottom: 34px; }
+  .brandmark{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
+    color: var(--muted); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .brandmark .dot{ width:5px; height:5px; border-radius:50%; background: var(--red); display:inline-block; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color: var(--gold); margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-size: clamp(30px, 6.5vw, 46px);
+    font-weight:600; margin:0 0 12px; letter-spacing:-0.01em; line-height:1.08;
+  }
+  .sub{ color: var(--muted); font-size:14.5px; max-width:60ch; line-height:1.6; }
+
+  .card{
+    background: var(--glass);
+    border:1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+  .card h2{
+    font-family:'Fraunces', serif; font-weight:600;
+    font-size:17px; margin:0 0 16px;
+    display:flex; align-items:baseline; gap:10px;
+  }
+  .card h2 .num{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color: var(--red);
+    font-weight:600;
+  }
+  .card h2 .tag{
+    margin-left:auto;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--muted);
+    border:1px solid var(--line); border-radius:20px; padding:3px 9px; font-weight:500;
+  }
+
+  .avatar{
+    width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0;
+    border:1px solid var(--line); background: var(--bg-2);
+  }
+  .avatar-fallback{
+    width:30px; height:30px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--red-dim); color: var(--red);
+    font-family:'Fraunces', serif; font-weight:600; font-size:13px;
+    border:1px solid var(--line);
+  }
+  .avatar-sm, .avatar-fallback-sm{ width:22px; height:22px; font-size:10.5px; }
+
+  .campers-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .camper-chip{
+    background: var(--glass-strong); border:1px solid var(--line); border-radius: 22px;
+    padding:6px 12px 6px 6px; font-size:13.5px; display:flex; align-items:center; gap:8px;
+  }
+  .camper-chip .photo-btn, .camper-chip .remove-btn{
+    background:none; border:none; color:var(--muted); cursor:pointer; font-size:13px; line-height:1;
+    padding:6px; opacity:0.7; min-width:28px; min-height:28px;
+  }
+  .camper-chip .photo-btn:hover{ color: var(--gold); opacity:1; }
+  .camper-chip .remove-btn:hover{ color: var(--red); opacity:1; }
+  .add-row{ display:flex; gap:8px; }
+
+  input[type=text], input[type=number], select, textarea{
+    background: var(--bg-2); border:1px solid var(--line); color:var(--text);
+    border-radius:10px; padding:12px 13px; font-size:16px; font-family:'Inter',sans-serif;
+    outline:none; min-height:44px;
+  }
+  textarea{ width:100%; resize:vertical; font-family:'JetBrains Mono', monospace; font-size:12.5px; min-height:auto; }
+  input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus{ border-color: var(--red); }
+  input::placeholder{ color:#5f5b56; }
+
+  button.primary{
+    background: var(--red); color:#FBEFE9; border:none; border-radius:10px;
+    padding:13px 20px; font-size:14.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
+    transition: transform .12s ease, background .12s ease; min-height:46px;
+  }
+  button.primary:hover{ background:#d15139; transform: translateY(-1px); }
+  button.primary:active{ transform: translateY(0); }
+  button.ghost{
+    background:transparent; border:1px solid var(--line); color:var(--muted);
+    border-radius:10px; padding:11px 15px; font-size:13.5px; cursor:pointer; min-height:44px;
+  }
+  button.ghost:hover{ border-color: var(--gold); color: var(--gold); }
+
+  .form-grid{ display:grid; grid-template-columns: 1.4fr 0.9fr 1fr; gap:10px; margin-bottom:12px; }
+  .split-block{ margin-bottom:14px; }
+  .split-toggle{ display:flex; gap:8px; margin-bottom:10px; }
+  .split-toggle button{
+    flex:1; background: var(--bg-2); border:1px solid var(--line); color:var(--muted);
+    border-radius:10px; padding:10px; font-size:13.5px; cursor:pointer; min-height:44px;
+  }
+  .split-toggle button.active{ border-color: var(--red); color: var(--red); background: var(--red-dim); }
+  .split-people{ display:flex; flex-wrap:wrap; gap:8px; }
+  .split-person{
+    display:flex; align-items:center; gap:8px; background:var(--bg-2); border:1px solid var(--line);
+    border-radius:10px; padding:8px 11px; font-size:13.5px; min-height:44px;
+  }
+  .split-person input[type=checkbox]{ accent-color: var(--red); width:18px; height:18px; }
+  .split-person input[type=number]{ width:74px; padding:6px 8px; font-size:13px; min-height:auto; }
+
+  .receipt{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:13px 0; border-bottom:1px solid var(--line); gap:10px;
+  }
+  .receipt:last-child{ border-bottom:none; }
+  .receipt-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .receipt-text{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .receipt-desc{ font-size:14.5px; font-weight:500; overflow-wrap:anywhere; }
+  .receipt-meta{ font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .receipt-amt{ font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:600; color:var(--gold); white-space:nowrap; }
+  .receipt-del{ background:none;border:none;color:var(--muted); cursor:pointer; margin-left:10px; font-size:14px; opacity:0.6; min-width:32px; min-height:32px;}
+  .receipt-del:hover{ color: var(--red); opacity:1; }
+  .receipt-row{ display:flex; align-items:center; flex-shrink:0; }
+  .empty{ color:var(--muted); font-size:13px; font-style:italic; padding:8px 0; }
+
+  .balance-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:11px 0; border-bottom:1px solid var(--line); font-size:14px;
+  }
+  .balance-row:last-child{ border-bottom:none; }
+  .balance-left{ display:flex; align-items:center; gap:10px; }
+  .balance-amt{ font-family:'JetBrains Mono', monospace; font-weight:600; }
+  .pos{ color: var(--owed); }
+  .neg{ color: var(--owe); }
+
+  .settle-item{
+    display:flex; align-items:center; gap:10px; padding:13px 14px; margin-bottom:8px;
+    background: var(--glass-strong); border:1px solid var(--line); border-radius:12px; font-size:13.5px;
+    flex-wrap:wrap;
+  }
+  .settle-item .arrow{ color: var(--gold); font-family:'JetBrains Mono', monospace; }
+  .settle-amt{ margin-left:auto; font-family:'JetBrains Mono', monospace; font-weight:700; color: var(--gold); }
+
+  .status-msg{ font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; min-height:16px; margin-top:8px; }
+  .sync-row{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+
+  .footer-mark{
+    text-align:center; color: var(--muted); font-family:'JetBrains Mono', monospace;
+    font-size:11px; letter-spacing:0.08em; margin-top:8px; opacity:0.7;
+  }
+
+  /* mobile quick-add bar */
+  .mobile-bar{
+    display:none;
+    position:fixed; left:0; right:0; bottom:0; z-index:5;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(11,11,13,0.96) 70%, rgba(11,11,13,0));
+    backdrop-filter: blur(10px);
+  }
+  .mobile-bar button{
+    width:100%; display:block;
+  }
+
+  @media (max-width: 640px){
+    .form-grid{ grid-template-columns: 1fr; }
+    .add-row{ flex-direction:column; }
+    .mobile-bar{ display:block; }
+    .wrap{ padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    button.primary{ transition:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brandmark"><span class="dot"></span>PYARO STUDIO — INTERNAL TOOL</div>
+    <div class="eyebrow">— A private ledger for one trip</div>
+    <h1>Jumbo Camp</h1>
+    <div class="sub">Log who bought what, and this works out exactly who owes who — settled in the fewest payments possible. Data saves in this browser only. Use Export/Import to sync with the rest of the group.</div>
+  </header>
+
+  <div class="card">
+    <h2><span class="num">01</span> Campers <span class="tag" id="camperCount">0</span></h2>
+    <div class="campers-row" id="campersRow"></div>
+    <div class="add-row">
+      <input type="text" id="camperInput" placeholder="Add a camper's name..." style="flex:1">
+      <button class="primary" id="addCamperBtn">Add</button>
+    </div>
+    <input type="file" id="photoFileInput" accept="image/*" style="display:none">
+  </div>
+
+  <div class="card" id="expenseCard">
+    <h2><span class="num">02</span> Log a Purchase <span class="tag">expense</span></h2>
+    <div class="form-grid">
+      <input type="text" id="descInput" placeholder="What was bought (e.g. firewood, groceries)">
+      <input type="number" id="amountInput" placeholder="Amount" step="0.01" min="0" inputmode="decimal">
+      <select id="paidByInput"><option value="">Paid by...</option></select>
+    </div>
+    <div class="split-block">
+      <div class="split-toggle">
+        <button id="splitEqualBtn" class="active">Split equally</button>
+        <button id="splitCustomBtn">Custom amounts</button>
+      </div>
+      <div class="split-people" id="splitPeople"></div>
+    </div>
+    <button class="primary" id="addExpenseBtn">Add expense</button>
+    <div class="status-msg" id="expenseStatus"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">03</span> Camp Receipts <span class="tag" id="expenseCount">0</span></h2>
+    <div id="receiptsList"><div class="empty">No expenses logged yet.</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">04</span> Balances <span class="tag">who's up, who's down</span></h2>
+    <div id="balancesList"><div class="empty">Add campers and expenses to see balances.</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">05</span> Settle Up <span class="tag">minimum transactions</span></h2>
+    <div id="settleList"><div class="empty">Nothing to settle yet.</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">06</span> Sync with the group <span class="tag">export / import</span></h2>
+    <div class="sub" style="margin-bottom:12px;">This page saves data only on your own device. To share progress: tap Export, copy the code, and message it to whoever's updating the ledger next — they paste it into Import on their device.</div>
+    <div class="sync-row">
+      <button class="ghost" id="exportBtn">Export code</button>
+      <button class="ghost" id="importBtn">Import code</button>
+    </div>
+    <textarea id="syncBox" rows="3" placeholder="Exported code appears here — or paste a code here and press Import." style="width:100%; margin-top:10px; display:none;"></textarea>
+    <div class="status-msg" id="syncStatus"></div>
+  </div>
+
+  <div class="footer-mark">jumbo camp · pyaro studio · private</div>
+</div>
+
+<div class="mobile-bar">
+  <button class="primary" id="mobileAddBtn">＋ Add expense</button>
+</div>
+
+<script>
+// campers: [{ name, photo }]  photo is a base64 data URL or null
+let campers = [];
+let expenses = [];
+let splitMode = 'equal';
+let pendingPhotoTarget = null;
+
+function loadData(){
+  try{
+    const raw = JSON.parse(localStorage.getItem('jumbocamp_campers') || '[]');
+    campers = raw.map(c => typeof c === 'string' ? { name: c, photo: null } : c);
+  }catch(e){ campers = []; }
+  try{ expenses = JSON.parse(localStorage.getItem('jumbocamp_expenses') || '[]'); }catch(e){ expenses = []; }
+  renderAll();
+}
+function saveCampers(){ localStorage.setItem('jumbocamp_campers', JSON.stringify(campers)); }
+function saveExpenses(){ localStorage.setItem('jumbocamp_expenses', JSON.stringify(expenses)); }
+
+function getCamper(name){ return campers.find(c => c.name === name) || { name, photo: null }; }
+
+function avatarHtml(name, small){
+  const c = getCamper(name);
+  const sizeCls = small ? ' avatar-sm' : '';
+  const fallbackCls = small ? ' avatar-fallback-sm' : '';
+  if(c.photo){
+    return `<img class="avatar${sizeCls}" src="${c.photo}" alt="${escapeAttr(name)}">`;
+  }
+  const initial = (name || '?').trim().charAt(0).toUpperCase() || '?';
+  return `<div class="avatar-fallback${fallbackCls}">${escapeHtml(initial)}</div>`;
+}
+
+function renderAll(){
+  renderCampers();
+  renderPaidBySelect();
+  renderSplitPeople();
+  renderReceipts();
+  renderBalances();
+  renderSettle();
+}
+
+function renderCampers(){
+  const row = document.getElementById('campersRow');
+  document.getElementById('camperCount').textContent = campers.length;
+  if(campers.length === 0){
+    row.innerHTML = '<div class="empty">No campers yet — add your group above.</div>';
+    return;
+  }
+  row.innerHTML = campers.map(c => `
+    <div class="camper-chip">
+      ${avatarHtml(c.name)}
+      ${escapeHtml(c.name)}
+      <button class="photo-btn" onclick="choosePhoto('${escapeAttr(c.name)}')" title="Add / change photo">📷</button>
+      <button class="remove-btn" onclick="removeCamper('${escapeAttr(c.name)}')" title="Remove camper">✕</button>
+    </div>
+  `).join('');
+}
+
+function renderPaidBySelect(){
+  const sel = document.getElementById('paidByInput');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Paid by...</option>' +
+    campers.map(c => `<option value="${escapeAttr(c.name)}">${escapeHtml(c.name)}</option>`).join('');
+  if(campers.some(c => c.name === current)) sel.value = current;
+}
+
+function renderSplitPeople(){
+  const wrap = document.getElementById('splitPeople');
+  if(campers.length === 0){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = campers.map(c => `
+    <label class="split-person">
+      <input type="checkbox" class="split-check" data-name="${escapeAttr(c.name)}" checked>
+      ${avatarHtml(c.name, true)}
+      ${escapeHtml(c.name)}
+      ${splitMode === 'custom' ? `<input type="number" class="split-custom-amt" data-name="${escapeAttr(c.name)}" placeholder="0.00" step="0.01" min="0" inputmode="decimal">` : ''}
+    </label>
+  `).join('');
+}
+
+function choosePhoto(name){
+  pendingPhotoTarget = name;
+  document.getElementById('photoFileInput').click();
+}
+
+document.getElementById('photoFileInput').addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if(!file || !pendingPhotoTarget) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 128;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size / img.width, size / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const c = campers.find(c => c.name === pendingPhotoTarget);
+      if(c){
+        c.photo = dataUrl;
+        saveCampers();
+        renderAll();
+      }
+      pendingPhotoTarget = null;
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function removeCamper(name){
+  const involved = expenses.some(e => e.paidBy === name || Object.prototype.hasOwnProperty.call(e.shares, name));
+  if(involved){
+    const ok = confirm(`${name} is tied to existing expenses. Removing them from the camper list won't delete those expenses, but they'll drop out of future splits. Remove anyway?`);
+    if(!ok) return;
+  }
+  campers = campers.filter(c => c.name !== name);
+  saveCampers();
+  renderAll();
+}
+
+document.getElementById('addCamperBtn').addEventListener('click', () => {
+  const input = document.getElementById('camperInput');
+  const name = input.value.trim();
+  if(!name) return;
+  if(campers.some(c => c.name === name)){ input.value=''; return; }
+  campers.push({ name, photo: null });
+  input.value = '';
+  saveCampers();
+  renderAll();
+});
+document.getElementById('camperInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('addCamperBtn').click();
+});
+
+document.getElementById('splitEqualBtn').addEventListener('click', () => {
+  splitMode = 'equal';
+  document.getElementById('splitEqualBtn').classList.add('active');
+  document.getElementById('splitCustomBtn').classList.remove('active');
+  renderSplitPeople();
+});
+document.getElementById('splitCustomBtn').addEventListener('click', () => {
+  splitMode = 'custom';
+  document.getElementById('splitCustomBtn').classList.add('active');
+  document.getElementById('splitEqualBtn').classList.remove('active');
+  renderSplitPeople();
+});
+
+document.getElementById('addExpenseBtn').addEventListener('click', () => {
+  const statusEl = document.getElementById('expenseStatus');
+  const desc = document.getElementById('descInput').value.trim();
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  const paidBy = document.getElementById('paidByInput').value;
+
+  if(!desc){ statusEl.textContent = 'Add a description for this expense.'; return; }
+  if(!paidBy){ statusEl.textContent = 'Choose who paid.'; return; }
+  if(isNaN(amount) || amount <= 0){ statusEl.textContent = 'Enter a valid amount.'; return; }
+
+  const checks = Array.from(document.querySelectorAll('.split-check'));
+  const selected = checks.filter(c => c.checked).map(c => c.dataset.name);
+  if(selected.length === 0){ statusEl.textContent = 'Select at least one person to split with.'; return; }
+
+  let shares = {};
+  if(splitMode === 'equal'){
+    const each = amount / selected.length;
+    selected.forEach(n => shares[n] = each);
+  } else {
+    let total = 0;
+    let missing = false;
+    selected.forEach(n => {
+      const el = document.querySelector(`.split-custom-amt[data-name="${cssEscape(n)}"]`);
+      const v = el ? parseFloat(el.value) : NaN;
+      if(isNaN(v)){ missing = true; return; }
+      shares[n] = v;
+      total += v;
+    });
+    if(missing){ statusEl.textContent = 'Fill in a custom amount for every selected person.'; return; }
+    if(Math.abs(total - amount) > 0.01){
+      statusEl.textContent = `Custom amounts total $${total.toFixed(2)}, but the expense is $${amount.toFixed(2)}. Adjust to match.`;
+      return;
+    }
+  }
+
+  expenses.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    description: desc,
+    amount: amount,
+    paidBy: paidBy,
+    shares: shares,
+    date: new Date().toISOString()
+  });
+
+  document.getElementById('descInput').value = '';
+  document.getElementById('amountInput').value = '';
+  statusEl.textContent = '';
+
+  saveExpenses();
+  renderAll();
+});
+
+document.getElementById('mobileAddBtn').addEventListener('click', () => {
+  document.getElementById('expenseCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => document.getElementById('descInput').focus(), 400);
+});
+
+function deleteExpense(id){
+  expenses = expenses.filter(e => e.id !== id);
+  saveExpenses();
+  renderAll();
+}
+
+function renderReceipts(){
+  const list = document.getElementById('receiptsList');
+  document.getElementById('expenseCount').textContent = expenses.length;
+  if(expenses.length === 0){
+    list.innerHTML = '<div class="empty">No expenses logged yet.</div>';
+    return;
+  }
+  const sorted = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+  list.innerHTML = sorted.map(e => {
+    const splitNames = Object.keys(e.shares);
+    const splitLabel = splitNames.length === campers.length
+      ? 'split evenly, all campers'
+      : `split with ${splitNames.join(', ')}`;
+    return `
+    <div class="receipt">
+      <div class="receipt-left">
+        ${avatarHtml(e.paidBy)}
+        <div class="receipt-text">
+          <div class="receipt-desc">${escapeHtml(e.description)}</div>
+          <div class="receipt-meta">paid by ${escapeHtml(e.paidBy)} · ${escapeHtml(splitLabel)}</div>
+        </div>
+      </div>
+      <div class="receipt-row">
+        <div class="receipt-amt">$${e.amount.toFixed(2)}</div>
+        <button class="receipt-del" onclick="deleteExpense('${e.id}')" title="Delete expense">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function computeBalances(){
+  const balance = {};
+  campers.forEach(c => balance[c.name] = 0);
+  expenses.forEach(e => {
+    if(balance[e.paidBy] === undefined) balance[e.paidBy] = 0;
+    balance[e.paidBy] += e.amount;
+    Object.entries(e.shares).forEach(([name, share]) => {
+      if(balance[name] === undefined) balance[name] = 0;
+      balance[name] -= share;
+    });
+  });
+  return balance;
+}
+
+function renderBalances(){
+  const list = document.getElementById('balancesList');
+  if(campers.length === 0){
+    list.innerHTML = '<div class="empty">Add campers and expenses to see balances.</div>';
+    return;
+  }
+  const balance = computeBalances();
+  list.innerHTML = campers.map(c => {
+    const v = balance[c.name] || 0;
+    const cls = v >= 0 ? 'pos' : 'neg';
+    const label = v >= 0 ? 'is owed' : 'owes';
+    return `
+    <div class="balance-row">
+      <div class="balance-left">${avatarHtml(c.name, true)} <span>${escapeHtml(c.name)}</span></div>
+      <span class="balance-amt ${cls}">${label} $${Math.abs(v).toFixed(2)}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderSettle(){
+  const list = document.getElementById('settleList');
+  if(campers.length === 0 || expenses.length === 0){
+    list.innerHTML = '<div class="empty">Nothing to settle yet.</div>';
+    return;
+  }
+  const balance = computeBalances();
+  const creditors = [];
+  const debtors = [];
+  Object.entries(balance).forEach(([name, v]) => {
+    if(v > 0.01) creditors.push({name, amt: v});
+    else if(v < -0.01) debtors.push({name, amt: -v});
+  });
+  creditors.sort((a,b) => b.amt - a.amt);
+  debtors.sort((a,b) => b.amt - a.amt);
+
+  const transactions = [];
+  let ci = 0, di = 0;
+  while(ci < creditors.length && di < debtors.length){
+    const c = creditors[ci];
+    const d = debtors[di];
+    const amt = Math.min(c.amt, d.amt);
+    if(amt > 0.01){
+      transactions.push({ from: d.name, to: c.name, amt });
+    }
+    c.amt -= amt;
+    d.amt -= amt;
+    if(c.amt <= 0.01) ci++;
+    if(d.amt <= 0.01) di++;
+  }
+
+  if(transactions.length === 0){
+    list.innerHTML = '<div class="empty">Everyone is even — nothing owed.</div>';
+    return;
+  }
+
+  list.innerHTML = transactions.map(t => `
+    <div class="settle-item">
+      ${avatarHtml(t.from, true)}
+      <span>${escapeHtml(t.from)}</span>
+      <span class="arrow">→</span>
+      ${avatarHtml(t.to, true)}
+      <span>${escapeHtml(t.to)}</span>
+      <span class="settle-amt">$${t.amt.toFixed(2)}</span>
+    </div>
+  `).join('');
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const box = document.getElementById('syncBox');
+  const code = btoa(unescape(encodeURIComponent(JSON.stringify({ campers, expenses }))));
+  box.style.display = 'block';
+  box.value = code;
+  box.select();
+  navigator.clipboard && navigator.clipboard.writeText(code).catch(()=>{});
+  document.getElementById('syncStatus').textContent = 'Code copied — paste it in a message to your group. (Photos make this code longer.)';
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  const box = document.getElementById('syncBox');
+  const statusEl = document.getElementById('syncStatus');
+  box.style.display = 'block';
+  if(!box.value.trim()){
+    statusEl.textContent = 'Paste a code into the box first, then press Import again.';
+    return;
+  }
+  try{
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(box.value.trim()))));
+    if(!decoded.campers || !decoded.expenses) throw new Error('bad format');
+    campers = decoded.campers.map(c => typeof c === 'string' ? { name: c, photo: null } : c);
+    expenses = decoded.expenses;
+    saveCampers();
+    saveExpenses();
+    renderAll();
+    statusEl.textContent = 'Imported — this device is now up to date.';
+  }catch(e){
+    statusEl.textContent = 'That code could not be read. Double-check it was copied in full.';
+  }
+});
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+function cssEscape(s){ return String(s).replace(/(["\\])/g, '\\$1'); }
+
+loadData();
+</script>
+</body>
+</html>
