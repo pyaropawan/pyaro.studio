@@ -96,9 +96,13 @@
 
   .last-change{
     font-family:'JetBrains Mono', monospace; font-size:11px; color: var(--muted);
-    margin: 0 0 20px 4px;
+    margin: 0 0 8px 4px;
   }
   .last-change b{ color: var(--gold); font-weight:600; }
+  .privacy-note{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; color:#6e6b66;
+    margin: 0 0 20px 4px; line-height:1.5;
+  }
 
   .card{
     background: var(--glass);
@@ -123,6 +127,7 @@
     font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--muted);
     border:1px solid var(--line); border-radius:20px; padding:3px 9px; font-weight:500;
   }
+  .card h2 .tag.editing{ color: var(--gold); border-color: rgba(212,162,76,0.4); }
 
   .avatar{
     width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0;
@@ -167,11 +172,14 @@
   }
   button.primary:hover{ background:#d15139; transform: translateY(-1px); }
   button.primary:active{ transform: translateY(0); }
+  button.primary.editing-mode{ background: var(--gold); color:#1A1108; }
+  button.primary.editing-mode:hover{ background:#e0b366; }
   button.ghost{
     background:transparent; border:1px solid var(--line); color:var(--muted);
     border-radius:10px; padding:11px 15px; font-size:13.5px; cursor:pointer; min-height:44px;
   }
   button.ghost:hover{ border-color: var(--gold); color: var(--gold); }
+  .form-actions{ display:flex; gap:10px; flex-wrap:wrap; }
 
   .form-grid{ display:grid; grid-template-columns: 1.4fr 0.9fr 1fr; gap:10px; margin-bottom:12px; }
   .split-block{ margin-bottom:14px; }
@@ -200,9 +208,13 @@
   .receipt-meta{ font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
   .receipt-meta2{ font-size:11px; color:#6e6b66; font-family:'JetBrains Mono',monospace; }
   .receipt-amt{ font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:600; color:var(--gold); white-space:nowrap; }
-  .receipt-del{ background:none;border:none;color:var(--muted); cursor:pointer; margin-left:10px; font-size:14px; opacity:0.6; min-width:32px; min-height:32px;}
+  .receipt-actions{ display:flex; align-items:center; flex-shrink:0; gap:4px; }
+  .receipt-edit, .receipt-del{
+    background:none;border:none;color:var(--muted); cursor:pointer; font-size:14px; opacity:0.65;
+    min-width:32px; min-height:32px;
+  }
+  .receipt-edit:hover{ color: var(--gold); opacity:1; }
   .receipt-del:hover{ color: var(--red); opacity:1; }
-  .receipt-row{ display:flex; align-items:center; flex-shrink:0; }
   .empty{ color:var(--muted); font-size:13px; font-style:italic; padding:8px 0; }
 
   .balance-row{
@@ -270,6 +282,7 @@
     <div class="lock-toggle" id="lockToggle"></div>
   </div>
   <div class="last-change" id="lastChangeText"></div>
+  <div class="privacy-note">Editors are identified by public IP address instead of a name — visible to everyone with this link.</div>
 
   <div class="card">
     <h2><span class="num">01</span> Campers <span class="tag" id="camperCount">0</span></h2>
@@ -282,7 +295,7 @@
   </div>
 
   <div class="card" id="expenseCard">
-    <h2><span class="num">02</span> Log a Purchase <span class="tag">expense</span></h2>
+    <h2><span class="num">02</span> Log a Purchase <span class="tag" id="expenseFormTag">expense</span></h2>
     <div id="expenseForm">
       <div class="form-grid">
         <input type="text" id="descInput" placeholder="What was bought (e.g. firewood, groceries)">
@@ -296,7 +309,10 @@
         </div>
         <div class="split-people" id="splitPeople"></div>
       </div>
-      <button class="primary" id="addExpenseBtn">Add expense</button>
+      <div class="form-actions">
+        <button class="primary" id="addExpenseBtn">Add expense</button>
+        <button class="ghost" id="cancelEditBtn" style="display:none;">Cancel edit</button>
+      </div>
       <div class="status-msg" id="expenseStatus"></div>
     </div>
   </div>
@@ -337,12 +353,13 @@
 <script>
 /* ---------- Config ---------- */
 const JSONBLOB_API = 'https://jsonblob.com/api/jsonBlob';
+const IP_LOOKUP_API = 'https://api.ipify.org?format=json';
 const EDIT_PASSWORD = 'jumbo';
 const LOCAL_CAMPERS_KEY = 'jumbocamp_campers';
 const LOCAL_EXPENSES_KEY = 'jumbocamp_expenses';
 const LOCAL_LEDGER_KEY = 'jumbocamp_ledger_id';
-const DEVICE_ID_KEY = 'jumbocamp_device_id';
-const DEVICE_LABEL_KEY = 'jumbocamp_device_label';
+const DEVICE_FALLBACK_KEY = 'jumbocamp_device_fallback_id';
+const DRAFT_KEY = 'jumbocamp_draft_expense';
 const POLL_MS = 20000;
 
 /* ---------- State ---------- */
@@ -355,54 +372,61 @@ let remoteMode = true;
 let unlocked = sessionStorage.getItem('jumbocamp_unlocked') === '1';
 let pollTimer = null;
 let lastRemoteJson = null;
-let lastModified = null; // { time, deviceId, deviceLabel }
+let lastModified = null;
 let pendingDeletedExpenseIds = new Set();
 let pendingDeletedCamperNames = new Set();
+let editingExpenseId = null;
+let myIp = null;
 
-/* ---------- Device identity ---------- */
-function getDeviceId(){
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if(!id){
-    id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36));
-    localStorage.setItem(DEVICE_ID_KEY, id);
+/* ---------- Identity: public IP address (falls back to a random local id) ---------- */
+async function resolveIp(){
+  try{
+    const res = await fetch(IP_LOOKUP_API);
+    if(!res.ok) throw new Error('ip lookup failed');
+    const data = await res.json();
+    myIp = data.ip || null;
+  }catch(e){
+    myIp = null;
   }
-  return id;
-}
-function getDeviceLabel(){
-  return localStorage.getItem(DEVICE_LABEL_KEY) || ('Guest-' + getDeviceId().slice(0, 4));
-}
-function maybeAskDeviceLabel(){
-  if(!localStorage.getItem(DEVICE_LABEL_KEY)){
-    const entered = window.prompt('Name this device so the group can see who made changes (e.g. "Raj\'s phone"). Leave blank to stay anonymous.', '');
-    if(entered && entered.trim()){
-      localStorage.setItem(DEVICE_LABEL_KEY, entered.trim().slice(0, 40));
+  if(!myIp){
+    let fb = localStorage.getItem(DEVICE_FALLBACK_KEY);
+    if(!fb){
+      fb = 'unresolved-' + Math.random().toString(36).slice(2, 6);
+      localStorage.setItem(DEVICE_FALLBACK_KEY, fb);
     }
+    myIp = fb;
   }
+  return myIp;
 }
+function getDeviceLabel(){ return myIp || 'unknown'; }
 
 /* ---------- Boot ---------- */
 async function boot(){
   renderLockUI();
+  await resolveIp();
+  renderLockUI(); // re-render now that IP is known
+
   const urlId = new URLSearchParams(location.search).get('ledger');
   ledgerId = urlId || localStorage.getItem(LOCAL_LEDGER_KEY);
 
   loadLocalCache();
   renderAll();
+  restoreDraftIfAny();
 
   if(ledgerId){
     const ok = await fetchRemote(true);
     if(ok){
       ensureUrlHasLedger();
       startPolling();
-      return;
+    } else {
+      const created = await createRemoteLedger();
+      if(created){ ensureUrlHasLedger(); startPolling(); }
+      else goOffline('Could not reach the shared ledger service. Working from this device only.');
     }
-  }
-  const created = await createRemoteLedger();
-  if(created){
-    ensureUrlHasLedger();
-    startPolling();
   } else {
-    goOffline('Could not reach the shared ledger service. Working from this device only.');
+    const created = await createRemoteLedger();
+    if(created){ ensureUrlHasLedger(); startPolling(); }
+    else goOffline('Could not reach the shared ledger service. Working from this device only.');
   }
 }
 
@@ -410,8 +434,7 @@ function ensureUrlHasLedger(){
   const params = new URLSearchParams(location.search);
   if(params.get('ledger') !== ledgerId){
     params.set('ledger', ledgerId);
-    const newUrl = `${location.pathname}?${params.toString()}`;
-    history.replaceState(null, '', newUrl);
+    history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
   }
   localStorage.setItem(LOCAL_LEDGER_KEY, ledgerId);
 }
@@ -481,20 +504,18 @@ async function fetchRemote(isInitial){
   }
 }
 
-/* Fetch the latest remote copy, merge it with local changes (union additions,
-   apply pending deletions), then push the merged result. This means two people
-   adding things around the same time both survive — only a true same-second
-   collision on the exact same field could still overwrite. */
-async function pushRemote(){
+async function pushRemote(useBeacon){
   saveLocalCache();
   if(!remoteMode || !ledgerId){ return; }
   try{
-    setSyncState('pending', 'Saving...');
+    if(!useBeacon) setSyncState('pending', 'Saving...');
     let remoteData = null;
-    try{
-      const getRes = await fetch(`${JSONBLOB_API}/${ledgerId}`);
-      if(getRes.ok) remoteData = await getRes.json();
-    }catch(e){ /* ignore, fall back to local-only push */ }
+    if(!useBeacon){
+      try{
+        const getRes = await fetch(`${JSONBLOB_API}/${ledgerId}`);
+        if(getRes.ok) remoteData = await getRes.json();
+      }catch(e){ /* fall back to local-only push */ }
+    }
 
     if(remoteData){
       const camperMap = {};
@@ -515,6 +536,14 @@ async function pushRemote(){
 
     const payload = { campers, expenses, lastModified: stampNow() };
     const body = JSON.stringify(payload);
+
+    if(useBeacon && navigator.sendBeacon){
+      // best-effort flush on tab close; PUT isn't supported by sendBeacon so this
+      // is a background fetch with keepalive, which browsers honor briefly past unload
+      fetch(`${JSONBLOB_API}/${ledgerId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body, keepalive:true }).catch(()=>{});
+      return;
+    }
+
     const res = await fetch(`${JSONBLOB_API}/${ledgerId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -532,7 +561,7 @@ async function pushRemote(){
 }
 
 function stampNow(){
-  return { time: new Date().toISOString(), deviceId: getDeviceId(), deviceLabel: getDeviceLabel() };
+  return { time: new Date().toISOString(), deviceLabel: getDeviceLabel() };
 }
 
 function startPolling(){
@@ -565,7 +594,7 @@ function timeAgo(iso){
 function renderLastChange(){
   const el = document.getElementById('lastChangeText');
   if(!lastModified){ el.textContent = ''; return; }
-  el.innerHTML = `Last change: <b>${timeAgo(lastModified.time)}</b> · by <b>${escapeHtml(lastModified.deviceLabel || 'unknown device')}</b>`;
+  el.innerHTML = `Last change: <b>${timeAgo(lastModified.time)}</b> · by <b>${escapeHtml(lastModified.deviceLabel || 'unknown')}</b>`;
 }
 
 document.getElementById('refreshBtn').addEventListener('click', () => {
@@ -580,12 +609,19 @@ document.getElementById('copyLinkBtn').addEventListener('click', () => {
   setTimeout(() => btn.textContent = original, 1800);
 });
 
+/* ---------- Save on exit ---------- */
+window.addEventListener('pagehide', () => { saveDraft(); pushRemote(true); });
+window.addEventListener('beforeunload', () => { saveDraft(); });
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden'){ saveDraft(); pushRemote(true); }
+});
+
 /* ---------- Password lock ---------- */
 function renderLockUI(){
   const wrap = document.getElementById('lockToggle');
   if(unlocked){
     wrap.innerHTML = `
-      <span class="lock-badge unlocked">🔓 Editing unlocked — ${escapeHtml(getDeviceLabel())}</span>
+      <span class="lock-badge unlocked">🔓 Editing unlocked${myIp ? ' — ' + escapeHtml(myIp) : ''}</span>
       <button class="ghost" id="relockBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">Lock</button>
     `;
     document.getElementById('relockBtn').addEventListener('click', () => {
@@ -607,9 +643,9 @@ function renderLockUI(){
       if(pwInput.value === EDIT_PASSWORD){
         sessionStorage.setItem('jumbocamp_unlocked', '1');
         unlocked = true;
-        maybeAskDeviceLabel();
         renderLockUI();
         renderAll();
+        restoreDraftIfAny();
       } else {
         pwInput.style.borderColor = 'var(--red)';
         pwInput.value = '';
@@ -673,17 +709,23 @@ function renderPaidBySelect(){
   if(campers.some(c => c.name === current)) sel.value = current;
 }
 
-function renderSplitPeople(){
+function renderSplitPeople(presetShares){
   const wrap = document.getElementById('splitPeople');
   if(campers.length === 0){ wrap.innerHTML = ''; return; }
-  wrap.innerHTML = campers.map(c => `
+  const preset = presetShares || null;
+  wrap.innerHTML = campers.map(c => {
+    const checked = preset ? (preset.hasOwnProperty(c.name) ? 'checked' : '') : 'checked';
+    const customVal = preset && preset.hasOwnProperty(c.name) ? preset[c.name].toFixed(2) : '';
+    return `
     <label class="split-person">
-      <input type="checkbox" class="split-check" data-name="${escapeAttr(c.name)}" checked>
+      <input type="checkbox" class="split-check" data-name="${escapeAttr(c.name)}" ${checked}>
       ${avatarHtml(c.name, true)}
       ${escapeHtml(c.name)}
-      ${splitMode === 'custom' ? `<input type="number" class="split-custom-amt" data-name="${escapeAttr(c.name)}" placeholder="0.00" step="0.01" min="0" inputmode="decimal">` : ''}
+      ${splitMode === 'custom' ? `<input type="number" class="split-custom-amt" data-name="${escapeAttr(c.name)}" placeholder="0.00" step="0.01" min="0" inputmode="decimal" value="${customVal}">` : ''}
     </label>
-  `).join('');
+  `;
+  }).join('');
+  attachDraftListeners();
 }
 
 function choosePhoto(name){
@@ -754,12 +796,62 @@ document.getElementById('splitEqualBtn').addEventListener('click', () => {
   document.getElementById('splitEqualBtn').classList.add('active');
   document.getElementById('splitCustomBtn').classList.remove('active');
   renderSplitPeople();
+  saveDraft();
 });
 document.getElementById('splitCustomBtn').addEventListener('click', () => {
   splitMode = 'custom';
   document.getElementById('splitCustomBtn').classList.add('active');
   document.getElementById('splitEqualBtn').classList.remove('active');
   renderSplitPeople();
+  saveDraft();
+});
+
+function resetExpenseForm(){
+  editingExpenseId = null;
+  document.getElementById('descInput').value = '';
+  document.getElementById('amountInput').value = '';
+  document.getElementById('paidByInput').value = '';
+  splitMode = 'equal';
+  document.getElementById('splitEqualBtn').classList.add('active');
+  document.getElementById('splitCustomBtn').classList.remove('active');
+  renderSplitPeople();
+  document.getElementById('addExpenseBtn').textContent = 'Add expense';
+  document.getElementById('addExpenseBtn').classList.remove('editing-mode');
+  document.getElementById('cancelEditBtn').style.display = 'none';
+  document.getElementById('expenseFormTag').textContent = 'expense';
+  document.getElementById('expenseFormTag').classList.remove('editing');
+  clearDraft();
+}
+
+function startEditExpense(id){
+  if(!unlocked) return;
+  const e = expenses.find(x => x.id === id);
+  if(!e) return;
+  editingExpenseId = id;
+  document.getElementById('descInput').value = e.description;
+  document.getElementById('amountInput').value = e.amount;
+  document.getElementById('paidByInput').value = e.paidBy;
+
+  const shareVals = Object.values(e.shares);
+  const isEqual = shareVals.length > 0 && shareVals.every(v => Math.abs(v - shareVals[0]) < 0.01) &&
+                  Math.abs((shareVals[0] * shareVals.length) - e.amount) < 0.02;
+  splitMode = isEqual ? 'equal' : 'custom';
+  document.getElementById('splitEqualBtn').classList.toggle('active', splitMode === 'equal');
+  document.getElementById('splitCustomBtn').classList.toggle('active', splitMode === 'custom');
+  renderSplitPeople(e.shares);
+
+  document.getElementById('addExpenseBtn').textContent = 'Save changes';
+  document.getElementById('addExpenseBtn').classList.add('editing-mode');
+  document.getElementById('cancelEditBtn').style.display = 'inline-block';
+  document.getElementById('expenseFormTag').textContent = 'editing';
+  document.getElementById('expenseFormTag').classList.add('editing');
+
+  document.getElementById('expenseCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+document.getElementById('cancelEditBtn').addEventListener('click', () => {
+  resetExpenseForm();
+  document.getElementById('expenseStatus').textContent = '';
 });
 
 document.getElementById('addExpenseBtn').addEventListener('click', () => {
@@ -798,20 +890,36 @@ document.getElementById('addExpenseBtn').addEventListener('click', () => {
     }
   }
 
-  expenses.push({
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-    description: desc,
-    amount: amount,
-    paidBy: paidBy,
-    shares: shares,
-    date: new Date().toISOString(),
-    addedBy: getDeviceLabel(),
-    addedDeviceId: getDeviceId()
-  });
-
-  document.getElementById('descInput').value = '';
-  document.getElementById('amountInput').value = '';
-  statusEl.textContent = '';
+  if(editingExpenseId){
+    const idx = expenses.findIndex(e => e.id === editingExpenseId);
+    if(idx !== -1){
+      expenses[idx] = {
+        ...expenses[idx],
+        description: desc,
+        amount: amount,
+        paidBy: paidBy,
+        shares: shares,
+        editedBy: getDeviceLabel(),
+        editedAt: new Date().toISOString()
+      };
+    }
+    statusEl.textContent = '';
+    resetExpenseForm();
+  } else {
+    expenses.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      description: desc,
+      amount: amount,
+      paidBy: paidBy,
+      shares: shares,
+      date: new Date().toISOString(),
+      addedBy: getDeviceLabel()
+    });
+    document.getElementById('descInput').value = '';
+    document.getElementById('amountInput').value = '';
+    statusEl.textContent = '';
+    clearDraft();
+  }
 
   pushRemote();
   renderAll();
@@ -828,6 +936,7 @@ document.getElementById('mobileAddBtn').addEventListener('click', () => {
 
 function deleteExpense(id){
   if(!unlocked) return;
+  if(editingExpenseId === id) resetExpenseForm();
   expenses = expenses.filter(e => e.id !== id);
   pendingDeletedExpenseIds.add(id);
   pushRemote();
@@ -847,7 +956,8 @@ function renderReceipts(){
     const splitLabel = splitNames.length === campers.length
       ? 'split evenly, all campers'
       : `split with ${splitNames.join(', ')}`;
-    const loggedMeta = e.addedBy ? `logged by ${escapeHtml(e.addedBy)} · ${timeAgo(e.date)}` : timeAgo(e.date);
+    let metaLine = e.addedBy ? `logged by ${escapeHtml(e.addedBy)} · ${timeAgo(e.date)}` : timeAgo(e.date);
+    if(e.editedBy){ metaLine += ` · edited by ${escapeHtml(e.editedBy)} ${timeAgo(e.editedAt)}`; }
     return `
     <div class="receipt">
       <div class="receipt-left">
@@ -855,12 +965,13 @@ function renderReceipts(){
         <div class="receipt-text">
           <div class="receipt-desc">${escapeHtml(e.description)}</div>
           <div class="receipt-meta">paid by ${escapeHtml(e.paidBy)} · ${escapeHtml(splitLabel)}</div>
-          <div class="receipt-meta2">${loggedMeta}</div>
+          <div class="receipt-meta2">${metaLine}</div>
         </div>
       </div>
-      <div class="receipt-row">
+      <div class="receipt-actions">
         <div class="receipt-amt">$${e.amount.toFixed(2)}</div>
-        ${unlocked ? `<button class="receipt-del" onclick="deleteExpense('${e.id}')" title="Delete expense">✕</button>` : ''}
+        ${unlocked ? `<button class="receipt-edit" onclick="startEditExpense('${e.id}')" title="Edit expense">✎</button>
+        <button class="receipt-del" onclick="deleteExpense('${e.id}')" title="Delete expense">✕</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -946,6 +1057,56 @@ function renderSettle(){
     </div>
   `).join('');
 }
+
+/* ---------- Draft autosave (protects against navigating away mid-entry) ---------- */
+function currentDraftSnapshot(){
+  if(editingExpenseId) return null; // don't clobber an in-progress edit with draft logic
+  const desc = document.getElementById('descInput').value;
+  const amount = document.getElementById('amountInput').value;
+  const paidBy = document.getElementById('paidByInput').value;
+  const checks = Array.from(document.querySelectorAll('.split-check'));
+  const selected = checks.filter(c => c.checked).map(c => c.dataset.name);
+  const customAmounts = {};
+  document.querySelectorAll('.split-custom-amt').forEach(el => { customAmounts[el.dataset.name] = el.value; });
+  if(!desc && !amount && !paidBy) return null;
+  return { desc, amount, paidBy, splitMode, selected, customAmounts };
+}
+function saveDraft(){
+  const snap = currentDraftSnapshot();
+  if(snap) localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+  else localStorage.removeItem(DRAFT_KEY);
+}
+function clearDraft(){ localStorage.removeItem(DRAFT_KEY); }
+function restoreDraftIfAny(){
+  if(!unlocked) return;
+  let draft = null;
+  try{ draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); }catch(e){ draft = null; }
+  if(!draft) return;
+  document.getElementById('descInput').value = draft.desc || '';
+  document.getElementById('amountInput').value = draft.amount || '';
+  if(draft.paidBy) document.getElementById('paidByInput').value = draft.paidBy;
+  splitMode = draft.splitMode || 'equal';
+  document.getElementById('splitEqualBtn').classList.toggle('active', splitMode === 'equal');
+  document.getElementById('splitCustomBtn').classList.toggle('active', splitMode === 'custom');
+  const preset = {};
+  (draft.selected || []).forEach(n => { preset[n] = parseFloat(draft.customAmounts && draft.customAmounts[n]) || 0; });
+  renderSplitPeople(Object.keys(preset).length ? preset : null);
+  document.getElementById('expenseStatus').textContent = 'Restored your unsaved draft from before you left.';
+}
+function attachDraftListeners(){
+  ['descInput','amountInput','paidByInput'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && !el.dataset.draftBound){
+      el.addEventListener('input', saveDraft);
+      el.dataset.draftBound = '1';
+    }
+  });
+  document.querySelectorAll('.split-check, .split-custom-amt').forEach(el => {
+    el.addEventListener('input', saveDraft);
+    el.addEventListener('change', saveDraft);
+  });
+}
+attachDraftListeners();
 
 /* ---------- Export / Import (manual backup) ---------- */
 document.getElementById('exportBtn').addEventListener('click', () => {
