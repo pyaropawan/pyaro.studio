@@ -151,6 +151,26 @@
     [data-theme="light"] .theme-toggle .icon-dark  { display: none; }
     [data-theme="light"] .theme-toggle .icon-light { display: block; }
 
+    /* ── TEXT SCALE ── */
+    .text-scale {
+      min-width: 34px; height: 34px; padding: 0 8px;
+      border-radius: 8px;
+      border: 0.5px solid var(--glass-border);
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; letter-spacing: 0.02em;
+      color: var(--text);
+      transition: background 0.3s, border-color 0.3s, transform 0.2s;
+      flex-shrink: 0; line-height: 1; white-space: nowrap;
+    }
+    .text-scale:hover { background: var(--red-glow); border-color: var(--red-mid); transform: scale(1.08); }
+    html[data-tscale="90"]  body { zoom: 0.9; }
+    html[data-tscale="112"] body { zoom: 1.12; }
+    html[data-tscale="125"] body { zoom: 1.25; }
+
     /* ── HAMBURGER (mobile nav) ── */
     .hamburger {
       display: none;
@@ -617,6 +637,7 @@
       <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
+      <button class="text-scale" id="textScale" aria-label="Adjust text size" title="Text size: 100%">Aa</button>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle light / dark">
         <span class="icon-dark">&#9788;</span>
         <span class="icon-light">&#9790;</span>
@@ -937,6 +958,23 @@
       const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', next);
       localStorage.setItem('pyaro-theme', next);
+    });
+
+    // ── TEXT SCALE ──
+    const TS_LEVELS = ['100','112','125','90'];
+    const tsBtn = document.getElementById('textScale');
+    function applyTS(v) {
+      if (v === '100') html.removeAttribute('data-tscale');
+      else html.setAttribute('data-tscale', v);
+      tsBtn.textContent = v === '100' ? 'Aa' : v + '%';
+      tsBtn.title = 'Text size: ' + v + '%';
+    }
+    applyTS(localStorage.getItem('pyaro-tscale') || '100');
+    tsBtn.addEventListener('click', () => {
+      const cur = localStorage.getItem('pyaro-tscale') || '100';
+      const next = TS_LEVELS[(TS_LEVELS.indexOf(cur) + 1) % TS_LEVELS.length];
+      localStorage.setItem('pyaro-tscale', next);
+      applyTS(next);
     });
 
     // ── MOBILE MENU ──
