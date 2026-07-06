@@ -21,6 +21,8 @@
       --glass-shine: rgba(255,255,255,0.055); --glass-label: rgba(10,10,10,0.58);
       --nav-bg: rgba(14,14,14,0.75); --nav-shadow: 0 8px 32px rgba(0,0,0,0.5);
       --footer-bg: rgba(255,255,255,0.012);
+      --pattern-opacity: 0.03;
+      --pattern-filter: invert(1);
     }
     [data-theme="light"] {
       --bg: #f5f2ee; --bg2: #ede9e3; --surface: #e4e0da;
@@ -30,6 +32,8 @@
       --glass-shine: rgba(255,255,255,0.85); --glass-label: rgba(245,242,238,0.78);
       --nav-bg: rgba(245,242,238,0.85); --nav-shadow: 0 8px 32px rgba(0,0,0,0.08);
       --footer-bg: rgba(0,0,0,0.02);
+      --pattern-opacity: 0.045;
+      --pattern-filter: none;
     }
 
     html { scroll-behavior: smooth; }
@@ -38,7 +42,22 @@
       font-family: 'DM Mono', monospace; -webkit-font-smoothing: antialiased;
       transition: background-color 0.4s ease, color 0.4s ease;
       overflow-x: hidden;
+      position: relative;
     }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: url("Pyaro_Studio.svg");
+      background-size: 160px 160px;
+      background-repeat: repeat;
+      opacity: var(--pattern-opacity);
+      filter: var(--pattern-filter);
+      transition: opacity 0.4s ease;
+    }
+    body > * { position: relative; z-index: 1; }
     a { color: inherit; text-decoration: none; }
 
     /* ── NAV (shared) ── */
@@ -108,6 +127,51 @@
       font-family: 'Instrument Serif', serif; font-style: italic; font-size: clamp(16px,2vw,20px);
       line-height: 1.6; color: var(--text-muted); max-width: 60ch; margin-top: 24px; position: relative; z-index: 1;
     }
+    .byline {
+      display: flex; align-items: center; gap: 16px; margin-top: 26px; position: relative; z-index: 1;
+      padding: 14px 18px; border-radius: 14px; max-width: 560px;
+      background: var(--glass-bg); border: 0.5px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 var(--glass-shine);
+      font-size: 10px; letter-spacing: 0.08em; line-height: 1.7; color: var(--text-muted);
+    }
+    .byline strong { color: var(--text); font-weight: 400; }
+    .byline .curator-role { display: block; margin-top: 2px; }
+
+    /* curator photo — red Pyaro highlight ring + glow */
+    .curator-photo {
+      width: 64px; height: 64px; flex-shrink: 0;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--red);
+      outline: 3px solid rgba(236,59,86,0.18);
+      box-shadow: 0 0 24px rgba(236,59,86,0.35);
+      background: var(--surface);
+    }
+    @media (max-width: 480px) {
+      .byline { gap: 12px; padding: 12px 14px; }
+      .curator-photo { width: 52px; height: 52px; }
+    }
+
+    .download-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      margin-top: 26px; position: relative; z-index: 1;
+      padding: 14px 24px; border-radius: 10px;
+      font-size: 11px; font-weight: 300; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--text);
+      background: rgba(236,59,86,0.12);
+      border: 0.5px solid rgba(236,59,86,0.45);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 24px rgba(236,59,86,0.12), inset 0 1px 0 var(--glass-shine);
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .download-btn:hover { background: rgba(236,59,86,0.22); border-color: var(--red); transform: translateY(-2px); }
+    .download-btn svg { width: 14px; height: 14px; stroke: var(--red); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .download-btn .dl-sub { font-size: 9px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: none; }
+
+    .subhead { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin: 28px 0 4px; }
+    .subhead:first-child { margin-top: 0; }
 
     /* ── SECTIONS ── */
     .section { padding: 56px 40px; border-top: 0.5px solid var(--border); }
@@ -145,6 +209,13 @@
     }
     .glass-note strong { color: var(--text); font-weight: 400; }
     .glass-note .rlabel { color: var(--red); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+
+    .credit-template {
+      margin-top: 16px; padding: 20px 22px; border-radius: 12px;
+      background: var(--surface); border: 0.5px solid var(--border);
+      font-family: 'DM Mono', monospace; font-size: 11.5px; line-height: 1.9;
+      color: var(--text-muted); white-space: pre-wrap; overflow-x: auto;
+    }
 
     table.compare { width: 100%; border-collapse: collapse; font-size: 12px; }
     table.compare th, table.compare td { text-align: left; padding: 14px 12px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
@@ -227,12 +298,37 @@
     <span class="eyebrow">&#8212; Pyaro Studio Guide</span>
     <h1 class="page-title">DIGITAL MUSIC<br><span class="red">DISTRIBUTION</span><br>FOR NEPALI ARTISTS</h1>
     <p class="page-lede">A practical walkthrough for getting your music onto Spotify, Apple Music, YouTube and beyond — plus the Nepal-specific realities of getting paid, staying compliant, and protecting your work.</p>
+    <!--
+    ════════════════════════════════════════════════
+    CURATOR PHOTO — upload the picture to the same
+    folder as this page and name it exactly:
+        distro-guru-nep.jpg
+    (if your file is .png, change the src below)
+    ════════════════════════════════════════════════
+    -->
+    <p class="byline">
+      <img class="curator-photo" src="distro-guru-nep.jpg" alt="Mr. Rajendra Aryal" onerror="this.style.display='none'" />
+      <span>Guide curated &amp; provided by <strong>Mr. Rajendra Aryal</strong><span class="curator-role">Content Manager &amp; IT Professional for 600+ Nepali artists</span></span>
+    </p>
+    <!--
+    ════════════════════════════════════════════════
+    DOWNLOAD BUTTON — upload your PDF to the same
+    folder as this page and name it exactly:
+        Music_and_Tech.pdf
+    (or change the href below to match your filename)
+    ════════════════════════════════════════════════
+    -->
+    <a class="download-btn" href="Music_and_Tech.pdf" download="Music and Tech.pdf">
+      <svg viewBox="0 0 24 24"><path d="M12 4v12M12 16l-4-4M12 16l4-4"/><path d="M4 18v1a1 1 0 001 1h14a1 1 0 001-1v-1"/></svg>
+      Download the full guide
+      <span class="dl-sub">&#8212; Music and Tech (PDF)</span>
+    </a>
   </section>
 
   <!-- WHY -->
   <section class="section">
     <div class="section-head"><span class="section-num">01</span><span class="section-title">Why go digital</span></div>
-    <p class="section-sub">Physical sales and local radio still matter in Nepal, but streaming and social platforms are where most new listeners — inside Nepal and across the diaspora — now discover an artist for the first time.</p>
+    <p class="section-sub">Not long ago, a music company had to invest heavily before an artist's songs reached anyone — sold and heard through cassettes, CDs, and DVDs. Smartphones, affordable internet, and the arrival of YouTube changed that completely: every artist can now open a channel and upload directly. Physical sales and local radio still matter in Nepal, but streaming and social platforms are where most new listeners — inside Nepal and across the diaspora — now discover an artist for the first time. That shift also means an artist today has to think like an investor, technician, and distributor all at once, not just a performer.</p>
     <div class="card-grid">
       <div class="card">
         <span class="card-tag">Reach</span>
@@ -252,9 +348,49 @@
     </div>
   </section>
 
+  <!-- SECURITY -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">02</span><span class="section-title">Securing your accounts before you post</span></div>
+    <p class="section-sub">Uploading is the easy part. Losing access to a page with tens of thousands of followers because a recovery number was never updated is the mistake that actually costs artists their career — do this before you upload anything.</p>
+    <div class="flow-list">
+      <div class="flow-step">
+        <div class="flow-step-num">01</div>
+        <div>
+          <div class="flow-step-title">Keep your recovery email and phone number current</div>
+          <p class="flow-step-text">Almost every account needs an email address and mobile number attached for recovery. Pages with lakhs of followers have been permanently lost simply because the linked number changed and was never updated. On Facebook: go to <strong>Settings &amp; Privacy → Settings → Accounts Center → your profile → Personal Details → Contact Information</strong>, and make sure the email and phone number listed are ones you actually control today — remove old ones, add current ones. This detail is as important as the key to your own house.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">02</div>
+        <div>
+          <div class="flow-step-title">Turn on Two-Factor Authentication (2FA) on Facebook</div>
+          <p class="flow-step-text">2FA means a password alone can't unlock your account — whoever logs in also needs a one-time code sent to your phone or generated by an authenticator app. Enable it at <strong>Settings &amp; Privacy → Settings → Accounts Center → Password and Security → Two-Factor Authentication</strong>, choose your profile, then pick a method: an authenticator app (most secure), SMS text (simplest), or a physical security key. Enter the 6-digit code you receive to confirm it's on.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">03</div>
+        <div>
+          <div class="flow-step-title">Turn on 2-Step Verification on Gmail / Google</div>
+          <p class="flow-step-text">Your YouTube channel lives inside a Google account, so it deserves the same protection. Go to <strong>Manage your Google Account → Security → 2-Step Verification → Get Started</strong>, confirm your password, add your phone number (with the +977 Nepal code if you're signing in from here), and verify the 6-digit code sent by text.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">04</div>
+        <div>
+          <div class="flow-step-title">Save your backup codes somewhere safe</div>
+          <p class="flow-step-text">Once 2FA is on, both Facebook and Google show a set of one-time backup codes. Write them in a notebook or store them in a second email account — if your SIM is ever lost or blocked, these codes are the only way back in without your phone.</p>
+        </div>
+      </div>
+    </div>
+    <div class="glass-note">
+      <span class="rlabel">Why this matters</span>
+      A social media login is like the key to your house — whoever holds it can walk in and change anything. Spending ten minutes on recovery details and 2FA before your next release is the cheapest insurance an artist can buy.
+    </div>
+  </section>
+
   <!-- AGGREGATORS -->
   <section class="section">
-    <div class="section-head"><span class="section-num">02</span><span class="section-title">Choosing a distributor</span></div>
+    <div class="section-head"><span class="section-num">03</span><span class="section-title">Choosing a distributor</span></div>
     <p class="section-sub">Nepal has no local "front door" onto Spotify or Apple Music — every independent artist goes through a third-party aggregator. The right one depends on budget, catalogue size, and how you want to get paid.</p>
     <div class="table-wrap">
       <table class="compare">
@@ -297,7 +433,7 @@
 
   <!-- WHERE -->
   <section class="section">
-    <div class="section-head"><span class="section-num">03</span><span class="section-title">Where your music goes</span></div>
+    <div class="section-head"><span class="section-num">04</span><span class="section-title">Where your music goes</span></div>
     <p class="section-sub">A single distribution submission typically reaches all of the major streaming and social platforms at once.</p>
     <div class="card-grid">
       <div class="card"><span class="card-tag">Streaming</span><div class="card-title">Spotify</div><p class="card-text">The primary discovery engine for playlists — pitch unreleased tracks for editorial playlist consideration at least a week before release.</p></div>
@@ -309,9 +445,66 @@
     </div>
   </section>
 
+  <!-- UPLOADING -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">05</span><span class="section-title">Uploading to Facebook &amp; YouTube</span></div>
+    <p class="section-sub">Distribution gets your song onto streaming platforms — but Facebook and YouTube still need a direct upload for reels, music videos, and reaching your own community.</p>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag">Facebook</span>
+        <div class="card-title">Bulk upload via Meta Business Suite</div>
+        <p class="card-text">
+          1. Open Meta Business Suite and go to Home.<br>
+          2. Click <strong>More → Bulk upload reels</strong> (up to 50 videos at once).<br>
+          3. Add your video files — Facebook runs an automatic copyright check on each one.<br>
+          4. Write your caption and hashtags, then choose a thumbnail.<br>
+          5. Under <strong>Optimize</strong>, turn on Stars and Content Monetization if you're eligible.<br>
+          6. Review the copyright check under <strong>Publish</strong>, then Share now or Schedule for later.
+        </p>
+      </div>
+      <div class="card">
+        <span class="card-tag">YouTube</span>
+        <div class="card-title">Upload via YouTube Studio</div>
+        <p class="card-text">
+          1. From your channel, open <strong>YouTube Studio → Create → Upload videos</strong>.<br>
+          2. Drag in your file, then fill out the title and a full description.<br>
+          3. Under <strong>Video elements</strong>, add subtitles and an end screen.<br>
+          4. Wait for the automatic copyright <strong>Checks</strong> to finish.<br>
+          5. Under <strong>Visibility</strong>, choose Private, Unlisted, or Public — or schedule a premiere.<br>
+          6. Add tags and set the video language before publishing.
+        </p>
+      </div>
+    </div>
+    <div class="glass-note">
+      <span class="rlabel">Reusable credit template</span>
+      Paste this into your YouTube or Facebook description and fill in the names — it keeps every release consistent and makes sure everyone who worked on it gets credited.
+    </div>
+    <pre class="credit-template">Audio Credits:
+Vocal:
+Lyrics | Music:
+Music Arranger:
+Mixing | Mastering:
+Studio:
+Audio | Video:
+
+Video Credits:
+Concept | Direction:
+Choreographer:
+Cast:
+Co-Artist:
+Supporting Artist:
+Cinematographer:
+Edit | Color:
+Make Up Artist:
+Post Production:
+Special Thanks:
+
+Unauthorized downloading and re-uploading on any streaming platform is strictly prohibited and will attract punitive measures from [channel name]. Embedding on a website is allowed.</pre>
+  </section>
+
   <!-- GETTING PAID -->
   <section class="section">
-    <div class="section-head"><span class="section-num">04</span><span class="section-title">Getting paid, from Nepal</span></div>
+    <div class="section-head"><span class="section-num">06</span><span class="section-title">Getting paid, from Nepal</span></div>
     <p class="section-sub">This is the part most guides skip. Streaming income earned by a Nepali artist is real foreign income, and it comes with real paperwork.</p>
     <div class="flow-list">
       <div class="flow-step">
@@ -351,7 +544,7 @@
 
   <!-- PROTECTING YOUR WORK -->
   <section class="section">
-    <div class="section-head"><span class="section-num">05</span><span class="section-title">Protecting your rights</span></div>
+    <div class="section-head"><span class="section-num">07</span><span class="section-title">Protecting your rights</span></div>
     <p class="section-sub">Distribution puts your song online. These steps make sure it stays yours.</p>
     <div class="card-grid">
       <div class="card"><span class="card-tag">Identify</span><div class="card-title">Get an ISRC</div><p class="card-text">Your distributor issues a unique ISRC code per track for free — this is how every platform tracks plays and attributes royalties back to you specifically.</p></div>
