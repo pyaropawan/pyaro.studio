@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content=" Pyaro Studio — Production, Nepal." />
-  <title>Pyaro Studio - Work You'll Love</title>
+  <meta name="description" content="A practical guide to digital music distribution, streaming platforms, and getting paid for independent artists in Nepal — by Pyaro Studio." />
+  <title>Digital Music Distribution for Nepali Artists — Pyaro Studio</title>
   <link rel="icon" type="image/svg+xml" href="Pyaro_Studio.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,70 +12,38 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ══════════════════════════════
-       DARK MODE (default)
-    ══════════════════════════════ */
-    :root,
-    [data-theme="dark"] {
-      --red:          #ec3b56;
-      --red-glow:     rgba(236,59,86,0.18);
-      --red-mid:      rgba(236,59,86,0.45);
-      --bg:           #0a0a0a;
-      --bg2:          #111111;
-      --surface:      #1a1a1a;
-      --text:         #f0ece6;
-      --text-muted:   rgba(240,236,230,0.38);
-      --text-dim:     rgba(240,236,230,0.15);
-      --border:       rgba(240,236,230,0.07);
-      --glass-bg:     rgba(255,255,255,0.032);
-      --glass-border: rgba(255,255,255,0.09);
-      --glass-shine:  rgba(255,255,255,0.055);
-      --glass-label:  rgba(10,10,10,0.58);
-      --nav-bg:       rgba(14,14,14,0.75);
-      --nav-shadow:   0 8px 32px rgba(0,0,0,0.5);
-      --stat-bg:      #0a0a0a;
-      --footer-bg:    rgba(255,255,255,0.012);
+    :root, [data-theme="dark"] {
+      --red: #ec3b56; --red-glow: rgba(236,59,86,0.18); --red-mid: rgba(236,59,86,0.45);
+      --bg: #0a0a0a; --bg2: #111111; --surface: #1a1a1a;
+      --text: #f0ece6; --text-muted: rgba(240,236,230,0.38); --text-dim: rgba(240,236,230,0.15);
+      --border: rgba(240,236,230,0.07);
+      --glass-bg: rgba(255,255,255,0.032); --glass-border: rgba(255,255,255,0.09);
+      --glass-shine: rgba(255,255,255,0.055); --glass-label: rgba(10,10,10,0.58);
+      --nav-bg: rgba(14,14,14,0.75); --nav-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      --footer-bg: rgba(255,255,255,0.012);
       --pattern-opacity: 0.03;
       --pattern-filter: invert(1);
     }
-
-    /* ══════════════════════════════
-       LIGHT MODE
-    ══════════════════════════════ */
     [data-theme="light"] {
-      --bg:           #f5f2ee;
-      --bg2:          #ede9e3;
-      --surface:      #e4e0da;
-      --text:         #1a1616;
-      --text-muted:   rgba(26,22,22,0.5);
-      --text-dim:     rgba(26,22,22,0.18);
-      --border:       rgba(26,22,22,0.1);
-      --glass-bg:     rgba(255,255,255,0.55);
-      --glass-border: rgba(0,0,0,0.09);
-      --glass-shine:  rgba(255,255,255,0.85);
-      --glass-label:  rgba(245,242,238,0.78);
-      --nav-bg:       rgba(245,242,238,0.85);
-      --nav-shadow:   0 8px 32px rgba(0,0,0,0.08);
-      --stat-bg:      #f5f2ee;
-      --footer-bg:    rgba(0,0,0,0.02);
+      --bg: #f5f2ee; --bg2: #ede9e3; --surface: #e4e0da;
+      --text: #1a1616; --text-muted: rgba(26,22,22,0.5); --text-dim: rgba(26,22,22,0.18);
+      --border: rgba(26,22,22,0.1);
+      --glass-bg: rgba(255,255,255,0.55); --glass-border: rgba(0,0,0,0.09);
+      --glass-shine: rgba(255,255,255,0.85); --glass-label: rgba(245,242,238,0.78);
+      --nav-bg: rgba(245,242,238,0.85); --nav-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      --footer-bg: rgba(0,0,0,0.02);
       --pattern-opacity: 0.045;
       --pattern-filter: none;
     }
 
     html { scroll-behavior: smooth; }
-
-    /* ── BACKGROUND PATTERN ── */
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      -webkit-font-smoothing: antialiased;
-      cursor: crosshair;
+      background-color: var(--bg); color: var(--text);
+      font-family: 'DM Mono', monospace; -webkit-font-smoothing: antialiased;
       transition: background-color 0.4s ease, color 0.4s ease;
-      position: relative;
       overflow-x: hidden;
+      position: relative;
     }
-
     body::before {
       content: '';
       position: fixed;
@@ -89,66 +57,37 @@
       filter: var(--pattern-filter);
       transition: opacity 0.4s ease;
     }
-
     body > * { position: relative; z-index: 1; }
-
     a { color: inherit; text-decoration: none; }
 
-    /* ── NAV ── */
+    /* ── NAV (shared) ── */
     nav {
-      position: fixed;
-      top: 16px; left: 16px; right: 16px;
-      z-index: 300;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-      border-radius: 12px;
-      background: var(--nav-bg);
-      backdrop-filter: blur(24px) saturate(180%);
+      position: fixed; top: 16px; left: 16px; right: 16px; z-index: 300;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 20px; border-radius: 12px;
+      background: var(--nav-bg); backdrop-filter: blur(24px) saturate(180%);
       -webkit-backdrop-filter: blur(24px) saturate(180%);
       border: 0.5px solid var(--glass-border);
       box-shadow: inset 0 1px 0 var(--glass-shine), var(--nav-shadow);
-      transition: background 0.4s, border-color 0.4s, box-shadow 0.4s;
+      transition: background 0.4s, border-color 0.4s;
     }
-
-    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo { display: flex; align-items: center; gap: 10px; }
     .logo-svg { height: 32px; width: auto; display: block; }
-
     .nav-right { display: flex; align-items: center; gap: 20px; }
-    .nav-right a {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      font-weight: 300;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      transition: color 0.2s;
-      white-space: nowrap;
-    }
+    .nav-right a { font-size: 10px; font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); transition: color 0.2s; white-space: nowrap; }
+    .nav-right a.current { color: var(--red); }
     .nav-right a:hover { color: var(--text); }
 
-    /* ── THEME TOGGLE ── */
     .theme-toggle {
-      width: 34px; height: 34px;
-      border-radius: 8px;
-      border: 0.5px solid var(--glass-border);
-      background: var(--glass-bg);
-      backdrop-filter: blur(12px);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      transition: background 0.3s, border-color 0.3s, transform 0.2s;
-      flex-shrink: 0;
-      line-height: 1;
-      color: var(--text);
+      width: 34px; height: 34px; border-radius: 8px; border: 0.5px solid var(--glass-border);
+      background: var(--glass-bg); backdrop-filter: blur(12px); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      transition: background 0.3s, border-color 0.3s, transform 0.2s; flex-shrink: 0; color: var(--text);
     }
     .theme-toggle:hover { background: var(--red-glow); border-color: var(--red-mid); transform: scale(1.08); }
-    .theme-toggle .icon-dark  { display: block; }
+    .theme-toggle .icon-dark { display: block; }
     .theme-toggle .icon-light { display: none; }
-    [data-theme="light"] .theme-toggle .icon-dark  { display: none; }
+    [data-theme="light"] .theme-toggle .icon-dark { display: none; }
     [data-theme="light"] .theme-toggle .icon-light { display: block; }
 
     /* ── TEXT SCALE ── */
@@ -171,20 +110,10 @@
     html[data-tscale="112"] body { zoom: 1.12; }
     html[data-tscale="125"] body { zoom: 1.25; }
 
-    /* ── HAMBURGER (mobile nav) ── */
     .hamburger {
-      display: none;
-      width: 34px; height: 34px;
-      border-radius: 8px;
-      border: 0.5px solid var(--glass-border);
-      background: var(--glass-bg);
-      backdrop-filter: blur(12px);
-      cursor: pointer;
-      flex-shrink: 0;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
+      display: none; width: 34px; height: 34px; border-radius: 8px; border: 0.5px solid var(--glass-border);
+      background: var(--glass-bg); backdrop-filter: blur(12px); cursor: pointer; flex-shrink: 0;
+      flex-direction: column; align-items: center; justify-content: center; gap: 4px;
     }
     .hamburger span { display: block; width: 15px; height: 1px; background: var(--text); transition: transform 0.25s ease, opacity 0.25s ease; }
     .hamburger.active span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
@@ -192,768 +121,528 @@
     .hamburger.active span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 
     .mobile-menu {
-      display: none;
-      position: fixed;
-      top: 68px; left: 16px; right: 16px;
-      z-index: 250;
-      flex-direction: column;
-      gap: 2px;
-      padding: 10px;
-      border-radius: 12px;
-      background: var(--nav-bg);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 0.5px solid var(--glass-border);
-      box-shadow: inset 0 1px 0 var(--glass-shine), var(--nav-shadow);
+      display: none; position: fixed; top: 68px; left: 16px; right: 16px; z-index: 250;
+      flex-direction: column; gap: 2px; padding: 10px; border-radius: 12px;
+      background: var(--nav-bg); backdrop-filter: blur(24px) saturate(180%);
+      border: 0.5px solid var(--glass-border); box-shadow: inset 0 1px 0 var(--glass-shine), var(--nav-shadow);
     }
     .mobile-menu.open { display: flex; }
-    .mobile-menu a {
-      padding: 13px 14px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 300;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      transition: background 0.2s, color 0.2s;
-    }
-    .mobile-menu a:hover, .mobile-menu a:active { color: var(--text); background: rgba(236,59,86,0.08); }
+    .mobile-menu a { padding: 13px 14px; border-radius: 8px; font-size: 11px; font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); transition: background 0.2s, color 0.2s; }
+    .mobile-menu a.current { color: var(--red); }
+    .mobile-menu a:hover { color: var(--text); background: rgba(236,59,86,0.08); }
 
-    /* ── HERO ── */
-    .hero {
-      min-height: 40vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 0 40px 48px;
-      position: relative;
-      overflow: hidden;
+    /* ── PAGE HERO ── */
+    .page-hero { padding: 150px 40px 60px; position: relative; overflow: hidden; }
+    .page-hero::after {
+      content: ''; position: absolute; top: -100px; right: -80px; width: 500px; height: 400px;
+      background: radial-gradient(ellipse, rgba(236,59,86,0.08) 0%, transparent 70%); pointer-events: none;
     }
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: -80px; left: -60px;
-      width: 500px; height: 400px;
-      background: radial-gradient(ellipse, rgba(236,59,86,0.07) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-    .hero-headline {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(64px,18vw,220px);
-      line-height: 0.88;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      position: relative; z-index: 2;
-      opacity: 0;
-      animation: slideUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;
-      transition: color 0.4s;
-      word-break: break-word;
-    }
-    .hero-headline .red { color: var(--red); text-shadow: 0 0 60px rgba(236,59,86,0.25); }
-    .hero-headline .outline { -webkit-text-stroke: 1.5px var(--text); color: transparent; opacity: 0.5; }
-
-    .hero-meta {
-      position: absolute;
-      top: 50%; right: 40px;
-      transform: translateY(-50%);
-      z-index: 2;
-      display: flex; flex-direction: column; gap: 5px;
-      text-align: right;
-      opacity: 0;
-      animation: fadeIn 0.7s ease 0.6s forwards;
-    }
-    .hero-meta span { font-size: 10px; font-weight: 300; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); display: block; transition: color 0.4s; }
-    .hero-meta .highlight { color: var(--red); opacity: 1; }
-
-    .hero-scroll {
-      position: absolute;
-      bottom: 48px; right: 40px; z-index: 2;
-      font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--text-muted);
-      writing-mode: vertical-rl;
-      display: flex; align-items: center; gap: 8px;
-      opacity: 0;
-      animation: fadeIn 0.7s ease 1s forwards;
-    }
-    .hero-scroll::before { content: ''; display: block; width: 1px; height: 36px; background: linear-gradient(to bottom, var(--red), transparent); }
-
-    /* ── TICKER ── */
-    .ticker {
-      overflow: hidden;
-      border-top: 0.5px solid var(--border);
-      border-bottom: 0.5px solid var(--border);
-      padding: 11px 0;
-      background: var(--glass-bg);
-      backdrop-filter: blur(8px);
-      transition: background 0.4s, border-color 0.4s;
-    }
-    .ticker-inner { display: flex; white-space: nowrap; animation: tickeranim 22s linear infinite; width: max-content; }
-    .ticker-item {
-      display: inline-flex; align-items: center; gap: 12px;
-      font-size: 10px; font-weight: 300; letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--text-muted); padding: 0 28px; flex-shrink: 0; white-space: nowrap;
-      transition: color 0.4s;
-    }
-    .rdot {
-      color: var(--red);
-      font-family: sans-serif;
-      font-size: 0.85em;
-      display: inline-block;
-      line-height: 1;
-      text-shadow: 0 0 8px var(--red-mid);
-      user-select: none;
-    }
-    @keyframes tickeranim { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-    /* ── CAROUSEL ── */
-    .carousel { width: 100%; position: relative; overflow: hidden; background: var(--surface); transition: background 0.4s; }
-    .carousel-track { width: 100%; height: 75vh; position: relative; }
-    .carousel-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
-    .carousel-slide.active { opacity: 1; pointer-events: auto; }
-    .carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .carousel-slide .slide-placeholder {
-      width: 100%; height: 100%;
-      background: linear-gradient(135deg, var(--surface) 0%, var(--bg2) 100%);
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 14px;
-    }
-    .slide-placeholder-icon {
-      width: 56px; height: 56px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--glass-bg); border: 0.5px solid var(--glass-border);
-      backdrop-filter: blur(12px);
-    }
-    .slide-placeholder-icon svg { width: 20px; height: 20px; stroke: var(--text-muted); fill: none; stroke-width: 1; }
-    .slide-placeholder-text { font-size: 10px; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); }
-
-    .carousel-progress {
-      position: absolute; top: 0; left: 0; height: 2px; background: var(--red);
-      width: 0%; z-index: 10; transition: width linear; box-shadow: 0 0 8px var(--red-mid);
-    }
-
-    .carousel-btn {
-      position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
-      width: 44px; height: 44px; border-radius: 50%;
-      background: var(--glass-label); backdrop-filter: blur(16px);
-      border: 0.5px solid var(--glass-border);
-      box-shadow: inset 0 1px 0 var(--glass-shine), 0 4px 20px rgba(0,0,0,0.3);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, transform 0.2s;
-      color: var(--text);
-    }
-    .carousel-btn:hover { background: rgba(236,59,86,0.15); border-color: rgba(236,59,86,0.4); transform: translateY(-50%) scale(1.08); }
-    .carousel-btn svg { width: 14px; height: 14px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s; }
-    .carousel-btn:hover svg { stroke: var(--red); }
-    .carousel-prev { left: 24px; }
-    .carousel-next { right: 24px; }
-
-    .carousel-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 8px; align-items: center; }
-    .carousel-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(240,236,230,0.3); border: none; cursor: pointer; padding: 0; transition: background 0.3s, transform 0.3s, width 0.3s; }
-    .carousel-dot.active { background: var(--red); width: 20px; border-radius: 3px; box-shadow: 0 0 8px var(--red-mid); }
-
-    .carousel-counter { position: absolute; bottom: 20px; right: 32px; z-index: 10; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 300; letter-spacing: 0.14em; color: rgba(240,236,230,0.45); }
-
-    .carousel-caption {
+    .hero-grid {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 13px 32px;
-      background: var(--glass-bg); backdrop-filter: blur(12px);
-      border-top: 0.5px solid var(--glass-border);
-      border-bottom: 0.5px solid var(--border);
-      transition: background 0.4s, border-color 0.4s;
-      gap: 12px; flex-wrap: wrap;
+      gap: 48px; position: relative; z-index: 1;
     }
-    .carousel-caption-left { font-size: 10px; font-weight: 300; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); transition: color 0.4s; }
-    .carousel-caption-right { font-size: 10px; font-weight: 300; letter-spacing: 0.1em; color: var(--red); opacity: 0.7; }
-
-    .carousel-track:hover .carousel-progress { animation-play-state: paused; }
-
-    /* ── WORK ── */
-    .work { padding: 80px 32px; }
-    .work-header {
-      display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px;
-      margin-bottom: 48px; padding-bottom: 20px;
-      border-bottom: 0.5px solid var(--border);
-      transition: border-color 0.4s;
+    .hero-main { flex: 1; min-width: 0; }
+    .eyebrow { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 18px; display: block; position: relative; z-index: 1; }
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px,8vw,110px); line-height: 0.92;
+      letter-spacing: 0.005em; color: var(--text); position: relative; z-index: 1; max-width: 16ch;
     }
-    .work-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px,7vw,72px); line-height: 1; letter-spacing: 0.02em; color: var(--text); transition: color 0.4s; }
-    .work-index { font-size: 10px; font-weight: 300; color: var(--text-muted); letter-spacing: 0.12em; }
-
-    .projects { display: flex; flex-direction: column; gap: 3px; }
-    .row-full      { display: grid; grid-template-columns: 1fr; }
-    .row-half      { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-    .row-third     { display: grid; grid-template-columns: 2fr 1fr; gap: 3px; }
-    .row-third-rev { display: grid; grid-template-columns: 1fr 2fr; gap: 3px; }
-
-    .project { position: relative; overflow: hidden; display: block; cursor: pointer; background: var(--surface); transition: background 0.4s; }
-    .row-full .project      { height: 70vh; }
-    .row-half .project      { height: 55vh; }
-    .row-third .project     { height: 60vh; }
-    .row-third-rev .project { height: 60vh; }
-
-    .project img {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%; object-fit: cover; display: block;
-      transition: transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.5s ease;
-      filter: brightness(0.72) saturate(0.8);
-    }
-    .project:hover img { transform: scale(1.04); filter: brightness(0.28) saturate(0.6); }
-    [data-theme="light"] .project img { filter: brightness(0.78) saturate(0.85); }
-    [data-theme="light"] .project:hover img { filter: brightness(0.38) saturate(0.7); }
-
-    .project-bg-text {
-      position: absolute; bottom: -12px; left: -4px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(56px,14vw,180px); line-height: 1;
-      color: transparent;
-      -webkit-text-stroke: 0.5px var(--text-dim);
-      pointer-events: none; z-index: 1;
-      white-space: nowrap; user-select: none;
+    .page-title .red { color: var(--red); text-shadow: 0 0 50px rgba(236,59,86,0.2); }
+    .page-lede {
+      font-family: 'Instrument Serif', serif; font-style: italic; font-size: clamp(16px,2vw,20px);
+      line-height: 1.6; color: var(--text-muted); max-width: 60ch; margin-top: 24px; position: relative; z-index: 1;
     }
 
-    .project-label { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; }
-
-    .project-label-glass {
-      margin: 0 16px 16px;
-      padding: 14px 18px 16px;
-      border-radius: 10px;
-      background: var(--glass-label);
-      backdrop-filter: blur(20px) saturate(140%);
-      -webkit-backdrop-filter: blur(20px) saturate(140%);
-      border: 0.5px solid var(--glass-border);
-      box-shadow: inset 0 1px 0 var(--glass-shine), 0 8px 32px rgba(0,0,0,0.25);
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.35s ease, transform 0.35s ease, background 0.4s, border-color 0.4s;
-    }
-    .project:hover .project-label-glass { opacity: 1; transform: translateY(0); }
-
-    .project-num { font-size: 9px; font-weight: 300; letter-spacing: 0.16em; color: var(--red); margin-bottom: 6px; text-transform: uppercase; }
-    .project-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(20px,3.5vw,52px); line-height: 0.95; letter-spacing: 0.02em; color: var(--text); transition: color 0.4s; }
-    .project-artist { font-size: 10px; font-weight: 300; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; transition: color 0.4s; }
-
-    .project-desc {
-      font-family: 'Instrument Serif', serif;
-      font-style: italic;
-      font-size: 12px;
-      line-height: 1.6;
-      color: var(--text-muted);
-      margin-top: 9px;
-      padding-top: 9px;
-      border-top: 0.5px solid var(--glass-border);
-      transition: color 0.4s, border-color 0.4s;
-    }
-
-    .play-circle {
-      position: absolute; top: 18px; right: 18px;
-      width: 40px; height: 40px; border-radius: 50%;
+    /* ── CURATOR (centered, above the download button) ── */
+    .curator-side {
       display: flex; align-items: center; justify-content: center;
-      background: rgba(236,59,86,0.12); backdrop-filter: blur(12px);
-      border: 0.5px solid rgba(236,59,86,0.45);
-      box-shadow: 0 0 20px rgba(236,59,86,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
-      opacity: 0; transition: opacity 0.3s ease; z-index: 3;
+      gap: 22px;
+      margin: 44px auto 0;
+      position: relative; z-index: 1;
     }
-    .play-circle svg { width: 9px; height: 9px; fill: var(--red); margin-left: 2px; }
-    .project:hover .play-circle { opacity: 1; }
+    .curator-inner { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+    .curator-link { display: block; border-radius: 50%; transition: transform 0.3s ease; }
+    .curator-link:hover { transform: translateY(-4px) scale(1.03); }
+    .curator-photo {
+      width: 240px; height: 240px; display: block;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--red);
+      outline: 6px solid rgba(236,59,86,0.16);
+      box-shadow: 0 0 54px rgba(236,59,86,0.35);
+      background: var(--surface);
+      cursor: pointer;
+      transition: box-shadow 0.3s ease, outline-color 0.3s ease;
+    }
+    .curator-link:hover .curator-photo {
+      box-shadow: 0 0 70px rgba(236,59,86,0.55);
+      outline-color: rgba(236,59,86,0.3);
+    }
+    .curator-caption { font-size: 13px; letter-spacing: 0.06em; line-height: 1.7; color: var(--text-muted); max-width: 320px; }
+    .curator-caption strong { display: block; color: var(--text); font-weight: 400; font-size: 16px; margin-bottom: 3px; }
 
-    .project-placeholder { position: absolute; inset: 0; background: linear-gradient(135deg, var(--surface) 0%, var(--bg2) 100%); transition: background 0.4s; }
-
-    /* ── STATEMENT ── */
-    .statement {
-      padding: 120px 32px;
-      border-top: 0.5px solid var(--border);
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 80px; align-items: center;
-      position: relative;
-      transition: border-color 0.4s;
-    }
-    .statement::before {
-      content: ''; position: absolute; top: 50%; left: 0; transform: translateY(-50%);
-      width: 40%; height: 300px;
-      background: radial-gradient(ellipse, rgba(236,59,86,0.05) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .statement-big { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px,8vw,120px); line-height: 0.9; letter-spacing: 0.01em; color: var(--text); position: relative; z-index: 1; transition: color 0.4s; }
-    .statement-big .red { color: var(--red); text-shadow: 0 0 40px rgba(236,59,86,0.2); }
-    .statement-big .outline { -webkit-text-stroke: 1px var(--text); color: transparent; opacity: 0.4; }
-    .statement-body { display: flex; flex-direction: column; gap: 24px; position: relative; z-index: 1; }
-    .statement-text {
-      font-family: 'Instrument Serif', serif;
-      font-style: italic; font-size: clamp(16px,2.2vw,21px); line-height: 1.55; color: var(--text);
-      padding: 22px 24px; border-radius: 12px;
-      background: var(--glass-bg); border: 0.5px solid var(--glass-border);
-      backdrop-filter: blur(16px);
-      box-shadow: inset 0 1px 0 var(--glass-shine), 0 4px 24px rgba(0,0,0,0.08);
-      transition: background 0.4s, border-color 0.4s, color 0.4s;
-    }
-    .statement-sub { font-size: 11px; font-weight: 300; letter-spacing: 0.07em; line-height: 1.85; color: var(--text-muted); transition: color 0.4s; }
-
-    /* ── STATS ── */
-    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); border-top: 0.5px solid var(--border); gap: 1px; background: var(--border); transition: border-color 0.4s, background 0.4s; }
-    .stat-cell { padding: 48px 32px; background: var(--stat-bg); position: relative; overflow: hidden; transition: background 0.3s; }
-    .stat-cell::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, rgba(236,59,86,0.35), transparent); opacity: 0; transition: opacity 0.3s; }
-    .stat-cell:hover { background: rgba(236,59,86,0.04); }
-    .stat-cell:hover::before { opacity: 1; }
-    .stat-n { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px,7vw,88px); line-height: 1; color: var(--text); letter-spacing: 0.01em; transition: color 0.4s; }
-    .stat-n sup { font-size: 28px; vertical-align: super; color: var(--red); }
-    .stat-lbl { font-size: 10px; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-top: 10px; transition: color 0.4s; }
-
-    /* ── CONTACT ── */
-    .contact {
-      border-top: 0.5px solid var(--border);
-      padding: 100px 32px;
-      display: flex; justify-content: space-between; align-items: flex-end;
-      gap: 40px; flex-wrap: wrap;
-      position: relative; overflow: hidden;
-      transition: border-color 0.4s;
-    }
-    .contact::after { content: ''; position: absolute; bottom: -100px; right: -60px; width: 500px; height: 400px; background: radial-gradient(ellipse, rgba(236,59,86,0.05) 0%, transparent 70%); pointer-events: none; }
-    .contact-big { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px,9vw,130px); line-height: 0.9; letter-spacing: 0.01em; color: var(--text); position: relative; z-index: 1; transition: color 0.4s; }
-    .contact-right { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; position: relative; z-index: 1; }
-    .contact-link {
-      font-size: 12px; font-weight: 300; letter-spacing: 0.1em; color: var(--text-muted);
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 16px; border-radius: 8px;
+    /* side link next to the photo → news portal interview */
+    .interview-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 300; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 11px 16px; border-radius: 8px;
       background: var(--glass-bg); border: 0.5px solid var(--glass-border);
       backdrop-filter: blur(12px);
       transition: color 0.2s, background 0.2s, border-color 0.2s;
+      white-space: nowrap;
     }
-    .contact-link:hover { color: var(--text); background: rgba(236,59,86,0.08); border-color: rgba(236,59,86,0.3); }
-    .contact-link::after { content: '↗'; font-size: 10px; color: var(--red); }
+    .interview-link:hover { color: var(--text); background: rgba(236,59,86,0.08); border-color: rgba(236,59,86,0.3); }
+    .interview-link::after { content: '↗'; font-size: 10px; color: var(--red); }
 
-    /* ── FOOTER ── */
-    footer { border-top: 0.5px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; background: var(--footer-bg); transition: background 0.4s, border-color 0.4s; flex-wrap: wrap; gap: 8px; }
-    .footer-l { font-size: 10px; font-weight: 300; letter-spacing: 0.1em; color: var(--text-muted); display: flex; align-items: center; gap: 10px; transition: color 0.4s; }
+    /* download button centered under the photo */
+    .download-wrap { text-align: center; margin-top: 30px; position: relative; z-index: 1; }
+
+    @media (max-width: 900px) {
+      .curator-side { flex-direction: column; gap: 18px; margin-top: 36px; }
+    }
+    @media (max-width: 480px) {
+      .curator-photo { width: 180px; height: 180px; }
+      .curator-caption { font-size: 12px; }
+      .curator-caption strong { font-size: 14px; }
+      .interview-link { font-size: 10px; padding: 10px 14px; }
+    }
+
+    .download-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      position: relative; z-index: 1;
+      padding: 14px 24px; border-radius: 10px;
+      font-size: 11px; font-weight: 300; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--text);
+      background: rgba(236,59,86,0.12);
+      border: 0.5px solid rgba(236,59,86,0.45);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 24px rgba(236,59,86,0.12), inset 0 1px 0 var(--glass-shine);
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .download-btn:hover { background: rgba(236,59,86,0.22); border-color: var(--red); transform: translateY(-2px); }
+    .download-btn svg { width: 14px; height: 14px; stroke: var(--red); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .download-btn .dl-sub { font-size: 9px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: none; }
+
+    .subhead { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin: 28px 0 4px; }
+    .subhead:first-child { margin-top: 0; }
+
+    /* ── SECTIONS ── */
+    .section { padding: 56px 40px; border-top: 0.5px solid var(--border); }
+    .section-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+    .section-num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--red); }
+    .section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px,4vw,46px); letter-spacing: 0.02em; color: var(--text); }
+    .section-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; line-height: 1.8; max-width: 70ch; margin-bottom: 28px; }
+
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 3px; }
+    .card {
+      background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px;
+      padding: 24px; display: flex; flex-direction: column; gap: 10px;
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+    }
+    .card:hover { border-color: var(--red-mid); transform: translateY(-3px); }
+    .card-tag { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); }
+    .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.01em; color: var(--text); line-height: 1; }
+    .card-text { font-size: 12px; line-height: 1.75; color: var(--text-muted); }
+
+    .flow-list { display: flex; flex-direction: column; gap: 2px; }
+    .flow-step {
+      display: grid; grid-template-columns: 56px 1fr; gap: 20px;
+      padding: 22px 0; border-bottom: 0.5px solid var(--border);
+    }
+    .flow-step:last-child { border-bottom: none; }
+    .flow-step-num { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--text-dim); line-height: 1; }
+    .flow-step-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); letter-spacing: 0.01em; margin-bottom: 6px; }
+    .flow-step-text { font-size: 12px; line-height: 1.75; color: var(--text-muted); max-width: 70ch; }
+
+    .glass-note {
+      margin-top: 28px; padding: 20px 24px; border-radius: 12px;
+      background: var(--glass-bg); border: 0.5px solid var(--glass-border);
+      backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 var(--glass-shine);
+      font-size: 12px; line-height: 1.75; color: var(--text-muted);
+    }
+    .glass-note strong { color: var(--text); font-weight: 400; }
+    .glass-note .rlabel { color: var(--red); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+
+    .credit-template {
+      margin-top: 16px; padding: 20px 22px; border-radius: 12px;
+      background: var(--surface); border: 0.5px solid var(--border);
+      font-family: 'DM Mono', monospace; font-size: 11.5px; line-height: 1.9;
+      color: var(--text-muted); white-space: pre-wrap; overflow-x: auto;
+    }
+
+    table.compare { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.compare th, table.compare td { text-align: left; padding: 14px 12px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+    table.compare th { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); font-weight: 400; }
+    table.compare td { color: var(--text); }
+    table.compare td.muted { color: var(--text-muted); }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .cta-band {
+      border-top: 0.5px solid var(--border); padding: 90px 40px;
+      display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap;
+      position: relative; overflow: hidden;
+    }
+    .cta-band::after { content: ''; position: absolute; bottom: -100px; right: -60px; width: 500px; height: 400px; background: radial-gradient(ellipse, rgba(236,59,86,0.06) 0%, transparent 70%); pointer-events: none; }
+    .cta-big { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px,7vw,86px); line-height: 0.92; color: var(--text); position: relative; z-index: 1; }
+    .cta-big .red { color: var(--red); }
+    .cta-right { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; position: relative; z-index: 1; }
+    .cta-link {
+      font-size: 12px; font-weight: 300; letter-spacing: 0.1em; color: var(--text-muted);
+      display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px;
+      background: var(--glass-bg); border: 0.5px solid var(--glass-border); backdrop-filter: blur(12px);
+      transition: color 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .cta-link:hover { color: var(--text); background: rgba(236,59,86,0.08); border-color: rgba(236,59,86,0.3); }
+    .cta-link::after { content: '↗'; font-size: 10px; color: var(--red); }
+
+    footer { border-top: 0.5px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; background: var(--footer-bg); flex-wrap: wrap; gap: 8px; }
+    .footer-l { font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
     .footer-logo-svg { height: 20px; width: auto; }
     [data-theme="light"] .footer-logo-svg { opacity: 0.6; }
-    .footer-r { font-size: 10px; font-weight: 300; letter-spacing: 0.1em; color: var(--text-muted); transition: color 0.4s; }
+    .footer-r { font-size: 10px; color: var(--text-muted); }
 
-    /* ── ANIMATIONS ── */
-    @keyframes slideUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
-
-    /* ══════════════════════════════
-       RESPONSIVE BREAKPOINTS
-    ══════════════════════════════ */
-
-    /* Tablet / small laptop */
-    @media (max-width: 1024px) {
-      .hero-headline { font-size: clamp(64px,15vw,160px); }
-      .statement { gap: 48px; padding: 90px 28px; }
-      .row-third, .row-third-rev { grid-template-columns: 1fr 1fr; }
-    }
-
-    /* Tablet / large phone */
     @media (max-width: 768px) {
       nav { top:10px; left:10px; right:10px; padding:10px 14px; }
       .logo-svg { height: 26px; }
-      .nav-right { gap: 10px; }
       .nav-right a { display: none; }
       .hamburger { display: flex; }
-
-      .hero { padding: 0 24px 40px; min-height: 34vh; }
-      .hero-meta { display: none; }
-      .hero-scroll { bottom: 24px; right: 24px; }
-
-      .carousel-track { height: 52vh; }
-      .carousel-btn { width: 36px; height: 36px; }
-      .carousel-prev { left: 12px; }
-      .carousel-next { right: 12px; }
-      .carousel-counter { right: 16px; }
-      .carousel-caption { padding: 11px 16px; }
-
-      .work { padding: 60px 16px; }
-      .row-half, .row-third, .row-third-rev { grid-template-columns: 1fr; }
-      .row-full .project, .row-half .project,
-      .row-third .project, .row-third-rev .project { height: 50vh; }
-
-      .statement { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px; }
-      .stats-row { grid-template-columns: 1fr; }
-      .stat-cell { border-bottom: 0.5px solid var(--border); }
-
-      .contact { padding: 60px 24px; }
-      .contact-right { align-items: flex-start; }
+      .page-hero { padding: 110px 20px 40px; }
+      .section { padding: 40px 20px; }
+      .cta-band { padding: 60px 20px; }
+      table.compare { font-size: 11px; }
     }
-
-    /* Small phone */
     @media (max-width: 480px) {
-      nav { padding: 8px 12px; }
-      .logo-svg { height: 22px; }
-
-      .hero { min-height: 30vh; padding: 0 16px 28px; }
-      .hero-headline { font-size: clamp(48px,17vw,84px); }
-      .hero-scroll { display: none; }
-
-      .ticker-item { padding: 0 16px; font-size: 9px; }
-
-      .carousel-track { height: 42vh; }
-      .carousel-btn { width: 32px; height: 32px; }
-      .carousel-btn svg { width: 11px; height: 11px; }
-      .carousel-caption { padding: 9px 14px; }
-      .carousel-caption-left, .carousel-caption-right { font-size: 9px; }
-
-      .work { padding: 44px 12px; }
-      .work-header { margin-bottom: 32px; }
-      .row-full .project, .row-half .project,
-      .row-third .project, .row-third-rev .project { height: 42vh; }
-      .project-label-glass { margin: 0 10px 10px; padding: 10px 14px 12px; }
-      .project-desc { font-size: 11px; }
-
-      .statement { padding: 44px 16px; gap: 28px; }
-      .statement-text { padding: 16px 18px; }
-      .statement-sub { font-size: 10.5px; }
-
-      .stat-cell { padding: 30px 20px; }
-
-      .contact { padding: 44px 16px; }
-      .contact-link { font-size: 11px; padding: 9px 14px; }
-
-      footer { padding: 12px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
-    }
-
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .hero-headline, .hero-meta, .hero-scroll { animation: none; opacity: 1; }
-      .ticker-inner { animation: none; }
-      .project img, .carousel-slide { transition: none; }
+      .page-hero { padding: 96px 16px 32px; }
+      .section { padding: 32px 16px; }
+      .flow-step { grid-template-columns: 40px 1fr; gap: 12px; }
+      .flow-step-num { font-size: 30px; }
+      .cta-band { padding: 44px 16px; }
+      footer { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
   <nav>
-    <a href="#" class="logo">
-      <img class="logo-svg" src="Pyaro_Studio.svg" alt="Pyaro Studio" />
-    </a>
+    <a href="index.html" class="logo"><img class="logo-svg" src="Pyaro_Studio.svg" alt="Pyaro Studio" /></a>
     <div class="nav-right">
-      <a href="#work">Work</a>
-      <a href="#about">About</a>
-      <a href="distribution.html">Distribution</a>
+      <a href="index.html#work">Work</a>
+      <a href="index.html#about">About</a>
+      <a href="distribution.html" class="current">Distribution</a>
       <a href="upload.html">Tools</a>
-      <a href="#contact">Contact</a>
-      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
+      <a href="index.html#contact">Contact</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
       <button class="text-scale" id="textScale" aria-label="Adjust text size" title="Text size: 100%">Aa</button>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle light / dark">
-        <span class="icon-dark">&#9788;</span>
-        <span class="icon-light">&#9790;</span>
+        <span class="icon-dark">&#9788;</span><span class="icon-light">&#9790;</span>
       </button>
     </div>
   </nav>
 
   <div class="mobile-menu" id="mobileMenu">
-    <a href="#work">Work</a>
-    <a href="#about">About</a>
-    <a href="distribution.html">Distribution</a>
+    <a href="index.html#work">Work</a>
+    <a href="index.html#about">About</a>
+    <a href="distribution.html" class="current">Distribution</a>
     <a href="upload.html">Tools</a>
-    <a href="#contact">Contact</a>
+    <a href="index.html#contact">Contact</a>
   </div>
 
   <!-- HERO -->
-  <section class="hero">
-    <div class="hero-meta">
-      <span class="highlight">&#8212; est. Nepal</span>
-      <span>Visual</span>
-      <span>Production</span>
-      <span>Storytelling</span>
+  <section class="page-hero">
+    <div class="hero-grid">
+      <div class="hero-main">
+        <span class="eyebrow">&#8212; Pyaro Studio Guide</span>
+        <h1 class="page-title">DIGITAL MUSIC<br><span class="red">DISTRIBUTION</span><br>FOR NEPALI ARTISTS</h1>
+        <p class="page-lede">A practical walkthrough for getting your music onto Spotify, Apple Music, YouTube and beyond — plus the Nepal-specific realities of getting paid, staying compliant, and protecting your work.</p>
+      </div>
     </div>
-    <h1 class="hero-headline">
-      <span class="red">PYARO STUDIO</span><br>
-    </h1>
-    <div class="hero-scroll">Scroll</div>
-  </section>
 
-  <!-- TICKER -->
-  <div class="ticker">
-    <div class="ticker-inner" id="ticker-inner"></div>
-  </div>
-
-  <!--
-  ════════════════════════════════════════════════════════
-  CAROUSEL — HOW TO ADD YOUR IMAGES:
-  Each slide has data-image="images/your-photo.jpg"
-  Replace the placeholder text with your actual file path.
-  Add or remove <div class="carousel-slide"> blocks freely.
-  Autoplay speed is set below in JS: SLIDE_DURATION = 5000
-  ════════════════════════════════════════════════════════
-  -->
-  <div class="carousel">
-    <div class="carousel-track" id="carouselTrack">
-
-      <div class="carousel-progress" id="carouselProgress"></div>
-
-      <div class="carousel-slide active" data-image="images/slide-1.jpg">
-        <div class="slide-placeholder">
-          <div class="slide-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-          <span class="slide-placeholder-text">slide-1.jpg</span>
-        </div>
+    <!--
+    ════════════════════════════════════════════════
+    CURATOR PHOTO — file: distro-guru-nep.jpg
+    Clicking the photo opens his Facebook page
+    (URL not shown anywhere on the page).
+    The side link opens his Setopati interview.
+    ════════════════════════════════════════════════
+    -->
+    <div class="curator-side">
+      <div class="curator-inner">
+        <a class="curator-link" href="https://www.facebook.com/RajendraAryalPage" target="_blank" rel="noopener" aria-label="Mr. Rajendra Aryal" title="Mr. Rajendra Aryal">
+          <img class="curator-photo" src="distro-guru-nep.jpg" alt="Mr. Rajendra Aryal" onerror="this.closest('.curator-side').style.display='none'" />
+        </a>
+        <p class="curator-caption">
+          <strong>Mr. Rajendra Aryal</strong>
+          Guide curated &amp; provided by &#8212; Content Manager &amp; IT Professional for 600+ Nepali artists
+        </p>
       </div>
-
-      <div class="carousel-slide" data-image="images/slide-2.jpg">
-        <div class="slide-placeholder">
-          <div class="slide-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-          <span class="slide-placeholder-text">slide-2.jpg</span>
-        </div>
-      </div>
-
-      <div class="carousel-slide" data-image="images/slide-3.jpg">
-        <div class="slide-placeholder">
-          <div class="slide-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-          <span class="slide-placeholder-text">slide-3.jpg</span>
-        </div>
-      </div>
-
-      <div class="carousel-slide" data-image="images/slide-4.jpg">
-        <div class="slide-placeholder">
-          <div class="slide-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-          <span class="slide-placeholder-text">slide-4.jpg</span>
-        </div>
-      </div>
-
-      <div class="carousel-slide" data-image="images/slide-5.jpg">
-        <div class="slide-placeholder">
-          <div class="slide-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-          <span class="slide-placeholder-text">slide-5.jpg</span>
-        </div>
-      </div>
-
-      <div class="carousel-slide" data-image="images/slide-6.jpg">
-        <div class="slide-placeholder">
-          <div class="slide-placeholder-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-          <span class="slide-placeholder-text">slide-6.jpg</span>
-        </div>
-      </div>
-
-      <button class="carousel-btn carousel-prev" id="carouselPrev" aria-label="Previous slide">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="carousel-btn carousel-next" id="carouselNext" aria-label="Next slide">
-        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-
-      <div class="carousel-dots" id="carouselDots"></div>
-      <div class="carousel-counter" id="carouselCounter"></div>
-
+      <a class="interview-link" href="https://www.setopati.com/art/interview/351608" target="_blank" rel="noopener">Read his interview &#8212; Setopati</a>
     </div>
-    <div class="carousel-caption">
-      <span class="carousel-caption-left">Featured &#8212; Latest work</span>
-      <span class="carousel-caption-right">pyaro studio &#169; 2026</span>
-    </div>
-  </div>
 
-  <!-- WORK -->
-  <section class="work" id="work">
-    <div class="work-header">
-      <div class="work-title">WORK</div>
-      <div class="work-index">Selected &#8212; 24 productions</div>
-    </div>
-    <div class="projects">
-
-      <div class="row-full">
-        <a class="project" href="https://www.youtube.com/watch?v=7j6daZRBvxY" data-image="" data-youtube="7j6daZRBvxY" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">NAI BHANESI</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">01 / Music Video &middot; Title Design &middot; Poster Design</div>
-            <div class="project-name">Nai Bhanesi Nai</div>
-            <div class="project-artist">Prakash Saput</div>
-            <div class="project-desc">A deeply emotional song about longing and unspoken love &#8212; we built the visual world around quiet gestures and fading light.</div>
-          </div></div>
-        </a>
-      </div>
-
-      <div class="row-half">
-        <a class="project" href="https://www.youtube.com/watch?v=poiqsoKlcG4" data-image="" data-youtube="poiqsoKlcG4" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">MAYA</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">02 / Music Video &middot; Post Production &middot; Poster Design</div>
-            <div class="project-name">Maya Khai</div>
-            <div class="project-artist">Bhupu Pandey</div>
-            <div class="project-desc">A cinematic treatment of love and loss, shot across the hills of Kathmandu Valley with warm, hazy tones.</div>
-          </div></div>
-        </a>
-        <a class="project" href="https://youtu.be/TK9OiJs2hzE" data-image="" data-youtube="TK9OiJs2hzE" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">BASANTA</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">03 / Feature Film &middot; Key Poster Design</div>
-            <div class="project-name">Basanta</div>
-            <div class="project-artist">Galbandi Production</div>
-            <div class="project-desc">Key art and poster campaign for this celebrated Nepali feature film. Bold, seasonal, unforgettable.</div>
-          </div></div>
-        </a>
-      </div>
-
-      <div class="row-third">
-        <a class="project" href="https://youtu.be/tJCDikHsaKo" data-image="" data-youtube="tJCDikHsaKo" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">CHARAKAI</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">04 / Music Video &middot; Poster Design</div>
-            <div class="project-name">Charakai</div>
-            <div class="project-artist">Sunil Giri</div>
-            <div class="project-desc">A folk-rooted visual story told through natural landscapes and traditional costume &#8212; raw and honest.</div>
-          </div></div>
-        </a>
-        <a class="project" href="https://youtu.be/YVhzXEo5U1I" data-image="" data-youtube="YVhzXEo5U1I" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">PIRAI</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">05 / Music Video &middot; Video Mastering &middot; Publicity Design</div>
-            <div class="project-name">Pirai Pir</div>
-            <div class="project-artist">Bhupu Pandey</div>
-            <div class="project-desc">Pain retold with restraint. The color grade carries the emotional weight as much as the performance.</div>
-          </div></div>
-        </a>
-      </div>
-
-      <div class="row-half">
-        <a class="project" href="https://youtu.be/ga-8sRUNON0" data-image="" data-youtube="ga-8sRUNON0" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">JALE</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">06 / Music Video &middot; Poster Design</div>
-            <div class="project-name">Jale Rumal Fatyo</div>
-            <div class="project-artist">Prakash Saput</div>
-            <div class="project-desc">A burning metaphor made visual &#8212; fire, fabric, and memory woven into every frame.</div>
-          </div></div>
-        </a>
-        <a class="project" href="https://youtu.be/EmpLPpq38V0" data-image="" data-youtube="EmpLPpq38V0" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">DAMAI</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">07 / Music Video &middot; Title Design &middot; Poster Design</div>
-            <div class="project-name">Damai Maharaj</div>
-            <div class="project-artist">Prakash Saput</div>
-            <div class="project-desc">A proud cultural celebration &#8212; vibrant, layered, full of the colour and energy of community.</div>
-          </div></div>
-        </a>
-      </div>
-
-      <div class="row-third-rev">
-        <a class="project" href="https://youtu.be/AcE1J4PoheE" data-image="" data-youtube="AcE1J4PoheE" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">FULA</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">08 / Music Video &middot; Title Design &middot; Poster Design</div>
-            <div class="project-name">Fula Rasaima</div>
-            <div class="project-artist">Devendra Bablu</div>
-            <div class="project-desc">Blossoms as metaphor &#8212; soft, layered visuals against a deeply personal vocal performance.</div>
-          </div></div>
-        </a>
-        <a class="project" href="https://youtu.be/Si16gDPCvis" data-image="" data-youtube="Si16gDPCvis" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">GHUMTIMA</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">09 / Music Video &middot; Video Mastering &middot; Poster Design</div>
-            <div class="project-name">Ghumtima Judheko Aankha</div>
-            <div class="project-artist">Sunil Giri</div>
-            <div class="project-desc">Eyes that carry whole stories &#8212; close, intimate, lit with natural gold-hour warmth.</div>
-          </div></div>
-        </a>
-      </div>
-
-      <div class="row-full">
-        <a class="project" href="https://youtu.be/pDNV4OnYzp8" data-image="" data-youtube="pDNV4OnYzp8" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">PIR</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">10 / Music Video &middot; Title Design &middot; Poster Design</div>
-            <div class="project-name">Pir</div>
-            <div class="project-artist">Prakash Saput</div>
-            <div class="project-desc">Grief, stripped bare. One of our most minimal productions &#8212; every frame earns its place.</div>
-          </div></div>
-        </a>
-      </div>
-
-      <div class="row-half">
-        <a class="project" href="https://youtu.be/9lqnBwFLwjs" data-image="" data-youtube="9lqnBwFLwjs" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">KASTO</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">11 / Music Video &middot; Poster Design &middot; Production</div>
-            <div class="project-name">Kasto Yo Man</div>
-            <div class="project-artist">Sunil Giri</div>
-            <div class="project-desc">Heart burns with emotions he can’t ignore &#8212; a mix of longing, doubt, and regret</div>
-          </div></div>
-        </a>
-        <a class="project" href="https://youtu.be/IWoloyd9s-g" data-image="" data-youtube="IWoloyd9s-g" target="_blank" rel="noopener">
-          <div class="project-placeholder"></div>
-          <div class="project-bg-text">CHHOTO</div>
-          <div class="play-circle"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-          <div class="project-label"><div class="project-label-glass">
-            <div class="project-num">12 / Music Video &middot; Creative Direction &middot; Title Design &middot; Poster Design</div>
-            <div class="project-name">Chhoto Chha Jindagi</div>
-            <div class="project-artist">Bhupu Pandey</div>
-            <div class="project-desc">Life is short &#8212; we made sure every second of this video reminded you of that, beautifully.</div>
-          </div></div>
-        </a>
-      </div>
-
+    <!--
+    ════════════════════════════════════════════════
+    DOWNLOAD BUTTON — file: Music_and_Tech.pdf
+    ════════════════════════════════════════════════
+    -->
+    <div class="download-wrap">
+      <a class="download-btn" href="Music_and_Tech.pdf" download="Music and Tech.pdf">
+        <svg viewBox="0 0 24 24"><path d="M12 4v12M12 16l-4-4M12 16l4-4"/><path d="M4 18v1a1 1 0 001 1h14a1 1 0 001-1v-1"/></svg>
+        Download the full guide
+        <span class="dl-sub">&#8212; Music and Tech (PDF)</span>
+      </a>
     </div>
   </section>
 
-  <!-- STATEMENT -->
-  <section class="statement" id="about">
-    <div class="statement-big">
-      CRAFT<br>
-      <span class="red">CARE</span><br>
-      <span class="outline">VISION</span>
-    </div>
-    <div class="statement-body">
-      <p class="statement-text">"Every frame is a decision. Every cut is an intention."</p>
-      <p class="statement-sub">Pyaro Studio is a music video production house based in Nepal. We work with the country&#8217;s most celebrated artists &#8212; Prakash Saput, Bhupu Pandey, Sunil Giri and more &#8212; to create visual stories as powerful as the music itself.</p>
-      <p class="statement-sub">From intimate acoustic performances to sweeping cinematic productions, we bring the same precision and care to every project.</p>
+  <!-- WHY -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">01</span><span class="section-title">Why go digital</span></div>
+    <p class="section-sub">Not long ago, a music company had to invest heavily before an artist's songs reached anyone — sold and heard through cassettes, CDs, and DVDs. Smartphones, affordable internet, and the arrival of YouTube changed that completely: every artist can now open a channel and upload directly. Physical sales and local radio still matter in Nepal, but streaming and social platforms are where most new listeners — inside Nepal and across the diaspora — now discover an artist for the first time. That shift also means an artist today has to think like an investor, technician, and distributor all at once, not just a performer.</p>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag">Reach</span>
+        <div class="card-title">Global from day one</div>
+        <p class="card-text">A single upload can land on Spotify, Apple Music, YouTube Music and TikTok simultaneously — reaching the Nepali diaspora in the Gulf, India, the UK, the US, and Australia without a single physical copy sold.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag">Ownership</span>
+        <div class="card-title">You keep your masters</div>
+        <p class="card-text">Unlike a traditional label deal, most distributors let an independent artist keep 100% ownership of their master recording — the distributor is a delivery service, not a rights holder.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag">Data</span>
+        <div class="card-title">You see what works</div>
+        <p class="card-text">Streaming dashboards show which songs, cities, and playlists are driving listens — information that used to be locked inside a label's office.</p>
+      </div>
     </div>
   </section>
 
-  <!-- STATS -->
-  <div class="stats-row">
-    <div class="stat-cell"><div class="stat-n">24<sup>+</sup></div><div class="stat-lbl">Productions</div></div>
-    <div class="stat-cell"><div class="stat-n">12<sup>+</sup></div><div class="stat-lbl">Artists</div></div>
-    <div class="stat-cell"><div class="stat-n">5<sup>+</sup></div><div class="stat-lbl">Years</div></div>
-  </div>
+  <!-- SECURITY -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">02</span><span class="section-title">Securing your accounts before you post</span></div>
+    <p class="section-sub">Uploading is the easy part. Losing access to a page with tens of thousands of followers because a recovery number was never updated is the mistake that actually costs artists their career — do this before you upload anything.</p>
+    <div class="flow-list">
+      <div class="flow-step">
+        <div class="flow-step-num">01</div>
+        <div>
+          <div class="flow-step-title">Keep your recovery email and phone number current</div>
+          <p class="flow-step-text">Almost every account needs an email address and mobile number attached for recovery. Pages with lakhs of followers have been permanently lost simply because the linked number changed and was never updated. On Facebook: go to <strong>Settings &amp; Privacy → Settings → Accounts Center → your profile → Personal Details → Contact Information</strong>, and make sure the email and phone number listed are ones you actually control today — remove old ones, add current ones. This detail is as important as the key to your own house.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">02</div>
+        <div>
+          <div class="flow-step-title">Turn on Two-Factor Authentication (2FA) on Facebook</div>
+          <p class="flow-step-text">2FA means a password alone can't unlock your account — whoever logs in also needs a one-time code sent to your phone or generated by an authenticator app. Enable it at <strong>Settings &amp; Privacy → Settings → Accounts Center → Password and Security → Two-Factor Authentication</strong>, choose your profile, then pick a method: an authenticator app (most secure), SMS text (simplest), or a physical security key. Enter the 6-digit code you receive to confirm it's on.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">03</div>
+        <div>
+          <div class="flow-step-title">Turn on 2-Step Verification on Gmail / Google</div>
+          <p class="flow-step-text">Your YouTube channel lives inside a Google account, so it deserves the same protection. Go to <strong>Manage your Google Account → Security → 2-Step Verification → Get Started</strong>, confirm your password, add your phone number (with the +977 Nepal code if you're signing in from here), and verify the 6-digit code sent by text.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">04</div>
+        <div>
+          <div class="flow-step-title">Save your backup codes somewhere safe</div>
+          <p class="flow-step-text">Once 2FA is on, both Facebook and Google show a set of one-time backup codes. Write them in a notebook or store them in a second email account — if your SIM is ever lost or blocked, these codes are the only way back in without your phone.</p>
+        </div>
+      </div>
+    </div>
+    <div class="glass-note">
+      <span class="rlabel">Why this matters</span>
+      A social media login is like the key to your house — whoever holds it can walk in and change anything. Spending ten minutes on recovery details and 2FA before your next release is the cheapest insurance an artist can buy.
+    </div>
+  </section>
 
-  <!-- CONTACT -->
-  <section class="contact" id="contact">
-    <div class="contact-big">LET'S MAKE<br><span class="red">SOME THING</span></div>
-    <div class="contact-right">
-      <a class="contact-link" href="mailto:design@pyaro.studio">design@pyaro.studio</a>
-      <a class="contact-link" href="https://www.facebook.com/pyarostudio" target="_blank" rel="noopener">Facebook</a>
-      <a class="contact-link" href="distribution.html">Music Distribution Guide</a>
+  <!-- AGGREGATORS -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">03</span><span class="section-title">Choosing a distributor</span></div>
+    <p class="section-sub">Nepal has no local "front door" onto Spotify or Apple Music — every independent artist goes through a third-party aggregator. The right one depends on budget, catalogue size, and how you want to get paid.</p>
+    <div class="table-wrap">
+      <table class="compare">
+        <thead>
+          <tr><th>Distributor</th><th>Model</th><th>Good for</th><th>Payout notes for Nepal</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DistroKid</td>
+            <td class="muted">Flat annual fee, keep 100%</td>
+            <td class="muted">Artists releasing often</td>
+            <td class="muted">Pays via PayPal or bank transfer — PayPal payouts in Nepal need a workaround such as Payoneer or a supported bank route</td>
+          </tr>
+          <tr>
+            <td>TuneCore</td>
+            <td class="muted">Per-release or annual fee</td>
+            <td class="muted">One-off singles or albums</td>
+            <td class="muted">Payoneer and bank transfer supported in most regions</td>
+          </tr>
+          <tr>
+            <td>OneRPM</td>
+            <td class="muted">Commission-based, free to join</td>
+            <td class="muted">Artists who want label-style marketing support</td>
+            <td class="muted">Works with artists in South Asia; ask about local payout options before signing</td>
+          </tr>
+          <tr>
+            <td>Amuse</td>
+            <td class="muted">Free tier, paid tiers for higher splits</td>
+            <td class="muted">First-time uploaders testing the waters</td>
+            <td class="muted">Payoneer supported</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="glass-note">
+      <span class="rlabel">Practical tip</span>
+      Since Nepal is not on PayPal's list of supported send/receive countries, most independent Nepali artists route royalty payouts through <strong>Payoneer</strong> or a bank that accepts inward USD wire transfers, then convert to NPR. Confirm a distributor's supported payout method before you commit to it.
+    </div>
+  </section>
+
+  <!-- WHERE -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">04</span><span class="section-title">Where your music goes</span></div>
+    <p class="section-sub">A single distribution submission typically reaches all of the major streaming and social platforms at once.</p>
+    <div class="card-grid">
+      <div class="card"><span class="card-tag">Streaming</span><div class="card-title">Spotify</div><p class="card-text">The primary discovery engine for playlists — pitch unreleased tracks for editorial playlist consideration at least a week before release.</p></div>
+      <div class="card"><span class="card-tag">Streaming</span><div class="card-title">Apple Music</div><p class="card-text">Strong among diaspora listeners on iPhone; supports Spatial Audio if you master for it.</p></div>
+      <div class="card"><span class="card-tag">Video</span><div class="card-title">YouTube &amp; YouTube Music</div><p class="card-text">Still the dominant platform for Nepali music video culture — pair distribution with a Content ID claim so unofficial re-uploads generate revenue instead of losing it.</p></div>
+      <div class="card"><span class="card-tag">Social</span><div class="card-title">TikTok &amp; Instagram Reels</div><p class="card-text">Short clips drive most new-song discovery today — clear the sound for use in Reels/TikTok when you distribute so fans can use it in their own posts.</p></div>
+      <div class="card"><span class="card-tag">Regional</span><div class="card-title">Hamro Music &amp; local platforms</div><p class="card-text">Nepal-specific platforms and radio still carry weight for local charts and terrestrial airplay — worth submitting to directly alongside global distribution.</p></div>
+      <div class="card"><span class="card-tag">Other</span><div class="card-title">Amazon Music &amp; Deezer</div><p class="card-text">Smaller listener base but included at no extra cost through nearly every aggregator — no reason to skip them.</p></div>
+    </div>
+  </section>
+
+  <!-- UPLOADING -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">05</span><span class="section-title">Uploading to Facebook &amp; YouTube</span></div>
+    <p class="section-sub">Distribution gets your song onto streaming platforms — but Facebook and YouTube still need a direct upload for reels, music videos, and reaching your own community.</p>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag">Facebook</span>
+        <div class="card-title">Bulk upload via Meta Business Suite</div>
+        <p class="card-text">
+          1. Open Meta Business Suite and go to Home.<br>
+          2. Click <strong>More → Bulk upload reels</strong> (up to 50 videos at once).<br>
+          3. Add your video files — Facebook runs an automatic copyright check on each one.<br>
+          4. Write your caption and hashtags, then choose a thumbnail.<br>
+          5. Under <strong>Optimize</strong>, turn on Stars and Content Monetization if you're eligible.<br>
+          6. Review the copyright check under <strong>Publish</strong>, then Share now or Schedule for later.
+        </p>
+      </div>
+      <div class="card">
+        <span class="card-tag">YouTube</span>
+        <div class="card-title">Upload via YouTube Studio</div>
+        <p class="card-text">
+          1. From your channel, open <strong>YouTube Studio → Create → Upload videos</strong>.<br>
+          2. Drag in your file, then fill out the title and a full description.<br>
+          3. Under <strong>Video elements</strong>, add subtitles and an end screen.<br>
+          4. Wait for the automatic copyright <strong>Checks</strong> to finish.<br>
+          5. Under <strong>Visibility</strong>, choose Private, Unlisted, or Public — or schedule a premiere.<br>
+          6. Add tags and set the video language before publishing.
+        </p>
+      </div>
+    </div>
+    <div class="glass-note">
+      <span class="rlabel">Reusable credit template</span>
+      Paste this into your YouTube or Facebook description and fill in the names — it keeps every release consistent and makes sure everyone who worked on it gets credited.
+    </div>
+    <pre class="credit-template">Audio Credits:
+Vocal:
+Lyrics | Music:
+Music Arranger:
+Mixing | Mastering:
+Studio:
+Audio | Video:
+
+Video Credits:
+Concept | Direction:
+Choreographer:
+Cast:
+Co-Artist:
+Supporting Artist:
+Cinematographer:
+Edit | Color:
+Make Up Artist:
+Post Production:
+Special Thanks:
+
+Unauthorized downloading and re-uploading on any streaming platform is strictly prohibited and will attract punitive measures from [channel name]. Embedding on a website is allowed.</pre>
+  </section>
+
+  <!-- GETTING PAID -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">06</span><span class="section-title">Getting paid, from Nepal</span></div>
+    <p class="section-sub">This is the part most guides skip. Streaming income earned by a Nepali artist is real foreign income, and it comes with real paperwork.</p>
+    <div class="flow-list">
+      <div class="flow-step">
+        <div class="flow-step-num">01</div>
+        <div>
+          <div class="flow-step-title">Set up a payout method that actually reaches Nepal</div>
+          <p class="flow-step-text">Payoneer is the most commonly used option among Nepali creators for receiving USD from distributors, since PayPal cannot send funds directly into Nepal. Some banks also accept inward SWIFT wires directly.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">02</div>
+        <div>
+          <div class="flow-step-title">Bring the money in through a recognized channel</div>
+          <p class="flow-step-text">Nepal Rastra Bank regulates inward foreign remittance. Converting through a licensed remittance service or your bank's foreign currency account, rather than an informal channel, keeps a paper trail you'll want later.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">03</div>
+        <div>
+          <div class="flow-step-title">Treat it as taxable income</div>
+          <p class="flow-step-text">Royalty and streaming income is generally treated as business or self-employment income under Nepal's tax law. If you're earning consistently, register for a PAN with the Inland Revenue Department and keep records of every payout.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">04</div>
+        <div>
+          <div class="flow-step-title">Talk to a chartered accountant early</div>
+          <p class="flow-step-text">Thresholds, TDS rules, and filing requirements change and depend on your total income and whether you're operating as an individual or a registered business. A local accountant familiar with foreign remittance is worth the consultation fee.</p>
+        </div>
+      </div>
+    </div>
+    <div class="glass-note">
+      <span class="rlabel">Not tax advice</span>
+      This page explains the general shape of the process so you know what questions to ask. Specific rates, thresholds, and forms change and should be confirmed with a Nepali chartered accountant or the Inland Revenue Department directly before you file anything.
+    </div>
+  </section>
+
+  <!-- PROTECTING YOUR WORK -->
+  <section class="section">
+    <div class="section-head"><span class="section-num">07</span><span class="section-title">Protecting your rights</span></div>
+    <p class="section-sub">Distribution puts your song online. These steps make sure it stays yours.</p>
+    <div class="card-grid">
+      <div class="card"><span class="card-tag">Identify</span><div class="card-title">Get an ISRC</div><p class="card-text">Your distributor issues a unique ISRC code per track for free — this is how every platform tracks plays and attributes royalties back to you specifically.</p></div>
+      <div class="card"><span class="card-tag">Enforce</span><div class="card-title">Register Content ID</div><p class="card-text">Once your video is live, a YouTube Content ID claim lets you monetize or take down unauthorized re-uploads automatically instead of chasing them one by one.</p></div>
+      <div class="card"><span class="card-tag">Document</span><div class="card-title">Copyright registration</div><p class="card-text">Registering your work with Nepal's Copyright Registrar's Office under the Copyright Act creates a formal, dated record of authorship that strengthens any future dispute.</p></div>
+      <div class="card"><span class="card-tag">Collect</span><div class="card-title">Publishing &amp; mechanical royalties</div><p class="card-text">A separate publishing administrator (distinct from your recording distributor) collects songwriting royalties when your composition is covered, sampled, or synced elsewhere.</p></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-band" id="contact-cta">
+    <div class="cta-big">NEED A HAND<br>WITH YOUR <span class="red">RELEASE</span>?</div>
+    <div class="cta-right">
+      <a class="cta-link" href="mailto:design@pyaro.studio">design@pyaro.studio</a>
+      <a class="cta-link" href="index.html#contact">Talk to Pyaro Studio</a>
+      <a class="cta-link" href="upload.html">Upload artwork or a brief</a>
     </div>
   </section>
 
   <footer>
-    <div class="footer-l">
-      <img class="footer-logo-svg" src="Pyaro_Studio.svg" alt="Pyaro Studio" />
-    </div>
+    <div class="footer-l"><img class="footer-logo-svg" src="Pyaro_Studio.svg" alt="Pyaro Studio" /></div>
     <div class="footer-r">&#169; 2026</div>
   </footer>
 
   <script>
-    // ── THEME TOGGLE ──
     const html = document.documentElement;
     const btn  = document.getElementById('themeToggle');
     const saved = localStorage.getItem('pyaro-theme');
     if (saved) html.setAttribute('data-theme', saved);
-
     btn.addEventListener('click', () => {
       const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', next);
@@ -977,7 +666,6 @@
       applyTS(next);
     });
 
-    // ── MOBILE MENU ──
     const hamburger  = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobileMenu');
     hamburger.addEventListener('click', () => {
@@ -990,112 +678,6 @@
       hamburger.classList.remove('active');
       hamburger.setAttribute('aria-expanded', 'false');
     }));
-
-    // ── TICKER ──
-    const artists = ['Prakash Saput','Bhupu Pandey','Sunil Giri','Devendra Bablu','Wilson Bikram Rai','Kavya Band','Sarjun Rai','Asmita Adhikari','Suman Gurung','Khem Century'];
-    const ticker = document.getElementById('ticker-inner');
-    const items = [...artists, ...artists].map(a =>
-     `<span class="ticker-item">${a}<span class="rdot">&hearts;</span></span>`
-    ).join('');
-    ticker.innerHTML = items + items;
-
-    // ── CAROUSEL ──
-    const SLIDE_DURATION = 5000; // milliseconds per slide
-
-    const slides   = [...document.querySelectorAll('.carousel-slide')];
-    const dotsWrap = document.getElementById('carouselDots');
-    const counter  = document.getElementById('carouselCounter');
-    const progress = document.getElementById('carouselProgress');
-    const prevBtn  = document.getElementById('carouselPrev');
-    const nextBtn  = document.getElementById('carouselNext');
-    const track    = document.getElementById('carouselTrack');
-
-    let current = 0;
-    let timer;
-
-    slides.forEach((slide, i) => {
-      const src = slide.getAttribute('data-image');
-      if (src && src.trim()) {
-        const img = document.createElement('img');
-        img.src = src.trim();
-        img.alt = 'Pyaro Studio — slide ' + (i + 1);
-        img.loading = i === 0 ? 'eager' : 'lazy';
-        const ph = slide.querySelector('.slide-placeholder');
-        if (ph) ph.replaceWith(img);
-        else slide.insertBefore(img, slide.firstChild);
-      }
-      const dot = document.createElement('button');
-      dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-      dot.addEventListener('click', () => goTo(i));
-      dotsWrap.appendChild(dot);
-    });
-
-    function updateUI() {
-      slides.forEach((s, i) => s.classList.toggle('active', i === current));
-      [...dotsWrap.children].forEach((d, i) => d.classList.toggle('active', i === current));
-      counter.textContent = (current + 1).toString().padStart(2,'0') + ' / ' + slides.length.toString().padStart(2,'0');
-    }
-
-    function startProgress() {
-      progress.style.transition = 'none';
-      progress.style.width = '0%';
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          progress.style.transition = 'width ' + SLIDE_DURATION + 'ms linear';
-          progress.style.width = '100%';
-        });
-      });
-    }
-
-    function goTo(index) {
-      current = (index + slides.length) % slides.length;
-      updateUI();
-      clearInterval(timer);
-      startProgress();
-      timer = setInterval(() => goTo(current + 1), SLIDE_DURATION);
-    }
-
-    prevBtn.addEventListener('click', () => goTo(current - 1));
-    nextBtn.addEventListener('click', () => goTo(current + 1));
-
-    track.addEventListener('mouseenter', () => { clearInterval(timer); });
-    track.addEventListener('mouseleave', () => { goTo(current); });
-
-    let touchStartX = 0;
-    track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-    track.addEventListener('touchend',   e => {
-      const diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 40) goTo(current + (diff > 0 ? 1 : -1));
-    });
-
-    updateUI();
-    startProgress();
-    timer = setInterval(() => goTo(current + 1), SLIDE_DURATION);
-
-    // ── PROJECT IMAGES ──
-    document.querySelectorAll('.project').forEach(proj => {
-      const customImage = proj.getAttribute('data-image');
-      const youtubeId   = proj.getAttribute('data-youtube');
-      const placeholder = proj.querySelector('.project-placeholder');
-      const bgText      = proj.querySelector('.project-bg-text');
-      const src = (customImage && customImage.trim())
-        ? customImage
-        : youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : null;
-      if (src) {
-        const img = document.createElement('img');
-        img.alt = proj.querySelector('.project-name')?.textContent || '';
-        img.loading = 'lazy';
-        img.onerror = () => {
-          if (youtubeId && img.src.includes('maxresdefault'))
-            img.src = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
-        };
-        img.src = src;
-        if (placeholder) placeholder.replaceWith(img);
-        else proj.insertBefore(img, bgText);
-      }
-    });
   </script>
-
 </body>
 </html>
