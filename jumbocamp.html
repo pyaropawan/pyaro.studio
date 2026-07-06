@@ -352,13 +352,11 @@
 
 <script>
 /* ---------- Config ----------
-   Cloud storage: kvdb.io — free, keyless key/value store.
-   One "bucket" is created per trip (client-side, once), then the whole
-   ledger is stored as a single JSON value under a fixed key in that bucket.
-   Chosen over the previous backend because it returns the new bucket id
-   in the response BODY, not a header — headers can get silently blocked
-   by CORS in some browsers, which was likely why saves weren't reaching
-   the server before. Body-based reads always work.
+   Cloud storage: kvdb.io — free, keyless key/value store. No login,
+   no OAuth, no consent screen. Chosen after Google's account-level
+   OAuth block made the Sheets backend unusable for this account.
+   One "bucket" is created per trip (client-side, once), then the
+   whole ledger is stored as a single JSON value under a fixed key.
 ------------------------------ */
 const KVDB_BASE = 'https://kvdb.io';
 const LEDGER_KEY_NAME = 'ledger';
@@ -376,7 +374,7 @@ let campers = [];
 let expenses = [];
 let splitMode = 'equal';
 let pendingPhotoTarget = null;
-let ledgerId = null; // kvdb bucket id
+let ledgerId = null;
 let remoteMode = true;
 let unlocked = sessionStorage.getItem('jumbocamp_unlocked') === '1';
 let pollTimer = null;
