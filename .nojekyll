@@ -1,0 +1,4 @@
+# This file disables Jekyll processing on GitHub Pages.
+# Rename this file to exactly:  .nojekyll  (with the leading dot, no .txt)
+# and place it in the ROOT of your repository (same level as index.html).
+# GitHub Pages will then serve your files as-is without trying to "build" them.
