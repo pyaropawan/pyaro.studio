@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<!-- Hide from all search engines: redundant directives for different crawlers -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="googlebot" content="noindex, nofollow">
 <meta name="bingbot" content="noindex, nofollow">
@@ -39,7 +38,6 @@
     position:relative;
     -webkit-font-smoothing: antialiased;
   }
-  /* film-grain + vignette signature texture */
   body::before{
     content:"";
     position:fixed; inset:0; pointer-events:none; z-index:0;
@@ -55,7 +53,7 @@
     max-width: 860px; margin:0 auto; position:relative; z-index:1;
     padding: calc(44px + env(safe-area-inset-top)) 18px calc(120px + env(safe-area-inset-bottom));
   }
-  header{ margin-bottom: 34px; }
+  header{ margin-bottom: 24px; }
   .brandmark{
     font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
     color: var(--muted); margin-bottom:18px; display:flex; align-items:center; gap:10px;
@@ -72,6 +70,32 @@
   }
   .sub{ color: var(--muted); font-size:14.5px; max-width:60ch; line-height:1.6; }
 
+  .status-bar{
+    display:flex; align-items:center; flex-wrap:wrap; gap:10px;
+    background: var(--glass); border:1px solid var(--line); border-radius:14px;
+    padding: 12px 16px; margin-bottom: 20px;
+    backdrop-filter: blur(18px);
+  }
+  .status-bar .sync-state{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; color: var(--muted);
+    display:flex; align-items:center; gap:6px;
+  }
+  .sync-dot{ width:7px; height:7px; border-radius:50%; background: var(--owed); flex-shrink:0; }
+  .sync-dot.bad{ background: var(--red); }
+  .sync-dot.pending{ background: var(--gold); }
+  .lock-toggle{
+    margin-left:auto; display:flex; align-items:center; gap:8px;
+  }
+  .lock-badge{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; padding:5px 11px; border-radius:20px;
+    border:1px solid var(--line);
+  }
+  .lock-badge.locked{ color: var(--muted); }
+  .lock-badge.unlocked{ color: var(--owed); border-color: rgba(127,169,127,0.4); }
+  .lock-form{ display:flex; gap:6px; align-items:center; }
+  .lock-form input{ width:120px; padding:8px 10px; font-size:13px; min-height:36px; }
+  .lock-form button{ padding:8px 12px; min-height:36px; font-size:13px; }
+
   .card{
     background: var(--glass);
     border:1px solid var(--line);
@@ -84,7 +108,7 @@
   .card h2{
     font-family:'Fraunces', serif; font-weight:600;
     font-size:17px; margin:0 0 16px;
-    display:flex; align-items:baseline; gap:10px;
+    display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
   }
   .card h2 .num{
     font-family:'JetBrains Mono', monospace; font-size:12px; color: var(--red);
@@ -122,14 +146,15 @@
   .camper-chip .remove-btn:hover{ color: var(--red); opacity:1; }
   .add-row{ display:flex; gap:8px; }
 
-  input[type=text], input[type=number], select, textarea{
+  input[type=text], input[type=number], input[type=password], select, textarea{
     background: var(--bg-2); border:1px solid var(--line); color:var(--text);
     border-radius:10px; padding:12px 13px; font-size:16px; font-family:'Inter',sans-serif;
     outline:none; min-height:44px;
   }
   textarea{ width:100%; resize:vertical; font-family:'JetBrains Mono', monospace; font-size:12.5px; min-height:auto; }
-  input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus{ border-color: var(--red); }
+  input[type=text]:focus, input[type=number]:focus, input[type=password]:focus, select:focus, textarea:focus{ border-color: var(--red); }
   input::placeholder{ color:#5f5b56; }
+  input:disabled, select:disabled, button:disabled{ opacity:0.4; cursor:not-allowed; }
 
   button.primary{
     background: var(--red); color:#FBEFE9; border:none; border-radius:10px;
@@ -201,7 +226,6 @@
     font-size:11px; letter-spacing:0.08em; margin-top:8px; opacity:0.7;
   }
 
-  /* mobile quick-add bar */
   .mobile-bar{
     display:none;
     position:fixed; left:0; right:0; bottom:0; z-index:5;
@@ -209,15 +233,15 @@
     background: linear-gradient(to top, rgba(11,11,13,0.96) 70%, rgba(11,11,13,0));
     backdrop-filter: blur(10px);
   }
-  .mobile-bar button{
-    width:100%; display:block;
-  }
+  .mobile-bar button{ width:100%; display:block; }
 
   @media (max-width: 640px){
     .form-grid{ grid-template-columns: 1fr; }
     .add-row{ flex-direction:column; }
     .mobile-bar{ display:block; }
     .wrap{ padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+    .lock-toggle{ margin-left:0; width:100%; }
+    .status-bar{ flex-direction:column; align-items:stretch; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -229,15 +253,22 @@
 <div class="wrap">
   <header>
     <div class="brandmark"><span class="dot"></span>PYARO STUDIO — INTERNAL TOOL</div>
-    <div class="eyebrow">— A private ledger for one trip</div>
+    <div class="eyebrow">— A shared ledger for one trip</div>
     <h1>Jumbo Camp</h1>
-    <div class="sub">Log who bought what, and this works out exactly who owes who — settled in the fewest payments possible. Data saves in this browser only. Use Export/Import to sync with the rest of the group.</div>
+    <div class="sub">Log who bought what, and this works out exactly who owes who — settled in the fewest payments possible. Everyone who has the link sees the same live ledger. Enter the group password to add or change anything.</div>
   </header>
+
+  <div class="status-bar">
+    <div class="sync-state" id="syncState"><span class="sync-dot pending" id="syncDot"></span><span id="syncText">Connecting...</span></div>
+    <button class="ghost" id="refreshBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">↻ Refresh</button>
+    <button class="ghost" id="copyLinkBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">🔗 Copy shareable link</button>
+    <div class="lock-toggle" id="lockToggle"></div>
+  </div>
 
   <div class="card">
     <h2><span class="num">01</span> Campers <span class="tag" id="camperCount">0</span></h2>
     <div class="campers-row" id="campersRow"></div>
-    <div class="add-row">
+    <div class="add-row" id="addCamperRow">
       <input type="text" id="camperInput" placeholder="Add a camper's name..." style="flex:1">
       <button class="primary" id="addCamperBtn">Add</button>
     </div>
@@ -246,20 +277,22 @@
 
   <div class="card" id="expenseCard">
     <h2><span class="num">02</span> Log a Purchase <span class="tag">expense</span></h2>
-    <div class="form-grid">
-      <input type="text" id="descInput" placeholder="What was bought (e.g. firewood, groceries)">
-      <input type="number" id="amountInput" placeholder="Amount" step="0.01" min="0" inputmode="decimal">
-      <select id="paidByInput"><option value="">Paid by...</option></select>
-    </div>
-    <div class="split-block">
-      <div class="split-toggle">
-        <button id="splitEqualBtn" class="active">Split equally</button>
-        <button id="splitCustomBtn">Custom amounts</button>
+    <div id="expenseForm">
+      <div class="form-grid">
+        <input type="text" id="descInput" placeholder="What was bought (e.g. firewood, groceries)">
+        <input type="number" id="amountInput" placeholder="Amount" step="0.01" min="0" inputmode="decimal">
+        <select id="paidByInput"><option value="">Paid by...</option></select>
       </div>
-      <div class="split-people" id="splitPeople"></div>
+      <div class="split-block">
+        <div class="split-toggle">
+          <button id="splitEqualBtn" class="active">Split equally</button>
+          <button id="splitCustomBtn">Custom amounts</button>
+        </div>
+        <div class="split-people" id="splitPeople"></div>
+      </div>
+      <button class="primary" id="addExpenseBtn">Add expense</button>
+      <div class="status-msg" id="expenseStatus"></div>
     </div>
-    <button class="primary" id="addExpenseBtn">Add expense</button>
-    <div class="status-msg" id="expenseStatus"></div>
   </div>
 
   <div class="card">
@@ -278,8 +311,8 @@
   </div>
 
   <div class="card">
-    <h2><span class="num">06</span> Sync with the group <span class="tag">export / import</span></h2>
-    <div class="sub" style="margin-bottom:12px;">This page saves data only on your own device. To share progress: tap Export, copy the code, and message it to whoever's updating the ledger next — they paste it into Import on their device.</div>
+    <h2><span class="num">06</span> Backup copy <span class="tag">export / import</span></h2>
+    <div class="sub" style="margin-bottom:12px;">The ledger already syncs live for everyone with the link. Use this only as a manual backup, or to recover if the shared copy ever needs restoring.</div>
     <div class="sync-row">
       <button class="ghost" id="exportBtn">Export code</button>
       <button class="ghost" id="importBtn">Import code</button>
@@ -296,23 +329,213 @@
 </div>
 
 <script>
-// campers: [{ name, photo }]  photo is a base64 data URL or null
+/* ---------- Config ---------- */
+const JSONBLOB_API = 'https://jsonblob.com/api/jsonBlob';
+const EDIT_PASSWORD = 'jumbo';
+const LOCAL_CAMPERS_KEY = 'jumbocamp_campers';
+const LOCAL_EXPENSES_KEY = 'jumbocamp_expenses';
+const LOCAL_LEDGER_KEY = 'jumbocamp_ledger_id';
+const POLL_MS = 20000;
+
+/* ---------- State ---------- */
 let campers = [];
 let expenses = [];
 let splitMode = 'equal';
 let pendingPhotoTarget = null;
+let ledgerId = null;
+let remoteMode = true;
+let unlocked = sessionStorage.getItem('jumbocamp_unlocked') === '1';
+let pollTimer = null;
+let lastRemoteJson = null;
 
-function loadData(){
+/* ---------- Boot ---------- */
+async function boot(){
+  renderLockUI();
+  const urlId = new URLSearchParams(location.search).get('ledger');
+  ledgerId = urlId || localStorage.getItem(LOCAL_LEDGER_KEY);
+
+  loadLocalCache();
+  renderAll();
+
+  if(ledgerId){
+    const ok = await fetchRemote(true);
+    if(ok){
+      ensureUrlHasLedger();
+      startPolling();
+      return;
+    }
+  }
+  // no ledger yet, or fetching it failed — create a fresh shared ledger
+  const created = await createRemoteLedger();
+  if(created){
+    ensureUrlHasLedger();
+    startPolling();
+  } else {
+    goOffline('Could not reach the shared ledger service. Working from this device only.');
+  }
+}
+
+function ensureUrlHasLedger(){
+  const params = new URLSearchParams(location.search);
+  if(params.get('ledger') !== ledgerId){
+    params.set('ledger', ledgerId);
+    const newUrl = `${location.pathname}?${params.toString()}`;
+    history.replaceState(null, '', newUrl);
+  }
+  localStorage.setItem(LOCAL_LEDGER_KEY, ledgerId);
+}
+
+function loadLocalCache(){
   try{
-    const raw = JSON.parse(localStorage.getItem('jumbocamp_campers') || '[]');
+    const raw = JSON.parse(localStorage.getItem(LOCAL_CAMPERS_KEY) || '[]');
     campers = raw.map(c => typeof c === 'string' ? { name: c, photo: null } : c);
   }catch(e){ campers = []; }
-  try{ expenses = JSON.parse(localStorage.getItem('jumbocamp_expenses') || '[]'); }catch(e){ expenses = []; }
-  renderAll();
+  try{ expenses = JSON.parse(localStorage.getItem(LOCAL_EXPENSES_KEY) || '[]'); }catch(e){ expenses = []; }
 }
-function saveCampers(){ localStorage.setItem('jumbocamp_campers', JSON.stringify(campers)); }
-function saveExpenses(){ localStorage.setItem('jumbocamp_expenses', JSON.stringify(expenses)); }
 
+function saveLocalCache(){
+  localStorage.setItem(LOCAL_CAMPERS_KEY, JSON.stringify(campers));
+  localStorage.setItem(LOCAL_EXPENSES_KEY, JSON.stringify(expenses));
+}
+
+/* ---------- Remote sync (jsonblob.com — free, keyless JSON storage) ---------- */
+async function createRemoteLedger(){
+  try{
+    setSyncState('pending', 'Setting up shared ledger...');
+    const res = await fetch(JSONBLOB_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ campers, expenses })
+    });
+    if(!res.ok) throw new Error('create failed');
+    const loc = res.headers.get('Location') || '';
+    const id = loc.split('/').pop();
+    if(!id) throw new Error('no id returned');
+    ledgerId = id;
+    remoteMode = true;
+    lastRemoteJson = JSON.stringify({ campers, expenses });
+    setSyncState('good', 'Synced — new shared ledger created');
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+async function fetchRemote(isInitial){
+  try{
+    if(!isInitial) setSyncState('pending', 'Refreshing...');
+    const res = await fetch(`${JSONBLOB_API}/${ledgerId}`);
+    if(res.status === 404) return false;
+    if(!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    const json = JSON.stringify(data);
+    if(json !== lastRemoteJson){
+      campers = (data.campers || []).map(c => typeof c === 'string' ? { name: c, photo: null } : c);
+      expenses = data.expenses || [];
+      lastRemoteJson = json;
+      saveLocalCache();
+      renderAll();
+    }
+    remoteMode = true;
+    setSyncState('good', 'Synced with group');
+    return true;
+  }catch(e){
+    remoteMode = false;
+    setSyncState('bad', 'Offline — showing last saved copy');
+    return false;
+  }
+}
+
+async function pushRemote(){
+  saveLocalCache();
+  if(!remoteMode || !ledgerId){ return; }
+  try{
+    setSyncState('pending', 'Saving...');
+    const body = JSON.stringify({ campers, expenses });
+    const res = await fetch(`${JSONBLOB_API}/${ledgerId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body
+    });
+    if(!res.ok) throw new Error('save failed');
+    lastRemoteJson = body;
+    setSyncState('good', 'Synced with group');
+  }catch(e){
+    setSyncState('bad', 'Saved on this device — will retry syncing');
+  }
+}
+
+function startPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(() => fetchRemote(false), POLL_MS);
+}
+
+function goOffline(msg){
+  remoteMode = false;
+  setSyncState('bad', msg);
+}
+
+function setSyncState(kind, text){
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot' + (kind === 'bad' ? ' bad' : kind === 'pending' ? ' pending' : '');
+  txt.textContent = text;
+}
+
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  if(ledgerId) fetchRemote(false);
+});
+
+document.getElementById('copyLinkBtn').addEventListener('click', () => {
+  const url = location.href;
+  navigator.clipboard ? navigator.clipboard.writeText(url).catch(()=>{}) : null;
+  const btn = document.getElementById('copyLinkBtn');
+  const original = btn.textContent;
+  btn.textContent = '✓ Link copied';
+  setTimeout(() => btn.textContent = original, 1800);
+});
+
+/* ---------- Password lock ---------- */
+function renderLockUI(){
+  const wrap = document.getElementById('lockToggle');
+  if(unlocked){
+    wrap.innerHTML = `
+      <span class="lock-badge unlocked">🔓 Editing unlocked</span>
+      <button class="ghost" id="relockBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">Lock</button>
+    `;
+    document.getElementById('relockBtn').addEventListener('click', () => {
+      sessionStorage.removeItem('jumbocamp_unlocked');
+      unlocked = false;
+      renderLockUI();
+      renderAll();
+    });
+  } else {
+    wrap.innerHTML = `
+      <span class="lock-badge locked">🔒 View only</span>
+      <div class="lock-form">
+        <input type="password" id="pwInput" placeholder="Group password">
+        <button class="ghost" id="unlockBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">Unlock</button>
+      </div>
+    `;
+    const pwInput = document.getElementById('pwInput');
+    const tryUnlock = () => {
+      if(pwInput.value === EDIT_PASSWORD){
+        sessionStorage.setItem('jumbocamp_unlocked', '1');
+        unlocked = true;
+        renderLockUI();
+        renderAll();
+      } else {
+        pwInput.style.borderColor = 'var(--red)';
+        pwInput.value = '';
+        pwInput.placeholder = 'Incorrect — try again';
+      }
+    };
+    document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+    pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+  }
+}
+
+/* ---------- Rendering ---------- */
 function getCamper(name){ return campers.find(c => c.name === name) || { name, photo: null }; }
 
 function avatarHtml(name, small){
@@ -333,6 +556,9 @@ function renderAll(){
   renderReceipts();
   renderBalances();
   renderSettle();
+  document.getElementById('addCamperRow').style.display = unlocked ? 'flex' : 'none';
+  document.getElementById('expenseForm').style.display = unlocked ? 'block' : 'none';
+  document.getElementById('importBtn').style.display = unlocked ? 'inline-block' : 'none';
 }
 
 function renderCampers(){
@@ -346,8 +572,8 @@ function renderCampers(){
     <div class="camper-chip">
       ${avatarHtml(c.name)}
       ${escapeHtml(c.name)}
-      <button class="photo-btn" onclick="choosePhoto('${escapeAttr(c.name)}')" title="Add / change photo">📷</button>
-      <button class="remove-btn" onclick="removeCamper('${escapeAttr(c.name)}')" title="Remove camper">✕</button>
+      ${unlocked ? `<button class="photo-btn" onclick="choosePhoto('${escapeAttr(c.name)}')" title="Add / change photo">📷</button>
+      <button class="remove-btn" onclick="removeCamper('${escapeAttr(c.name)}')" title="Remove camper">✕</button>` : ''}
     </div>
   `).join('');
 }
@@ -374,6 +600,7 @@ function renderSplitPeople(){
 }
 
 function choosePhoto(name){
+  if(!unlocked) return;
   pendingPhotoTarget = name;
   document.getElementById('photoFileInput').click();
 }
@@ -397,7 +624,7 @@ document.getElementById('photoFileInput').addEventListener('change', (e) => {
       const c = campers.find(c => c.name === pendingPhotoTarget);
       if(c){
         c.photo = dataUrl;
-        saveCampers();
+        pushRemote();
         renderAll();
       }
       pendingPhotoTarget = null;
@@ -408,24 +635,26 @@ document.getElementById('photoFileInput').addEventListener('change', (e) => {
 });
 
 function removeCamper(name){
+  if(!unlocked) return;
   const involved = expenses.some(e => e.paidBy === name || Object.prototype.hasOwnProperty.call(e.shares, name));
   if(involved){
     const ok = confirm(`${name} is tied to existing expenses. Removing them from the camper list won't delete those expenses, but they'll drop out of future splits. Remove anyway?`);
     if(!ok) return;
   }
   campers = campers.filter(c => c.name !== name);
-  saveCampers();
+  pushRemote();
   renderAll();
 }
 
 document.getElementById('addCamperBtn').addEventListener('click', () => {
+  if(!unlocked) return;
   const input = document.getElementById('camperInput');
   const name = input.value.trim();
   if(!name) return;
   if(campers.some(c => c.name === name)){ input.value=''; return; }
   campers.push({ name, photo: null });
   input.value = '';
-  saveCampers();
+  pushRemote();
   renderAll();
 });
 document.getElementById('camperInput').addEventListener('keydown', e => {
@@ -446,6 +675,7 @@ document.getElementById('splitCustomBtn').addEventListener('click', () => {
 });
 
 document.getElementById('addExpenseBtn').addEventListener('click', () => {
+  if(!unlocked) return;
   const statusEl = document.getElementById('expenseStatus');
   const desc = document.getElementById('descInput').value.trim();
   const amount = parseFloat(document.getElementById('amountInput').value);
@@ -493,18 +723,23 @@ document.getElementById('addExpenseBtn').addEventListener('click', () => {
   document.getElementById('amountInput').value = '';
   statusEl.textContent = '';
 
-  saveExpenses();
+  pushRemote();
   renderAll();
 });
 
 document.getElementById('mobileAddBtn').addEventListener('click', () => {
+  if(!unlocked){
+    document.getElementById('lockToggle').scrollIntoView({ behavior:'smooth', block:'start' });
+    return;
+  }
   document.getElementById('expenseCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   setTimeout(() => document.getElementById('descInput').focus(), 400);
 });
 
 function deleteExpense(id){
+  if(!unlocked) return;
   expenses = expenses.filter(e => e.id !== id);
-  saveExpenses();
+  pushRemote();
   renderAll();
 }
 
@@ -532,7 +767,7 @@ function renderReceipts(){
       </div>
       <div class="receipt-row">
         <div class="receipt-amt">$${e.amount.toFixed(2)}</div>
-        <button class="receipt-del" onclick="deleteExpense('${e.id}')" title="Delete expense">✕</button>
+        ${unlocked ? `<button class="receipt-del" onclick="deleteExpense('${e.id}')" title="Delete expense">✕</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -619,6 +854,7 @@ function renderSettle(){
   `).join('');
 }
 
+/* ---------- Export / Import (manual backup) ---------- */
 document.getElementById('exportBtn').addEventListener('click', () => {
   const box = document.getElementById('syncBox');
   const code = btoa(unescape(encodeURIComponent(JSON.stringify({ campers, expenses }))));
@@ -626,10 +862,11 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   box.value = code;
   box.select();
   navigator.clipboard && navigator.clipboard.writeText(code).catch(()=>{});
-  document.getElementById('syncStatus').textContent = 'Code copied — paste it in a message to your group. (Photos make this code longer.)';
+  document.getElementById('syncStatus').textContent = 'Code copied. This is a manual backup — the live ledger already syncs automatically.';
 });
 
 document.getElementById('importBtn').addEventListener('click', () => {
+  if(!unlocked) return;
   const box = document.getElementById('syncBox');
   const statusEl = document.getElementById('syncStatus');
   box.style.display = 'block';
@@ -642,22 +879,22 @@ document.getElementById('importBtn').addEventListener('click', () => {
     if(!decoded.campers || !decoded.expenses) throw new Error('bad format');
     campers = decoded.campers.map(c => typeof c === 'string' ? { name: c, photo: null } : c);
     expenses = decoded.expenses;
-    saveCampers();
-    saveExpenses();
+    pushRemote();
     renderAll();
-    statusEl.textContent = 'Imported — this device is now up to date.';
+    statusEl.textContent = 'Imported and synced to the shared ledger.';
   }catch(e){
     statusEl.textContent = 'That code could not be read. Double-check it was copied in full.';
   }
 });
 
+/* ---------- Utils ---------- */
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function escapeAttr(s){ return escapeHtml(s); }
 function cssEscape(s){ return String(s).replace(/(["\\])/g, '\\$1'); }
 
-loadData();
+boot();
 </script>
 </body>
 </html>
