@@ -22,6 +22,8 @@
       --nav-bg: rgba(14,14,14,0.75); --nav-shadow: 0 8px 32px rgba(0,0,0,0.5);
       --footer-bg: rgba(255,255,255,0.012);
       --err: #ff6b6b;
+      --pattern-opacity: 0.03;
+      --pattern-filter: invert(1);
     }
     [data-theme="light"] {
       --bg: #f5f2ee; --bg2: #ede9e3; --surface: #e4e0da;
@@ -32,6 +34,8 @@
       --nav-bg: rgba(245,242,238,0.85); --nav-shadow: 0 8px 32px rgba(0,0,0,0.08);
       --footer-bg: rgba(0,0,0,0.02);
       --err: #c9384f;
+      --pattern-opacity: 0.045;
+      --pattern-filter: none;
     }
 
     html { scroll-behavior: smooth; }
@@ -42,7 +46,22 @@
       overflow-x: hidden;
       min-height: 100vh;
       display: flex; flex-direction: column;
+      position: relative;
     }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: url("Pyaro_Studio.svg");
+      background-size: 160px 160px;
+      background-repeat: repeat;
+      opacity: var(--pattern-opacity);
+      filter: var(--pattern-filter);
+      transition: opacity 0.4s ease;
+    }
+    body > * { position: relative; z-index: 1; }
     a { color: inherit; text-decoration: none; }
     main { flex: 1; }
 
