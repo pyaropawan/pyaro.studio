@@ -137,6 +137,11 @@
       content: ''; position: absolute; top: -100px; right: -80px; width: 500px; height: 400px;
       background: radial-gradient(ellipse, rgba(236,59,86,0.08) 0%, transparent 70%); pointer-events: none;
     }
+    .hero-grid {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 48px; position: relative; z-index: 1;
+    }
+    .hero-main { flex: 1; min-width: 0; }
     .eyebrow { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 18px; display: block; position: relative; z-index: 1; }
     .page-title {
       font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px,8vw,110px); line-height: 0.92;
@@ -147,32 +152,44 @@
       font-family: 'Instrument Serif', serif; font-style: italic; font-size: clamp(16px,2vw,20px);
       line-height: 1.6; color: var(--text-muted); max-width: 60ch; margin-top: 24px; position: relative; z-index: 1;
     }
-    .byline {
-      display: flex; align-items: center; gap: 18px; margin-top: 26px; position: relative; z-index: 1;
-      padding: 16px 20px; border-radius: 14px; max-width: 640px;
-      background: var(--glass-bg); border: 0.5px solid var(--glass-border);
-      backdrop-filter: blur(16px);
-      box-shadow: inset 0 1px 0 var(--glass-shine);
-      font-size: 13px; letter-spacing: 0.06em; line-height: 1.7; color: var(--text-muted);
-    }
-    .byline strong { color: var(--text); font-weight: 400; font-size: 15px; }
-    .byline .curator-role { display: block; margin-top: 3px; font-size: 12px; }
 
-    /* curator photo — red Pyaro highlight ring + glow */
+    /* ── CURATOR (side of the title) ── */
+    .curator-side {
+      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 16px;
+      max-width: 240px;
+      margin-top: 34px;
+    }
+    .curator-link { display: block; border-radius: 50%; transition: transform 0.3s ease; }
+    .curator-link:hover { transform: translateY(-4px) scale(1.03); }
     .curator-photo {
-      width: 88px; height: 88px; flex-shrink: 0;
+      width: 190px; height: 190px; display: block;
       border-radius: 50%;
       object-fit: cover;
-      border: 1.5px solid var(--red);
-      outline: 3px solid rgba(236,59,86,0.18);
-      box-shadow: 0 0 28px rgba(236,59,86,0.35);
+      border: 2px solid var(--red);
+      outline: 5px solid rgba(236,59,86,0.16);
+      box-shadow: 0 0 44px rgba(236,59,86,0.35);
       background: var(--surface);
+      transition: box-shadow 0.3s ease, outline-color 0.3s ease;
+    }
+    .curator-link:hover .curator-photo {
+      box-shadow: 0 0 60px rgba(236,59,86,0.55);
+      outline-color: rgba(236,59,86,0.3);
+    }
+    .curator-caption { font-size: 13px; letter-spacing: 0.06em; line-height: 1.7; color: var(--text-muted); }
+    .curator-caption strong { display: block; color: var(--text); font-weight: 400; font-size: 15px; margin-bottom: 3px; }
+    .curator-caption .fb-hint { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); }
+    .curator-caption .fb-hint::after { content: '↗'; font-size: 9px; }
+
+    @media (max-width: 900px) {
+      .hero-grid { flex-direction: column; gap: 36px; }
+      .curator-side { margin-top: 0; align-self: center; flex-direction: column; }
     }
     @media (max-width: 480px) {
-      .byline { gap: 14px; padding: 14px 16px; font-size: 12px; }
-      .byline strong { font-size: 14px; }
-      .byline .curator-role { font-size: 11px; }
-      .curator-photo { width: 68px; height: 68px; }
+      .curator-photo { width: 150px; height: 150px; }
+      .curator-caption { font-size: 12px; }
+      .curator-caption strong { font-size: 14px; }
     }
 
     .download-btn {
@@ -318,34 +335,46 @@
 
   <!-- HERO -->
   <section class="page-hero">
-    <span class="eyebrow">&#8212; Pyaro Studio Guide</span>
-    <h1 class="page-title">DIGITAL MUSIC<br><span class="red">DISTRIBUTION</span><br>FOR NEPALI ARTISTS</h1>
-    <p class="page-lede">A practical walkthrough for getting your music onto Spotify, Apple Music, YouTube and beyond — plus the Nepal-specific realities of getting paid, staying compliant, and protecting your work.</p>
-    <!--
-    ════════════════════════════════════════════════
-    CURATOR PHOTO — upload the picture to the same
-    folder as this page and name it exactly:
-        distro-guru-nep.jpg
-    (if your file is .png, change the src below)
-    ════════════════════════════════════════════════
-    -->
-    <p class="byline">
-      <img class="curator-photo" src="distro-guru-nep.jpg" alt="Mr. Rajendra Aryal" onerror="this.style.display='none'" />
-      <span>Guide curated &amp; provided by <strong>Mr. Rajendra Aryal</strong><span class="curator-role">Content Manager &amp; IT Professional for 600+ Nepali artists</span></span>
-    </p>
-    <!--
-    ════════════════════════════════════════════════
-    DOWNLOAD BUTTON — upload your PDF to the same
-    folder as this page and name it exactly:
-        Music_and_Tech.pdf
-    (or change the href below to match your filename)
-    ════════════════════════════════════════════════
-    -->
-    <a class="download-btn" href="Music_and_Tech.pdf" download="Music and Tech.pdf">
-      <svg viewBox="0 0 24 24"><path d="M12 4v12M12 16l-4-4M12 16l4-4"/><path d="M4 18v1a1 1 0 001 1h14a1 1 0 001-1v-1"/></svg>
-      Download the full guide
-      <span class="dl-sub">&#8212; Music and Tech (PDF)</span>
-    </a>
+    <div class="hero-grid">
+      <div class="hero-main">
+        <span class="eyebrow">&#8212; Pyaro Studio Guide</span>
+        <h1 class="page-title">DIGITAL MUSIC<br><span class="red">DISTRIBUTION</span><br>FOR NEPALI ARTISTS</h1>
+        <p class="page-lede">A practical walkthrough for getting your music onto Spotify, Apple Music, YouTube and beyond — plus the Nepal-specific realities of getting paid, staying compliant, and protecting your work.</p>
+        <!--
+        ════════════════════════════════════════════════
+        DOWNLOAD BUTTON — upload your PDF to the same
+        folder as this page and name it exactly:
+            Music_and_Tech.pdf
+        (or change the href below to match your filename)
+        ════════════════════════════════════════════════
+        -->
+        <a class="download-btn" href="Music_and_Tech.pdf" download="Music and Tech.pdf">
+          <svg viewBox="0 0 24 24"><path d="M12 4v12M12 16l-4-4M12 16l4-4"/><path d="M4 18v1a1 1 0 001 1h14a1 1 0 001-1v-1"/></svg>
+          Download the full guide
+          <span class="dl-sub">&#8212; Music and Tech (PDF)</span>
+        </a>
+      </div>
+
+      <!--
+      ════════════════════════════════════════════════
+      CURATOR PHOTO — upload the picture to the same
+      folder as this page and name it exactly:
+          distro-guru-nep.jpg
+      (if your file is .png, change the src below)
+      Clicking the photo opens his Facebook page.
+      ════════════════════════════════════════════════
+      -->
+      <div class="curator-side">
+        <a class="curator-link" href="https://www.facebook.com/RajendraAryalPage" target="_blank" rel="noopener" aria-label="Rajendra Aryal on Facebook">
+          <img class="curator-photo" src="distro-guru-nep.jpg" alt="Mr. Rajendra Aryal" onerror="this.closest('.curator-side').style.display='none'" />
+        </a>
+        <p class="curator-caption">
+          <strong>Mr. Rajendra Aryal</strong>
+          Guide curated &amp; provided by &#8212; Content Manager &amp; IT Professional for 600+ Nepali artists
+          <span class="fb-hint">Facebook</span>
+        </p>
+      </div>
+    </div>
   </section>
 
   <!-- WHY -->
