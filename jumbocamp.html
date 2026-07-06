@@ -351,8 +351,17 @@
 </div>
 
 <script>
-/* ---------- Config ---------- */
-const JSONBLOB_API = 'https://jsonblob.com/api/jsonBlob';
+/* ---------- Config ----------
+   Cloud storage: kvdb.io — free, keyless key/value store.
+   One "bucket" is created per trip (client-side, once), then the whole
+   ledger is stored as a single JSON value under a fixed key in that bucket.
+   Chosen over the previous backend because it returns the new bucket id
+   in the response BODY, not a header — headers can get silently blocked
+   by CORS in some browsers, which was likely why saves weren't reaching
+   the server before. Body-based reads always work.
+------------------------------ */
+const KVDB_BASE = 'https://kvdb.io';
+const LEDGER_KEY_NAME = 'ledger';
 const IP_LOOKUP_API = 'https://api.ipify.org?format=json';
 const EDIT_PASSWORD = 'jumbo';
 const LOCAL_CAMPERS_KEY = 'jumbocamp_campers';
@@ -367,7 +376,7 @@ let campers = [];
 let expenses = [];
 let splitMode = 'equal';
 let pendingPhotoTarget = null;
-let ledgerId = null;
+let ledgerId = null; // kvdb bucket id
 let remoteMode = true;
 let unlocked = sessionStorage.getItem('jumbocamp_unlocked') === '1';
 let pollTimer = null;
@@ -404,7 +413,7 @@ function getDeviceLabel(){ return myIp || 'unknown'; }
 async function boot(){
   renderLockUI();
   await resolveIp();
-  renderLockUI(); // re-render now that IP is known
+  renderLockUI();
 
   const urlId = new URLSearchParams(location.search).get('ledger');
   ledgerId = urlId || localStorage.getItem(LOCAL_LEDGER_KEY);
@@ -418,15 +427,15 @@ async function boot(){
     if(ok){
       ensureUrlHasLedger();
       startPolling();
-    } else {
-      const created = await createRemoteLedger();
-      if(created){ ensureUrlHasLedger(); startPolling(); }
-      else goOffline('Could not reach the shared ledger service. Working from this device only.');
+      return;
     }
+  }
+  const created = await createRemoteLedger();
+  if(created){
+    ensureUrlHasLedger();
+    startPolling();
   } else {
-    const created = await createRemoteLedger();
-    if(created){ ensureUrlHasLedger(); startPolling(); }
-    else goOffline('Could not reach the shared ledger service. Working from this device only.');
+    goOffline('Could not reach the shared ledger service. Working from this device only.');
   }
 }
 
@@ -451,21 +460,29 @@ function saveLocalCache(){
   localStorage.setItem(LOCAL_EXPENSES_KEY, JSON.stringify(expenses));
 }
 
-/* ---------- Remote sync (jsonblob.com — free, keyless JSON storage) ---------- */
+/* ---------- Remote sync (kvdb.io) ---------- */
 async function createRemoteLedger(){
   try{
     setSyncState('pending', 'Setting up shared ledger...');
+    const bucketRes = await fetch(`${KVDB_BASE}/`, { method: 'POST' });
+    if(!bucketRes.ok) throw new Error('bucket create failed (' + bucketRes.status + ')');
+    const rawBody = (await bucketRes.text()).trim();
+    let bucketId = rawBody;
+    try{
+      const parsed = JSON.parse(rawBody);
+      bucketId = parsed.id || parsed.bucket || parsed.key || rawBody;
+    }catch(e){ /* body was plain text id, use as-is */ }
+    if(!bucketId) throw new Error('no bucket id returned');
+    ledgerId = bucketId;
+
     const payload = { campers, expenses, lastModified: stampNow() };
-    const res = await fetch(JSONBLOB_API, {
-      method: 'POST',
+    const putRes = await fetch(`${KVDB_BASE}/${ledgerId}/${LEDGER_KEY_NAME}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if(!res.ok) throw new Error('create failed');
-    const loc = res.headers.get('Location') || '';
-    const id = loc.split('/').pop();
-    if(!id) throw new Error('no id returned');
-    ledgerId = id;
+    if(!putRes.ok) throw new Error('initial save failed (' + putRes.status + ')');
+
     remoteMode = true;
     lastRemoteJson = JSON.stringify({ campers, expenses });
     lastModified = payload.lastModified;
@@ -473,6 +490,7 @@ async function createRemoteLedger(){
     setSyncState('good', 'Synced — new shared ledger created');
     return true;
   }catch(e){
+    setSyncState('bad', 'Setup failed: ' + e.message);
     return false;
   }
 }
@@ -480,10 +498,11 @@ async function createRemoteLedger(){
 async function fetchRemote(isInitial){
   try{
     if(!isInitial) setSyncState('pending', 'Refreshing...');
-    const res = await fetch(`${JSONBLOB_API}/${ledgerId}`);
+    const res = await fetch(`${KVDB_BASE}/${ledgerId}/${LEDGER_KEY_NAME}`);
     if(res.status === 404) return false;
-    if(!res.ok) throw new Error('fetch failed');
-    const data = await res.json();
+    if(!res.ok) throw new Error('fetch failed (' + res.status + ')');
+    const raw = await res.text();
+    const data = JSON.parse(raw);
     const json = JSON.stringify({ campers: data.campers, expenses: data.expenses });
     if(json !== lastRemoteJson){
       campers = (data.campers || []).map(c => typeof c === 'string' ? { name: c, photo: null } : c);
@@ -499,7 +518,7 @@ async function fetchRemote(isInitial){
     return true;
   }catch(e){
     remoteMode = false;
-    setSyncState('bad', 'Offline — showing last saved copy');
+    setSyncState('bad', 'Offline: ' + e.message);
     return false;
   }
 }
@@ -512,8 +531,8 @@ async function pushRemote(useBeacon){
     let remoteData = null;
     if(!useBeacon){
       try{
-        const getRes = await fetch(`${JSONBLOB_API}/${ledgerId}`);
-        if(getRes.ok) remoteData = await getRes.json();
+        const getRes = await fetch(`${KVDB_BASE}/${ledgerId}/${LEDGER_KEY_NAME}`);
+        if(getRes.ok) remoteData = JSON.parse(await getRes.text());
       }catch(e){ /* fall back to local-only push */ }
     }
 
@@ -537,26 +556,24 @@ async function pushRemote(useBeacon){
     const payload = { campers, expenses, lastModified: stampNow() };
     const body = JSON.stringify(payload);
 
-    if(useBeacon && navigator.sendBeacon){
-      // best-effort flush on tab close; PUT isn't supported by sendBeacon so this
-      // is a background fetch with keepalive, which browsers honor briefly past unload
-      fetch(`${JSONBLOB_API}/${ledgerId}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body, keepalive:true }).catch(()=>{});
+    if(useBeacon){
+      fetch(`${KVDB_BASE}/${ledgerId}/${LEDGER_KEY_NAME}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body, keepalive:true }).catch(()=>{});
       return;
     }
 
-    const res = await fetch(`${JSONBLOB_API}/${ledgerId}`, {
+    const res = await fetch(`${KVDB_BASE}/${ledgerId}/${LEDGER_KEY_NAME}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body
     });
-    if(!res.ok) throw new Error('save failed');
+    if(!res.ok) throw new Error('save failed (' + res.status + ')');
     lastRemoteJson = JSON.stringify({ campers, expenses });
     lastModified = payload.lastModified;
     renderLastChange();
     renderAll();
     setSyncState('good', 'Synced with group');
   }catch(e){
-    setSyncState('bad', 'Saved on this device — will retry syncing');
+    setSyncState('bad', 'Saved on this device — retry pending: ' + e.message);
   }
 }
 
@@ -616,7 +633,7 @@ document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'hidden'){ saveDraft(); pushRemote(true); }
 });
 
-/* ---------- Password lock ---------- */
+/* ---------- Password lock (edits require password; every edit is IP-stamped) ---------- */
 function renderLockUI(){
   const wrap = document.getElementById('lockToggle');
   if(unlocked){
@@ -1060,7 +1077,7 @@ function renderSettle(){
 
 /* ---------- Draft autosave (protects against navigating away mid-entry) ---------- */
 function currentDraftSnapshot(){
-  if(editingExpenseId) return null; // don't clobber an in-progress edit with draft logic
+  if(editingExpenseId) return null;
   const desc = document.getElementById('descInput').value;
   const amount = document.getElementById('amountInput').value;
   const paidBy = document.getElementById('paidByInput').value;
