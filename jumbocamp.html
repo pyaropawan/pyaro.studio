@@ -21,6 +21,7 @@
     --red: #C1442E;
     --red-dim: rgba(193,68,46,0.16);
     --gold: #D4A24C;
+    --gold-dim: rgba(212,162,76,0.16);
     --owe: #C1442E;
     --owed: #7FA97F;
   }
@@ -90,6 +91,7 @@
   }
   .lock-badge.locked{ color: var(--muted); }
   .lock-badge.unlocked{ color: var(--owed); border-color: rgba(127,169,127,0.4); }
+  .lock-badge.leader{ color: var(--gold); border-color: rgba(212,162,76,0.5); }
   .lock-form{ display:flex; gap:6px; align-items:center; }
   .lock-form input{ width:120px; padding:8px 10px; font-size:13px; min-height:36px; }
   .lock-form button{ padding:8px 12px; min-height:36px; font-size:13px; }
@@ -128,6 +130,7 @@
     border:1px solid var(--line); border-radius:20px; padding:3px 9px; font-weight:500;
   }
   .card h2 .tag.editing{ color: var(--gold); border-color: rgba(212,162,76,0.4); }
+  .card h2 .tag.leader-tag{ color: var(--gold); border-color: rgba(212,162,76,0.4); }
 
   .avatar{
     width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0;
@@ -141,6 +144,9 @@
     border:1px solid var(--line);
   }
   .avatar-sm, .avatar-fallback-sm{ width:22px; height:22px; font-size:10.5px; }
+  .avatar-stack{ display:flex; }
+  .avatar-stack > *{ margin-left:-8px; border:2px solid var(--bg-2); }
+  .avatar-stack > *:first-child{ margin-left:0; }
 
   .campers-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
   .camper-chip{
@@ -179,6 +185,7 @@
     border-radius:10px; padding:11px 15px; font-size:13.5px; cursor:pointer; min-height:44px;
   }
   button.ghost:hover{ border-color: var(--gold); color: var(--gold); }
+  button.ghost.small{ min-height:36px; padding:7px 12px; font-size:12.5px; }
   .form-actions{ display:flex; gap:10px; flex-wrap:wrap; }
 
   .form-grid{ display:grid; grid-template-columns: 1.4fr 0.9fr 1fr; gap:10px; margin-bottom:12px; }
@@ -189,6 +196,9 @@
     border-radius:10px; padding:10px; font-size:13.5px; cursor:pointer; min-height:44px;
   }
   .split-toggle button.active{ border-color: var(--red); color: var(--red); background: var(--red-dim); }
+  .quick-split-row{ display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  .quick-split-row label{ font-size:12.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .quick-split-row select{ min-height:38px; padding:8px 10px; font-size:13px; flex:1; min-width:160px; }
   .split-people{ display:flex; flex-wrap:wrap; gap:8px; }
   .split-person{
     display:flex; align-items:center; gap:8px; background:var(--bg-2); border:1px solid var(--line);
@@ -252,9 +262,31 @@
   }
   .mobile-bar button{ width:100%; display:block; }
 
+  /* Groups */
+  .group-card{
+    background: var(--bg-2); border:1px solid var(--line); border-radius:12px;
+    padding:14px; margin-bottom:10px;
+  }
+  .group-card-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .group-name{ font-family:'Fraunces', serif; font-weight:600; font-size:15px; }
+  .group-actions{ margin-left:auto; display:flex; gap:6px; }
+  .group-members{ display:flex; flex-wrap:wrap; gap:6px; }
+  .group-member-chip{
+    display:flex; align-items:center; gap:6px; background: var(--glass-strong); border:1px solid var(--line);
+    border-radius:16px; padding:4px 10px 4px 4px; font-size:12.5px;
+  }
+  .group-editor{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
+  .group-editor .split-people{ margin-bottom:10px; }
+  .new-group-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .leader-only-note{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color: var(--muted);
+    margin-bottom:12px; line-height:1.5;
+  }
+
   @media (max-width: 640px){
     .form-grid{ grid-template-columns: 1fr; }
     .add-row{ flex-direction:column; }
+    .new-group-row{ flex-direction:column; }
     .mobile-bar{ display:block; }
     .wrap{ padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
     .lock-toggle{ margin-left:0; width:100%; }
@@ -277,8 +309,8 @@
 
   <div class="status-bar">
     <div class="sync-state" id="syncState"><span class="sync-dot pending" id="syncDot"></span><span id="syncText">Connecting...</span></div>
-    <button class="ghost" id="refreshBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">↻ Refresh</button>
-    <button class="ghost" id="copyLinkBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">🔗 Copy shareable link</button>
+    <button class="ghost small" id="refreshBtn">↻ Refresh</button>
+    <button class="ghost small" id="copyLinkBtn">🔗 Copy shareable link</button>
     <div class="lock-toggle" id="lockToggle"></div>
   </div>
   <div class="last-change" id="lastChangeText"></div>
@@ -294,8 +326,20 @@
     <input type="file" id="photoFileInput" accept="image/*" style="display:none">
   </div>
 
+  <div class="card" id="groupsCard">
+    <h2><span class="num">02</span> Groups <span class="tag leader-tag" id="groupsTag">group leader</span></h2>
+    <div id="groupsLeaderNote" class="leader-only-note" style="display:none;">
+      As group leader, you can create sub-groups (e.g. "Tent A", "Kitchen Crew") and reassign who's in each — handy if the trip splits up. Anyone can use a group as a shortcut when logging an expense.
+    </div>
+    <div id="newGroupRow" class="new-group-row" style="display:none;">
+      <input type="text" id="groupNameInput" placeholder="New group name (e.g. Tent A)" style="flex:1">
+      <button class="primary" id="addGroupBtn">Create group</button>
+    </div>
+    <div id="groupsList"><div class="empty">No groups yet. Everyone splits together by default.</div></div>
+  </div>
+
   <div class="card" id="expenseCard">
-    <h2><span class="num">02</span> Log a Purchase <span class="tag" id="expenseFormTag">expense</span></h2>
+    <h2><span class="num">03</span> Log a Purchase <span class="tag" id="expenseFormTag">expense</span></h2>
     <div id="expenseForm">
       <div class="form-grid">
         <input type="text" id="descInput" placeholder="What was bought (e.g. firewood, groceries)">
@@ -306,6 +350,12 @@
         <div class="split-toggle">
           <button id="splitEqualBtn" class="active">Split equally</button>
           <button id="splitCustomBtn">Custom amounts</button>
+        </div>
+        <div class="quick-split-row">
+          <label>Quick split:</label>
+          <select id="quickSplitSelect">
+            <option value="">Everyone</option>
+          </select>
         </div>
         <div class="split-people" id="splitPeople"></div>
       </div>
@@ -318,22 +368,22 @@
   </div>
 
   <div class="card">
-    <h2><span class="num">03</span> Camp Receipts <span class="tag" id="expenseCount">0</span></h2>
+    <h2><span class="num">04</span> Camp Receipts <span class="tag" id="expenseCount">0</span></h2>
     <div id="receiptsList"><div class="empty">No expenses logged yet.</div></div>
   </div>
 
   <div class="card">
-    <h2><span class="num">04</span> Balances <span class="tag">who's up, who's down</span></h2>
+    <h2><span class="num">05</span> Balances <span class="tag">who's up, who's down</span></h2>
     <div id="balancesList"><div class="empty">Add campers and expenses to see balances.</div></div>
   </div>
 
   <div class="card">
-    <h2><span class="num">05</span> Settle Up <span class="tag">minimum transactions</span></h2>
+    <h2><span class="num">06</span> Settle Up <span class="tag">minimum transactions</span></h2>
     <div id="settleList"><div class="empty">Nothing to settle yet.</div></div>
   </div>
 
   <div class="card">
-    <h2><span class="num">06</span> Backup copy <span class="tag">export / import</span></h2>
+    <h2><span class="num">07</span> Backup copy <span class="tag">export / import</span></h2>
     <div class="sub" style="margin-bottom:12px;">The ledger already syncs live for everyone with the link. Use this only as a manual backup, or to recover if the shared copy ever needs restoring.</div>
     <div class="sync-row">
       <button class="ghost" id="exportBtn">Export code</button>
@@ -351,19 +401,15 @@
 </div>
 
 <script>
-/* ---------- Config ----------
-   Cloud storage: kvdb.io — free, keyless key/value store. No login,
-   no OAuth, no consent screen. Chosen after Google's account-level
-   OAuth block made the Sheets backend unusable for this account.
-   One "bucket" is created per trip (client-side, once), then the
-   whole ledger is stored as a single JSON value under a fixed key.
------------------------------- */
+/* ---------- Config ---------- */
 const KVDB_BASE = 'https://kvdb.io';
 const LEDGER_KEY_NAME = 'ledger';
 const IP_LOOKUP_API = 'https://api.ipify.org?format=json';
 const EDIT_PASSWORD = 'jumbo';
+const LEADER_PASSWORD = 'jumboleader';
 const LOCAL_CAMPERS_KEY = 'jumbocamp_campers';
 const LOCAL_EXPENSES_KEY = 'jumbocamp_expenses';
+const LOCAL_GROUPS_KEY = 'jumbocamp_groups';
 const LOCAL_LEDGER_KEY = 'jumbocamp_ledger_id';
 const DEVICE_FALLBACK_KEY = 'jumbocamp_device_fallback_id';
 const DRAFT_KEY = 'jumbocamp_draft_expense';
@@ -372,17 +418,21 @@ const POLL_MS = 20000;
 /* ---------- State ---------- */
 let campers = [];
 let expenses = [];
+let groups = []; // [{ id, name, members: [names] }]
 let splitMode = 'equal';
 let pendingPhotoTarget = null;
 let ledgerId = null;
 let remoteMode = true;
 let unlocked = sessionStorage.getItem('jumbocamp_unlocked') === '1';
+let isLeader = sessionStorage.getItem('jumbocamp_leader') === '1';
 let pollTimer = null;
 let lastRemoteJson = null;
 let lastModified = null;
 let pendingDeletedExpenseIds = new Set();
 let pendingDeletedCamperNames = new Set();
+let pendingDeletedGroupIds = new Set();
 let editingExpenseId = null;
+let editingGroupId = null;
 let myIp = null;
 
 /* ---------- Identity: public IP address (falls back to a random local id) ---------- */
@@ -452,10 +502,12 @@ function loadLocalCache(){
     campers = raw.map(c => typeof c === 'string' ? { name: c, photo: null } : c);
   }catch(e){ campers = []; }
   try{ expenses = JSON.parse(localStorage.getItem(LOCAL_EXPENSES_KEY) || '[]'); }catch(e){ expenses = []; }
+  try{ groups = JSON.parse(localStorage.getItem(LOCAL_GROUPS_KEY) || '[]'); }catch(e){ groups = []; }
 }
 function saveLocalCache(){
   localStorage.setItem(LOCAL_CAMPERS_KEY, JSON.stringify(campers));
   localStorage.setItem(LOCAL_EXPENSES_KEY, JSON.stringify(expenses));
+  localStorage.setItem(LOCAL_GROUPS_KEY, JSON.stringify(groups));
 }
 
 /* ---------- Remote sync (kvdb.io) ---------- */
@@ -473,7 +525,7 @@ async function createRemoteLedger(){
     if(!bucketId) throw new Error('no bucket id returned');
     ledgerId = bucketId;
 
-    const payload = { campers, expenses, lastModified: stampNow() };
+    const payload = { campers, expenses, groups, lastModified: stampNow() };
     const putRes = await fetch(`${KVDB_BASE}/${ledgerId}/${LEDGER_KEY_NAME}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -482,7 +534,7 @@ async function createRemoteLedger(){
     if(!putRes.ok) throw new Error('initial save failed (' + putRes.status + ')');
 
     remoteMode = true;
-    lastRemoteJson = JSON.stringify({ campers, expenses });
+    lastRemoteJson = JSON.stringify({ campers, expenses, groups });
     lastModified = payload.lastModified;
     renderLastChange();
     setSyncState('good', 'Synced — new shared ledger created');
@@ -501,10 +553,11 @@ async function fetchRemote(isInitial){
     if(!res.ok) throw new Error('fetch failed (' + res.status + ')');
     const raw = await res.text();
     const data = JSON.parse(raw);
-    const json = JSON.stringify({ campers: data.campers, expenses: data.expenses });
+    const json = JSON.stringify({ campers: data.campers, expenses: data.expenses, groups: data.groups });
     if(json !== lastRemoteJson){
       campers = (data.campers || []).map(c => typeof c === 'string' ? { name: c, photo: null } : c);
       expenses = data.expenses || [];
+      groups = data.groups || [];
       lastRemoteJson = json;
       saveLocalCache();
       renderAll();
@@ -546,12 +599,19 @@ async function pushRemote(useBeacon){
       expenses.forEach(e => { expenseMap[e.id] = e; });
       pendingDeletedExpenseIds.forEach(id => delete expenseMap[id]);
       expenses = Object.values(expenseMap);
+
+      const groupMap = {};
+      (remoteData.groups || []).forEach(g => { groupMap[g.id] = g; });
+      groups.forEach(g => { groupMap[g.id] = g; });
+      pendingDeletedGroupIds.forEach(id => delete groupMap[id]);
+      groups = Object.values(groupMap);
     }
     pendingDeletedCamperNames.clear();
     pendingDeletedExpenseIds.clear();
+    pendingDeletedGroupIds.clear();
     saveLocalCache();
 
-    const payload = { campers, expenses, lastModified: stampNow() };
+    const payload = { campers, expenses, groups, lastModified: stampNow() };
     const body = JSON.stringify(payload);
 
     if(useBeacon){
@@ -565,7 +625,7 @@ async function pushRemote(useBeacon){
       body
     });
     if(!res.ok) throw new Error('save failed (' + res.status + ')');
-    lastRemoteJson = JSON.stringify({ campers, expenses });
+    lastRemoteJson = JSON.stringify({ campers, expenses, groups });
     lastModified = payload.lastModified;
     renderLastChange();
     renderAll();
@@ -631,17 +691,23 @@ document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'hidden'){ saveDraft(); pushRemote(true); }
 });
 
-/* ---------- Password lock (edits require password; every edit is IP-stamped) ---------- */
+/* ---------- Password lock ----------
+   Regular password ("jumbo") unlocks adding/editing expenses & campers.
+   Leader password ("jumboleader") does the same PLUS unlocks Group management. */
 function renderLockUI(){
   const wrap = document.getElementById('lockToggle');
   if(unlocked){
+    const badgeClass = isLeader ? 'leader' : 'unlocked';
+    const badgeText = isLeader ? `👑 Group Leader${myIp ? ' — ' + escapeHtml(myIp) : ''}` : `🔓 Editing unlocked${myIp ? ' — ' + escapeHtml(myIp) : ''}`;
     wrap.innerHTML = `
-      <span class="lock-badge unlocked">🔓 Editing unlocked${myIp ? ' — ' + escapeHtml(myIp) : ''}</span>
-      <button class="ghost" id="relockBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">Lock</button>
+      <span class="lock-badge ${badgeClass}">${badgeText}</span>
+      <button class="ghost small" id="relockBtn">Lock</button>
     `;
     document.getElementById('relockBtn').addEventListener('click', () => {
       sessionStorage.removeItem('jumbocamp_unlocked');
+      sessionStorage.removeItem('jumbocamp_leader');
       unlocked = false;
+      isLeader = false;
       renderLockUI();
       renderAll();
     });
@@ -649,15 +715,24 @@ function renderLockUI(){
     wrap.innerHTML = `
       <span class="lock-badge locked">🔒 View only</span>
       <div class="lock-form">
-        <input type="password" id="pwInput" placeholder="Group password">
-        <button class="ghost" id="unlockBtn" style="min-height:36px; padding:7px 12px; font-size:12.5px;">Unlock</button>
+        <input type="password" id="pwInput" placeholder="Password">
+        <button class="ghost small" id="unlockBtn">Unlock</button>
       </div>
     `;
     const pwInput = document.getElementById('pwInput');
     const tryUnlock = () => {
-      if(pwInput.value === EDIT_PASSWORD){
+      if(pwInput.value === LEADER_PASSWORD){
+        sessionStorage.setItem('jumbocamp_unlocked', '1');
+        sessionStorage.setItem('jumbocamp_leader', '1');
+        unlocked = true;
+        isLeader = true;
+        renderLockUI();
+        renderAll();
+        restoreDraftIfAny();
+      } else if(pwInput.value === EDIT_PASSWORD){
         sessionStorage.setItem('jumbocamp_unlocked', '1');
         unlocked = true;
+        isLeader = false;
         renderLockUI();
         renderAll();
         restoreDraftIfAny();
@@ -689,7 +764,9 @@ function avatarHtml(name, small){
 function renderAll(){
   renderCampers();
   renderPaidBySelect();
+  renderQuickSplitSelect();
   renderSplitPeople();
+  renderGroups();
   renderReceipts();
   renderBalances();
   renderSettle();
@@ -697,6 +774,9 @@ function renderAll(){
   document.getElementById('addCamperRow').style.display = unlocked ? 'flex' : 'none';
   document.getElementById('expenseForm').style.display = unlocked ? 'block' : 'none';
   document.getElementById('importBtn').style.display = unlocked ? 'inline-block' : 'none';
+  document.getElementById('newGroupRow').style.display = isLeader ? 'flex' : 'none';
+  document.getElementById('groupsLeaderNote').style.display = isLeader ? 'block' : 'none';
+  document.getElementById('groupsTag').style.display = isLeader ? 'inline-block' : 'none';
 }
 
 function renderCampers(){
@@ -724,13 +804,38 @@ function renderPaidBySelect(){
   if(campers.some(c => c.name === current)) sel.value = current;
 }
 
-function renderSplitPeople(presetShares){
+function renderQuickSplitSelect(){
+  const sel = document.getElementById('quickSplitSelect');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Everyone</option>' +
+    groups.map(g => `<option value="${escapeAttr(g.id)}">${escapeHtml(g.name)} (${g.members.length})</option>`).join('');
+  if(groups.some(g => g.id === current)) sel.value = current;
+}
+
+document.getElementById('quickSplitSelect').addEventListener('change', () => {
+  const sel = document.getElementById('quickSplitSelect');
+  if(!sel.value){
+    renderSplitPeople(); // Everyone, all checked
+    saveDraft();
+    return;
+  }
+  const group = groups.find(g => g.id === sel.value);
+  if(!group) return;
+  const preset = {};
+  const each = splitMode === 'equal' ? null : null;
+  group.members.forEach(n => { preset[n] = 0; });
+  renderSplitPeople(preset, /*fromQuickSplit*/true);
+  saveDraft();
+});
+
+function renderSplitPeople(presetShares, isMembershipOnly){
   const wrap = document.getElementById('splitPeople');
   if(campers.length === 0){ wrap.innerHTML = ''; return; }
   const preset = presetShares || null;
   wrap.innerHTML = campers.map(c => {
     const checked = preset ? (preset.hasOwnProperty(c.name) ? 'checked' : '') : 'checked';
-    const customVal = preset && preset.hasOwnProperty(c.name) ? preset[c.name].toFixed(2) : '';
+    const rawVal = preset && preset.hasOwnProperty(c.name) ? preset[c.name] : null;
+    const customVal = (rawVal && !isMembershipOnly) ? rawVal.toFixed(2) : '';
     return `
     <label class="split-person">
       <input type="checkbox" class="split-check" data-name="${escapeAttr(c.name)}" ${checked}>
@@ -741,6 +846,101 @@ function renderSplitPeople(presetShares){
   `;
   }).join('');
   attachDraftListeners();
+}
+
+/* ---------- Groups (Group Leader feature) ---------- */
+function renderGroups(){
+  const list = document.getElementById('groupsList');
+  if(groups.length === 0){
+    list.innerHTML = '<div class="empty">No groups yet. Everyone splits together by default.</div>';
+    return;
+  }
+  list.innerHTML = groups.map(g => {
+    const isEditing = editingGroupId === g.id;
+    const memberChips = g.members.map(n => `
+      <span class="group-member-chip">${avatarHtml(n, true)} ${escapeHtml(n)}</span>
+    `).join('') || '<span class="empty" style="padding:0;">No members yet</span>';
+
+    const editorHtml = isEditing ? `
+      <div class="group-editor">
+        <div class="split-people">
+          ${campers.map(c => `
+            <label class="split-person">
+              <input type="checkbox" class="group-member-check" data-group="${escapeAttr(g.id)}" data-name="${escapeAttr(c.name)}" ${g.members.includes(c.name) ? 'checked' : ''}>
+              ${avatarHtml(c.name, true)} ${escapeHtml(c.name)}
+            </label>
+          `).join('')}
+        </div>
+        <div class="form-actions">
+          <button class="primary" onclick="saveGroupMembers('${escapeAttr(g.id)}')">Save members</button>
+          <button class="ghost" onclick="cancelGroupEdit()">Cancel</button>
+        </div>
+      </div>
+    ` : '';
+
+    return `
+      <div class="group-card">
+        <div class="group-card-top">
+          <span class="group-name">${escapeHtml(g.name)}</span>
+          ${isLeader ? `
+            <div class="group-actions">
+              <button class="ghost small" onclick="toggleGroupEdit('${escapeAttr(g.id)}')">${isEditing ? 'Close' : 'Edit members'}</button>
+              <button class="ghost small" onclick="deleteGroup('${escapeAttr(g.id)}')">Delete</button>
+            </div>
+          ` : ''}
+        </div>
+        <div class="group-members">${memberChips}</div>
+        ${editorHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+document.getElementById('addGroupBtn').addEventListener('click', () => {
+  if(!isLeader) return;
+  const input = document.getElementById('groupNameInput');
+  const name = input.value.trim();
+  if(!name) return;
+  const id = 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  groups.push({ id, name, members: [] });
+  input.value = '';
+  pushRemote();
+  renderAll();
+  editingGroupId = id;
+  renderGroups();
+});
+document.getElementById('groupNameInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('addGroupBtn').click();
+});
+
+function toggleGroupEdit(id){
+  if(!isLeader) return;
+  editingGroupId = (editingGroupId === id) ? null : id;
+  renderGroups();
+}
+function cancelGroupEdit(){
+  editingGroupId = null;
+  renderGroups();
+}
+function saveGroupMembers(id){
+  if(!isLeader) return;
+  const group = groups.find(g => g.id === id);
+  if(!group) return;
+  const checks = Array.from(document.querySelectorAll(`.group-member-check[data-group="${cssEscape(id)}"]`));
+  group.members = checks.filter(c => c.checked).map(c => c.dataset.name);
+  editingGroupId = null;
+  pushRemote();
+  renderAll();
+}
+function deleteGroup(id){
+  if(!isLeader) return;
+  const group = groups.find(g => g.id === id);
+  if(group && !confirm(`Delete the group "${group.name}"? This won't affect any expenses already logged.`)) return;
+  groups = groups.filter(g => g.id !== id);
+  pendingDeletedGroupIds.add(id);
+  if(editingGroupId === id) editingGroupId = null;
+  pushRemote();
+  renderAll();
 }
 
 function choosePhoto(name){
@@ -787,6 +987,7 @@ function removeCamper(name){
   }
   campers = campers.filter(c => c.name !== name);
   pendingDeletedCamperNames.add(name);
+  groups.forEach(g => { g.members = g.members.filter(n => n !== name); });
   pushRemote();
   renderAll();
 }
@@ -826,6 +1027,7 @@ function resetExpenseForm(){
   document.getElementById('descInput').value = '';
   document.getElementById('amountInput').value = '';
   document.getElementById('paidByInput').value = '';
+  document.getElementById('quickSplitSelect').value = '';
   splitMode = 'equal';
   document.getElementById('splitEqualBtn').classList.add('active');
   document.getElementById('splitCustomBtn').classList.remove('active');
@@ -853,6 +1055,7 @@ function startEditExpense(id){
   splitMode = isEqual ? 'equal' : 'custom';
   document.getElementById('splitEqualBtn').classList.toggle('active', splitMode === 'equal');
   document.getElementById('splitCustomBtn').classList.toggle('active', splitMode === 'custom');
+  document.getElementById('quickSplitSelect').value = '';
   renderSplitPeople(e.shares);
 
   document.getElementById('addExpenseBtn').textContent = 'Save changes';
@@ -932,6 +1135,7 @@ document.getElementById('addExpenseBtn').addEventListener('click', () => {
     });
     document.getElementById('descInput').value = '';
     document.getElementById('amountInput').value = '';
+    document.getElementById('quickSplitSelect').value = '';
     statusEl.textContent = '';
     clearDraft();
   }
@@ -1126,7 +1330,7 @@ attachDraftListeners();
 /* ---------- Export / Import (manual backup) ---------- */
 document.getElementById('exportBtn').addEventListener('click', () => {
   const box = document.getElementById('syncBox');
-  const code = btoa(unescape(encodeURIComponent(JSON.stringify({ campers, expenses }))));
+  const code = btoa(unescape(encodeURIComponent(JSON.stringify({ campers, expenses, groups }))));
   box.style.display = 'block';
   box.value = code;
   box.select();
@@ -1148,6 +1352,7 @@ document.getElementById('importBtn').addEventListener('click', () => {
     if(!decoded.campers || !decoded.expenses) throw new Error('bad format');
     campers = decoded.campers.map(c => typeof c === 'string' ? { name: c, photo: null } : c);
     expenses = decoded.expenses;
+    groups = decoded.groups || [];
     pushRemote();
     renderAll();
     statusEl.textContent = 'Imported and synced to the shared ledger.';
