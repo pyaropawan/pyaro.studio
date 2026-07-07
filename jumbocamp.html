@@ -422,8 +422,18 @@
 const KVDB_BASE = 'https://kvdb.io';
 const LEDGER_KEY_NAME = 'ledger';
 const IP_LOOKUP_API = 'https://api.ipify.org?format=json';
-const VIEW_PASSWORD = 'jumbo';
-const EDIT_PASSWORD = 'jumbopyaro';
+// Passwords aren't stored as plain text — only their SHA-256 hashes are here,
+// so casually viewing the page source doesn't reveal them outright.
+// (Honest caveat: these are short, guessable words, so this deters casual
+// snooping — it is not real security against someone determined to crack it.)
+const VIEW_PASSWORD_HASH = '57906b2660e4e2e227e96b86ec676dbac58f2fbc9673c2e03a63ceb29f94b220';
+const EDIT_PASSWORD_HASH = '9c10f177be7cadda23bdd738617b2034c9ec817892d77264cb96d3c60c6d8244';
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 const LOCAL_CAMPERS_KEY = 'jumbocamp_campers';
 const LOCAL_EXPENSES_KEY = 'jumbocamp_expenses';
 const LOCAL_GROUPS_KEY = 'jumbocamp_groups';
@@ -805,9 +815,11 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ---------- Password lock ----------
-   "jumbo" = view password (read-only access to the whole ledger).
-   "jumbopyaro" = edit password (everything view does, plus adding/editing
-   expenses & campers, managing Groups, and seeing the Visitor Log). */
+   Two tiers, checked by comparing a SHA-256 hash of what's typed against
+   the hashes stored above — the real passwords live only in your head,
+   not in this file. Lower tier = read-only access to the whole ledger.
+   Higher tier = everything the lower tier does, plus adding/editing
+   expenses & campers, managing Groups, and seeing the Visitor Log. */
 function renderLockUI(){
   const wrap = document.getElementById('lockToggle');
   if(accessLevel === 'edit'){
@@ -842,10 +854,16 @@ function renderLockUI(){
 
 function bindUnlockForm(){
   const pwInput = document.getElementById('pwInput');
-  const tryUnlock = () => {
-    if(pwInput.value === EDIT_PASSWORD){
+  const tryUnlock = async () => {
+    if(typeof crypto === 'undefined' || !crypto.subtle){
+      pwInput.style.borderColor = 'var(--red)';
+      pwInput.placeholder = 'Needs HTTPS to check password — try the live site';
+      return;
+    }
+    const attemptHash = await sha256Hex(pwInput.value);
+    if(attemptHash === EDIT_PASSWORD_HASH){
       setAccess('edit');
-    } else if(pwInput.value === VIEW_PASSWORD){
+    } else if(attemptHash === VIEW_PASSWORD_HASH){
       setAccess('view');
     } else {
       pwInput.style.borderColor = 'var(--red)';
