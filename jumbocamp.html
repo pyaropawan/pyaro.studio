@@ -297,6 +297,7 @@
   @media (prefers-reduced-motion: reduce){
     button.primary{ transition:none; }
   }
+  .js-hidden{ display:none !important; }
 </style>
 </head>
 <body>
@@ -305,7 +306,7 @@
     <div class="brandmark"><span class="dot"></span>PYARO STUDIO — INTERNAL TOOL</div>
     <div class="eyebrow">— A shared ledger for one trip</div>
     <h1>Jumbo Camp</h1>
-    <div class="sub">Log who bought what, and this works out exactly who owes who — settled in the fewest payments possible. Everyone who has the link sees the same live ledger. Enter the group password to add or change anything.</div>
+    <div class="sub">Log who bought what, and this works out exactly who owes who — settled in the fewest payments possible. This ledger is private: enter the view password to see it, or the edit password to make changes.</div>
   </header>
 
   <div class="status-bar">
@@ -316,8 +317,14 @@
     <div class="lock-toggle" id="lockToggle"></div>
   </div>
   <div class="last-change" id="lastChangeText"></div>
-  <div class="privacy-note">Editors are identified by public IP address instead of a name — visible to everyone with this link.</div>
+  <div class="privacy-note">Visitors are identified by public IP address instead of a name — recorded on every open, visible to the edit-password holder.</div>
 
+  <div class="card" id="viewGate">
+    <h2>🔒 Password required</h2>
+    <div class="sub">This trip's ledger is private. Enter the password above (in the bar above this card) to view it — everyone who opens this link is logged either way.</div>
+  </div>
+
+  <div id="mainContent" class="js-hidden">
   <div class="card">
     <h2><span class="num">01</span> Campers <span class="tag" id="camperCount">0</span></h2>
     <div class="campers-row" id="campersRow"></div>
@@ -329,9 +336,9 @@
   </div>
 
   <div class="card" id="groupsCard">
-    <h2><span class="num">02</span> Groups <span class="tag leader-tag" id="groupsTag">group leader</span></h2>
+    <h2><span class="num">02</span> Groups <span class="tag leader-tag" id="groupsTag">edit access</span></h2>
     <div id="groupsLeaderNote" class="leader-only-note" style="display:none;">
-      As group leader, you can create sub-groups (e.g. "Tent A", "Kitchen Crew") and reassign who's in each — handy if the trip splits up. Anyone can use a group as a shortcut when logging an expense.
+      With the edit password, you can create sub-groups (e.g. "Tent A", "Kitchen Crew") and reassign who's in each — handy if the trip splits up. Anyone with view access can use a group as a shortcut when logging an expense.
     </div>
     <div id="newGroupRow" class="new-group-row" style="display:none;">
       <input type="text" id="groupNameInput" placeholder="New group name (e.g. Tent A)" style="flex:1">
@@ -390,13 +397,20 @@
     <div class="sync-row">
       <button class="ghost" id="exportBtn">Export code</button>
       <button class="ghost" id="importBtn">Import code</button>
-      <button class="ghost" id="emailBackupBtn">📧 Email backup to Pyaro Studio</button>
+      <button class="ghost" id="downloadBackupBtn">💾 Download backup file</button>
     </div>
     <textarea id="syncBox" rows="3" placeholder="Exported code appears here — or paste a code here and press Import." style="width:100%; margin-top:10px; display:none;"></textarea>
     <div class="status-msg" id="syncStatus"></div>
   </div>
 
+  <div class="card" id="visitorLogCard" style="display:none;">
+    <h2><span class="num">08</span> Visitor Log <span class="tag leader-tag">edit access only</span></h2>
+    <div class="sub" style="margin-bottom:12px;">Everyone who opens this link is recorded here, whether or not they enter a password.</div>
+    <div id="visitorLogList"><div class="empty">No visits recorded yet.</div></div>
+  </div>
+
   <div class="footer-mark">jumbo camp · pyaro studio · private</div>
+  </div>
 </div>
 
 <div class="mobile-bar">
@@ -408,26 +422,34 @@
 const KVDB_BASE = 'https://kvdb.io';
 const LEDGER_KEY_NAME = 'ledger';
 const IP_LOOKUP_API = 'https://api.ipify.org?format=json';
-const EDIT_PASSWORD = 'jumbo';
-const LEADER_PASSWORD = 'jumboleader';
+const VIEW_PASSWORD = 'jumbo';
+const EDIT_PASSWORD = 'jumbopyaro';
 const LOCAL_CAMPERS_KEY = 'jumbocamp_campers';
 const LOCAL_EXPENSES_KEY = 'jumbocamp_expenses';
 const LOCAL_GROUPS_KEY = 'jumbocamp_groups';
+const LOCAL_VISITS_KEY = 'jumbocamp_visits';
 const LOCAL_LEDGER_KEY = 'jumbocamp_ledger_id';
 const DEVICE_FALLBACK_KEY = 'jumbocamp_device_fallback_id';
+const DEVICE_ID_KEY = 'jumbocamp_device_uuid';
 const DRAFT_KEY = 'jumbocamp_draft_expense';
 const POLL_MS = 20000;
+const MAX_VISITS_STORED = 300;
 
-/* ---------- State ---------- */
+/* ---------- State ----------
+   accessLevel: 'none' (nothing visible yet) | 'view' (read-only) | 'edit' (full control, including Groups)
+   unlocked / isLeader are kept as separate flags (both true only at 'edit') so the
+   rest of the code — which already checks them — didn't need rewriting. */
 let campers = [];
 let expenses = [];
-let groups = []; // [{ id, name, members: [names] }]
+let groups = []; // [{ id, name, members: [names], poc }]
+let visits = []; // [{ ip, time }] — every page open, regardless of password
 let splitMode = 'equal';
 let pendingPhotoTarget = null;
 let ledgerId = null;
 let remoteMode = true;
-let unlocked = sessionStorage.getItem('jumbocamp_unlocked') === '1';
-let isLeader = sessionStorage.getItem('jumbocamp_leader') === '1';
+let accessLevel = sessionStorage.getItem('jumbocamp_access') || 'none';
+let unlocked = accessLevel === 'edit';
+let isLeader = accessLevel === 'edit';
 let pollTimer = null;
 let lastRemoteJson = null;
 let lastModified = null;
@@ -437,6 +459,8 @@ let pendingDeletedGroupIds = new Set();
 let editingExpenseId = null;
 let editingGroupId = null;
 let myIp = null;
+let myDeviceId = null;
+let myDeviceInfo = null; // { type, os, browser }
 let customEditedNames = new Set(); // names the user has manually typed a custom amount for (so we don't overwrite them)
 
 /* ---------- Identity: public IP address (falls back to a random local id) ---------- */
@@ -457,13 +481,55 @@ async function resolveIp(){
     }
     myIp = fb;
   }
+  myDeviceId = getPersistentDeviceId();
+  myDeviceInfo = detectDeviceInfo();
   return myIp;
 }
 function getDeviceLabel(){ return myIp || 'unknown'; }
 
+/* A random ID saved in this browser's own storage — lets the Visitor Log
+   tell "same device came back" apart from "different device, same IP"
+   (common on shared WiFi/hotspots where IP alone can't tell people apart). */
+function getPersistentDeviceId(){
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if(!id){
+    id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36));
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
+
+/* Best-effort device type / OS / browser from the user agent string.
+   Browsers don't expose a real hardware ID (blocked for privacy), so this
+   is a readable label, not a unique fingerprint. */
+function detectDeviceInfo(){
+  const ua = navigator.userAgent || '';
+  let type = 'Desktop';
+  if(/iPad|Tablet(?!.*Mobile)/i.test(ua)) type = 'Tablet';
+  else if(/Mobi|Android.*Mobile|iPhone|iPod/i.test(ua)) type = 'Mobile';
+  else if(/Android/i.test(ua)) type = 'Tablet';
+
+  let os = 'Unknown OS';
+  if(/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+  else if(/Android/i.test(ua)) os = 'Android';
+  else if(/Windows/i.test(ua)) os = 'Windows';
+  else if(/Mac OS X/i.test(ua)) os = 'macOS';
+  else if(/Linux/i.test(ua)) os = 'Linux';
+
+  let browser = 'Unknown browser';
+  if(/Edg\//i.test(ua)) browser = 'Edge';
+  else if(/OPR\//i.test(ua)) browser = 'Opera';
+  else if(/Chrome\//i.test(ua) && !/Chromium/i.test(ua)) browser = 'Chrome';
+  else if(/Safari\//i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+  else if(/Firefox\//i.test(ua)) browser = 'Firefox';
+
+  return { type, os, browser };
+}
+
 /* ---------- Boot ---------- */
 async function boot(){
   renderLockUI();
+  renderGate();
   await resolveIp();
   renderLockUI();
 
@@ -479,6 +545,7 @@ async function boot(){
     if(ok){
       ensureUrlHasLedger();
       startPolling();
+      recordVisit();
       return;
     }
   }
@@ -489,6 +556,24 @@ async function boot(){
   } else {
     goOffline('Could not reach the shared ledger service. Working from this device only.');
   }
+  recordVisit();
+}
+
+/* Logs this page-open — happens no matter whether a password was ever
+   entered. Only visible to whoever holds the edit password. */
+function recordVisit(){
+  visits.push({
+    ip: getDeviceLabel(),
+    deviceId: myDeviceId,
+    deviceType: myDeviceInfo ? myDeviceInfo.type : 'Unknown',
+    os: myDeviceInfo ? myDeviceInfo.os : 'Unknown',
+    browser: myDeviceInfo ? myDeviceInfo.browser : 'Unknown',
+    time: new Date().toISOString()
+  });
+  if(visits.length > MAX_VISITS_STORED) visits = visits.slice(visits.length - MAX_VISITS_STORED);
+  saveLocalCache();
+  renderVisitorLog();
+  pushRemote();
 }
 
 function ensureUrlHasLedger(){
@@ -507,11 +592,13 @@ function loadLocalCache(){
   }catch(e){ campers = []; }
   try{ expenses = JSON.parse(localStorage.getItem(LOCAL_EXPENSES_KEY) || '[]'); }catch(e){ expenses = []; }
   try{ groups = JSON.parse(localStorage.getItem(LOCAL_GROUPS_KEY) || '[]'); }catch(e){ groups = []; }
+  try{ visits = JSON.parse(localStorage.getItem(LOCAL_VISITS_KEY) || '[]'); }catch(e){ visits = []; }
 }
 function saveLocalCache(){
   localStorage.setItem(LOCAL_CAMPERS_KEY, JSON.stringify(campers));
   localStorage.setItem(LOCAL_EXPENSES_KEY, JSON.stringify(expenses));
   localStorage.setItem(LOCAL_GROUPS_KEY, JSON.stringify(groups));
+  localStorage.setItem(LOCAL_VISITS_KEY, JSON.stringify(visits));
 }
 
 /* ---------- Remote sync (kvdb.io) ---------- */
@@ -529,7 +616,7 @@ async function createRemoteLedger(){
     if(!bucketId) throw new Error('no bucket id returned');
     ledgerId = bucketId;
 
-    const payload = { campers, expenses, groups, lastModified: stampNow() };
+    const payload = { campers, expenses, groups, visits, lastModified: stampNow() };
     const putRes = await fetch(`${KVDB_BASE}/${ledgerId}/${LEDGER_KEY_NAME}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -565,6 +652,18 @@ async function fetchRemote(isInitial){
       lastRemoteJson = json;
       saveLocalCache();
       renderAll();
+    }
+    // visits merge in regardless of whether the rest changed, and don't need
+    // to match exactly, so just take the union each time
+    if(Array.isArray(data.visits)){
+      const seen = new Set(visits.map(v => v.ip + '|' + v.time));
+      data.visits.forEach(v => {
+        const key = v.ip + '|' + v.time;
+        if(!seen.has(key)){ visits.push(v); seen.add(key); }
+      });
+      if(visits.length > MAX_VISITS_STORED) visits = visits.slice(visits.length - MAX_VISITS_STORED);
+      saveLocalCache();
+      renderVisitorLog();
     }
     lastModified = data.lastModified || lastModified;
     renderLastChange();
@@ -609,13 +708,22 @@ async function pushRemote(useBeacon){
       groups.forEach(g => { groupMap[g.id] = g; });
       pendingDeletedGroupIds.forEach(id => delete groupMap[id]);
       groups = Object.values(groupMap);
+
+      if(Array.isArray(remoteData.visits)){
+        const seen = new Set(visits.map(v => v.ip + '|' + v.time));
+        remoteData.visits.forEach(v => {
+          const key = v.ip + '|' + v.time;
+          if(!seen.has(key)){ visits.push(v); seen.add(key); }
+        });
+        if(visits.length > MAX_VISITS_STORED) visits = visits.slice(visits.length - MAX_VISITS_STORED);
+      }
     }
     pendingDeletedCamperNames.clear();
     pendingDeletedExpenseIds.clear();
     pendingDeletedGroupIds.clear();
     saveLocalCache();
 
-    const payload = { campers, expenses, groups, lastModified: stampNow() };
+    const payload = { campers, expenses, groups, visits, lastModified: stampNow() };
     const body = JSON.stringify(payload);
 
     if(useBeacon){
@@ -633,6 +741,7 @@ async function pushRemote(useBeacon){
     lastModified = payload.lastModified;
     renderLastChange();
     renderAll();
+    renderVisitorLog();
     setSyncState('good', 'Synced with group');
   }catch(e){
     setSyncState('bad', 'Saved on this device — retry pending: ' + e.message);
@@ -696,59 +805,114 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ---------- Password lock ----------
-   Regular password ("jumbo") unlocks adding/editing expenses & campers.
-   Leader password ("jumboleader") does the same PLUS unlocks Group management. */
+   "jumbo" = view password (read-only access to the whole ledger).
+   "jumbopyaro" = edit password (everything view does, plus adding/editing
+   expenses & campers, managing Groups, and seeing the Visitor Log). */
 function renderLockUI(){
   const wrap = document.getElementById('lockToggle');
-  if(unlocked){
-    const badgeClass = isLeader ? 'leader' : 'unlocked';
-    const badgeText = isLeader ? `👑 Group Leader${myIp ? ' — ' + escapeHtml(myIp) : ''}` : `🔓 Editing unlocked${myIp ? ' — ' + escapeHtml(myIp) : ''}`;
+  if(accessLevel === 'edit'){
     wrap.innerHTML = `
-      <span class="lock-badge ${badgeClass}">${badgeText}</span>
+      <span class="lock-badge leader">✏️ Editing unlocked${myIp ? ' — ' + escapeHtml(myIp) : ''}</span>
       <button class="ghost small" id="relockBtn">Lock</button>
     `;
-    document.getElementById('relockBtn').addEventListener('click', () => {
-      sessionStorage.removeItem('jumbocamp_unlocked');
-      sessionStorage.removeItem('jumbocamp_leader');
-      unlocked = false;
-      isLeader = false;
-      renderLockUI();
-      renderAll();
-    });
+    document.getElementById('relockBtn').addEventListener('click', () => doLock());
+  } else if(accessLevel === 'view'){
+    wrap.innerHTML = `
+      <span class="lock-badge unlocked">👁 View only${myIp ? ' — ' + escapeHtml(myIp) : ''}</span>
+      <div class="lock-form">
+        <input type="password" id="pwInput" placeholder="Edit password">
+        <button class="ghost small" id="unlockBtn">Unlock</button>
+      </div>
+      <button class="ghost small" id="relockBtn">Lock</button>
+    `;
+    bindUnlockForm();
+    document.getElementById('relockBtn').addEventListener('click', () => doLock());
   } else {
     wrap.innerHTML = `
-      <span class="lock-badge locked">🔒 View only</span>
+      <span class="lock-badge locked">🔒 Locked</span>
       <div class="lock-form">
         <input type="password" id="pwInput" placeholder="Password">
         <button class="ghost small" id="unlockBtn">Unlock</button>
       </div>
     `;
-    const pwInput = document.getElementById('pwInput');
-    const tryUnlock = () => {
-      if(pwInput.value === LEADER_PASSWORD){
-        sessionStorage.setItem('jumbocamp_unlocked', '1');
-        sessionStorage.setItem('jumbocamp_leader', '1');
-        unlocked = true;
-        isLeader = true;
-        renderLockUI();
-        renderAll();
-        restoreDraftIfAny();
-      } else if(pwInput.value === EDIT_PASSWORD){
-        sessionStorage.setItem('jumbocamp_unlocked', '1');
-        unlocked = true;
-        isLeader = false;
-        renderLockUI();
-        renderAll();
-        restoreDraftIfAny();
-      } else {
-        pwInput.style.borderColor = 'var(--red)';
-        pwInput.value = '';
-        pwInput.placeholder = 'Incorrect — try again';
-      }
-    };
-    document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
-    pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+    bindUnlockForm();
   }
+  renderGate();
+}
+
+function bindUnlockForm(){
+  const pwInput = document.getElementById('pwInput');
+  const tryUnlock = () => {
+    if(pwInput.value === EDIT_PASSWORD){
+      setAccess('edit');
+    } else if(pwInput.value === VIEW_PASSWORD){
+      setAccess('view');
+    } else {
+      pwInput.style.borderColor = 'var(--red)';
+      pwInput.value = '';
+      pwInput.placeholder = 'Incorrect — try again';
+    }
+  };
+  document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+  pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+}
+
+function setAccess(level){
+  accessLevel = level;
+  sessionStorage.setItem('jumbocamp_access', level);
+  unlocked = level === 'edit';
+  isLeader = level === 'edit';
+  renderLockUI();
+  renderAll();
+  restoreDraftIfAny();
+}
+
+function doLock(){
+  sessionStorage.removeItem('jumbocamp_access');
+  accessLevel = 'none';
+  unlocked = false;
+  isLeader = false;
+  renderLockUI();
+  renderAll();
+}
+
+/* Hides all the actual ledger content until at least the view password has
+   been entered — the status bar (with the password box) always stays visible. */
+function renderGate(){
+  const gate = document.getElementById('viewGate');
+  const main = document.getElementById('mainContent');
+  const mobileBar = document.querySelector('.mobile-bar');
+  const canView = accessLevel !== 'none';
+  if(gate) gate.classList.toggle('js-hidden', canView);
+  if(main) main.classList.toggle('js-hidden', !canView);
+  if(mobileBar) mobileBar.classList.toggle('js-hidden', !(canView && unlocked));
+}
+
+/* ---------- Visitor Log (edit access only) ---------- */
+function renderVisitorLog(){
+  const card = document.getElementById('visitorLogCard');
+  const list = document.getElementById('visitorLogList');
+  if(!card || !list) return;
+  card.style.display = isLeader ? 'block' : 'none';
+  if(!isLeader) return;
+  if(visits.length === 0){
+    list.innerHTML = '<div class="empty">No visits recorded yet.</div>';
+    return;
+  }
+  const sorted = [...visits].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0, 50);
+  list.innerHTML = sorted.map(v => {
+    const deviceBits = [v.deviceType, v.os, v.browser].filter(Boolean).join(' · ');
+    const shortId = v.deviceId ? v.deviceId.toString().slice(0, 8) : '';
+    return `
+    <div class="receipt">
+      <div class="receipt-text">
+        <div class="receipt-desc">${escapeHtml(v.ip)}</div>
+        <div class="receipt-meta">${escapeHtml(deviceBits || 'Unknown device')}</div>
+        <div class="receipt-meta2">${timeAgo(v.time)}${shortId ? ' · device id ' + escapeHtml(shortId) : ''}</div>
+      </div>
+    </div>
+  `;
+  }).join('');
 }
 
 /* ---------- Rendering ---------- */
@@ -775,6 +939,8 @@ function renderAll(){
   renderBalances();
   renderSettle();
   renderLastChange();
+  renderVisitorLog();
+  renderGate();
   document.getElementById('addCamperRow').style.display = unlocked ? 'flex' : 'none';
   document.getElementById('expenseForm').style.display = unlocked ? 'block' : 'none';
   document.getElementById('importBtn').style.display = unlocked ? 'inline-block' : 'none';
@@ -1489,33 +1655,22 @@ document.getElementById('importBtn').addEventListener('click', () => {
   }
 });
 
-/* ---------- Email backup to Pyaro Studio ----------
-   This is a static page with no mail server, so "email" here means opening
-   the visitor's own mail app with the message pre-filled (a mailto: link) —
-   they still have to hit Send themselves. Mail apps cap how much text a
-   mailto link can carry, so if the code (photos especially) is too long to
-   fit, we copy it to the clipboard instead and ask them to paste it in. */
-document.getElementById('emailBackupBtn').addEventListener('click', () => {
+/* ---------- Download backup file ----------
+   Simpler than email: saves the backup code straight to the device as a
+   .txt file, no mail app, no character limits, works even with photos. */
+document.getElementById('downloadBackupBtn').addEventListener('click', () => {
   const code = generateBackupCode();
   const statusEl = document.getElementById('syncStatus');
-  const box = document.getElementById('syncBox');
-  box.style.display = 'block';
-  box.value = code;
-
-  const to = 'pyaro@pyaro.studio';
-  const subject = 'Jumbo Camp — Backup Code';
-  const MAILTO_SAFE_LIMIT = 1500;
-
-  if(code.length <= MAILTO_SAFE_LIMIT){
-    const body = `Backup code for the Jumbo Camp ledger:\n\n${code}\n\nPaste this into the Import box on the Jumbo Camp page to restore it.`;
-    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    statusEl.textContent = 'Opening your email app with the backup code filled in...';
-  } else {
-    navigator.clipboard && navigator.clipboard.writeText(code).catch(()=>{});
-    const body = `The backup code was too long to include automatically (it likely has camper photos in it).\n\nI've copied it to my clipboard — pasting it below:\n\n[paste here]`;
-    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    statusEl.textContent = 'Code copied to clipboard (too long to auto-fill — paste it into the email that just opened).';
-  }
+  const stamp = new Date().toISOString().slice(0,10);
+  const fileContent = `Jumbo Camp backup — ${stamp}\n\nPaste the line below into the Import box on the Jumbo Camp page to restore it:\n\n${code}\n`;
+  const blob = new Blob([fileContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `jumbo-camp-backup-${stamp}.txt`;
+  link.click();
+  URL.revokeObjectURL(url);
+  statusEl.textContent = 'Backup file downloaded — save it somewhere safe (e.g. email it to yourself, or drop it in a shared drive).';
 });
 
 /* ---------- Save screenshot ---------- */
