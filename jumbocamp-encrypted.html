@@ -585,6 +585,7 @@ async function boot(){
     needsSetup = true;
     accessLevel = 'none'; unlocked = false; isLeader = false;
     renderLockUI(); renderGate();
+    setSyncState('good', 'Ready — set a password below to create your ledger');
     return;
   }
 
@@ -608,6 +609,7 @@ async function boot(){
       needsSetup = true;
       accessLevel = 'none'; unlocked = false; isLeader = false;
       renderLockUI(); renderGate();
+      setSyncState('good', 'Old unencrypted ledger — create a fresh one below');
       return;
     }
     // Encrypted + decoded => we hold the passphrase. Grant at least view;
