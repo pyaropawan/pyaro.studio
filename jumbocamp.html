@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <!-- Security policy (added in remediation). NOTE: on GitHub Pages only CSP and
+       referrer can be set via <meta>. nosniff / X-Frame-Options / HSTS / Permissions-Policy
+       are ignored as meta and need a real header layer (e.g. Cloudflare). See SECURITY_AUDIT_v2.md. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://kvdb.io https://api.ipify.org;">
+  <meta name="referrer" content="no-referrer">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="googlebot" content="noindex, nofollow">
@@ -9,7 +15,9 @@
 <title>Jumbo Camp — Pyaro Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- SUPPLY-CHAIN: self-host this file (commit html2canvas.min.js and use src="html2canvas.min.js"),
+     then remove cdnjs from the CSP script-src above. Otherwise add integrity="sha384-...". -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
   :root{
     --bg: #0B0B0D;
@@ -317,7 +325,7 @@
     <div class="lock-toggle" id="lockToggle"></div>
   </div>
   <div class="last-change" id="lastChangeText"></div>
-  <div class="privacy-note">Visitors are identified by public IP address instead of a name — recorded on every open, visible to the edit-password holder.</div>
+  <div class="privacy-note">Visitors are identified by a per-device tag (public-IP capture is OFF by default) — recorded on every open, visible to the edit-password holder.</div>
 
   <div class="card" id="viewGate">
     <h2>🔒 Password required</h2>
@@ -422,6 +430,10 @@
 const KVDB_BASE = 'https://kvdb.io';
 const LEDGER_KEY_NAME = 'ledger';
 const IP_LOOKUP_API = 'https://api.ipify.org?format=json';
+// Privacy: capturing every visitor's PUBLIC IP into a shared store is PII. Off by
+// default — visitors get a random per-device tag instead. Turn on ONLY if disclosed
+// AND running the encrypted build (so the log is not world-readable).
+const COLLECT_IP = false;
 // Passwords aren't stored as plain text — only their SHA-256 hashes are here,
 // so casually viewing the page source doesn't reveal them outright.
 // (Honest caveat: these are short, guessable words, so this deters casual
@@ -475,18 +487,22 @@ let customEditedNames = new Set(); // names the user has manually typed a custom
 
 /* ---------- Identity: public IP address (falls back to a random local id) ---------- */
 async function resolveIp(){
-  try{
-    const res = await fetch(IP_LOOKUP_API);
-    if(!res.ok) throw new Error('ip lookup failed');
-    const data = await res.json();
-    myIp = data.ip || null;
-  }catch(e){
-    myIp = null;
+  if(COLLECT_IP){
+    try{
+      const res = await fetch(IP_LOOKUP_API);
+      if(!res.ok) throw new Error('ip lookup failed');
+      const data = await res.json();
+      myIp = data.ip || null;
+    }catch(e){
+      myIp = null;
+    }
+  } else {
+    myIp = null; // no external IP lookup; use a local, non-PII device tag
   }
   if(!myIp){
     let fb = localStorage.getItem(DEVICE_FALLBACK_KEY);
     if(!fb){
-      fb = 'unresolved-' + Math.random().toString(36).slice(2, 6);
+      fb = 'device-' + Math.random().toString(36).slice(2, 6);
       localStorage.setItem(DEVICE_FALLBACK_KEY, fb);
     }
     myIp = fb;
@@ -832,7 +848,7 @@ function renderLockUI(){
     wrap.innerHTML = `
       <span class="lock-badge unlocked">👁 View only${myIp ? ' — ' + escapeHtml(myIp) : ''}</span>
       <div class="lock-form">
-        <input type="password" id="pwInput" placeholder="Edit password">
+        <input type="password" id="pwInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Edit password">
         <button class="ghost small" id="unlockBtn">Unlock</button>
       </div>
       <button class="ghost small" id="relockBtn">Lock</button>
@@ -843,7 +859,7 @@ function renderLockUI(){
     wrap.innerHTML = `
       <span class="lock-badge locked">🔒 Locked</span>
       <div class="lock-form">
-        <input type="password" id="pwInput" placeholder="Password">
+        <input type="password" id="pwInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Password">
         <button class="ghost small" id="unlockBtn">Unlock</button>
       </div>
     `;
@@ -936,12 +952,20 @@ function renderVisitorLog(){
 /* ---------- Rendering ---------- */
 function getCamper(name){ return campers.find(c => c.name === name) || { name, photo: null }; }
 
+/* Only allow inline base64 image data URIs as avatar sources. Anything else
+   (e.g. a string injected into the shared bucket by an outsider) is rejected,
+   so it can't break out of the src="" attribute. Kills the stored-XSS vector. */
+function safePhoto(p){
+  if(typeof p !== 'string') return '';
+  return /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(p) ? p : '';
+}
 function avatarHtml(name, small){
   const c = getCamper(name);
   const sizeCls = small ? ' avatar-sm' : '';
   const fallbackCls = small ? ' avatar-fallback-sm' : '';
-  if(c.photo){
-    return `<img class="avatar${sizeCls}" src="${c.photo}" alt="${escapeAttr(name)}">`;
+  const ph = safePhoto(c.photo);
+  if(ph){
+    return `<img class="avatar${sizeCls}" src="${ph}" alt="${escapeAttr(name)}">`;
   }
   const initial = (name || '?').trim().charAt(0).toUpperCase() || '?';
   return `<div class="avatar-fallback${fallbackCls}">${escapeHtml(initial)}</div>`;
