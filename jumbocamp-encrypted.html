@@ -94,7 +94,7 @@
   .sync-dot{ width:7px; height:7px; border-radius:50%; background: var(--owed); flex-shrink:0; }
   .sync-dot.bad{ background: var(--red); }
   .sync-dot.pending{ background: var(--gold); }
-  .lock-toggle{ margin-left:auto; display:flex; align-items:center; gap:8px; }
+  .lock-toggle{ margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .lock-badge{
     font-family:'JetBrains Mono', monospace; font-size:11.5px; padding:5px 11px; border-radius:20px;
     border:1px solid var(--line);
@@ -102,7 +102,10 @@
   .lock-badge.locked{ color: var(--muted); }
   .lock-badge.unlocked{ color: var(--owed); border-color: rgba(127,169,127,0.4); }
   .lock-badge.leader{ color: var(--gold); border-color: rgba(212,162,76,0.5); }
-  .lock-form{ display:flex; gap:6px; align-items:center; }
+  .lock-form{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  /* setup has two inputs + a button: stack them so the button is always tappable */
+  .setup-form{ flex-direction:column; align-items:stretch; width:100%; max-width:320px; }
+  .setup-form input, .setup-form button{ width:100%; box-sizing:border-box; }
   .lock-form input{ width:120px; padding:8px 10px; font-size:13px; min-height:36px; }
   .lock-form button{ padding:8px 12px; min-height:36px; font-size:13px; }
 
@@ -899,9 +902,9 @@ function renderLockUI(){
   if(needsSetup){
     wrap.innerHTML = `
       <span class="lock-badge locked">🔐 Set up</span>
-      <div class="lock-form">
-        <input type="password" id="pwInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Create trip password">
-        <input type="password" id="pinInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Set editor PIN">
+      <div class="lock-form setup-form">
+        <input type="password" id="pwInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Create trip password (6+ chars)">
+        <input type="password" id="pinInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Set editor PIN (4+ chars)">
         <button class="ghost small" id="setupBtn">Create ledger</button>
       </div>
     `;
@@ -1027,6 +1030,7 @@ function bindSetupForm(){
     renderLockUI(); renderGate(); renderAll(); restoreDraftIfAny();
   };
   document.getElementById('setupBtn').addEventListener('click', doSetup);
+  pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') doSetup(); });
   pinInput.addEventListener('keydown', e => { if(e.key === 'Enter') doSetup(); });
 }
 
