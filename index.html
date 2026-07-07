@@ -2,6 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
+  <!-- Security policy (added in remediation). NOTE: on GitHub Pages only CSP and
+       referrer can be set via <meta>. nosniff / X-Frame-Options / HSTS / Permissions-Policy
+       are ignored as meta and need a real header layer (e.g. Cloudflare). See SECURITY_AUDIT_v2.md. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data: https://img.youtube.com; connect-src 'self';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content=" Pyaro Studio — Production, Nepal." />
   <title>Pyaro Studio - Work You'll Love</title>
@@ -632,7 +638,6 @@
       <a href="#work">Work</a>
       <a href="#about">About</a>
       <a href="distribution.html">Distribution</a>
-      <a href="upload.html">Tools</a>
       <a href="#contact">Contact</a>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -649,7 +654,6 @@
     <a href="#work">Work</a>
     <a href="#about">About</a>
     <a href="distribution.html">Distribution</a>
-    <a href="upload.html">Tools</a>
     <a href="#contact">Contact</a>
   </div>
 
