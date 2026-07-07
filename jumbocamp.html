@@ -434,6 +434,7 @@ let pendingDeletedGroupIds = new Set();
 let editingExpenseId = null;
 let editingGroupId = null;
 let myIp = null;
+let customEditedNames = new Set(); // names the user has manually typed a custom amount for (so we don't overwrite them)
 
 /* ---------- Identity: public IP address (falls back to a random local id) ---------- */
 async function resolveIp(){
@@ -814,18 +815,81 @@ function renderQuickSplitSelect(){
 
 document.getElementById('quickSplitSelect').addEventListener('change', () => {
   const sel = document.getElementById('quickSplitSelect');
+  customEditedNames.clear();
   if(!sel.value){
     renderSplitPeople(); // Everyone, all checked
+    if(splitMode === 'custom') distributeAutoCustom();
     saveDraft();
     return;
   }
   const group = groups.find(g => g.id === sel.value);
   if(!group) return;
+  // picking a group defaults to splitting equally among that group;
+  // switch to Custom afterward if you need to fine-tune individual amounts
+  splitMode = 'equal';
+  document.getElementById('splitEqualBtn').classList.add('active');
+  document.getElementById('splitCustomBtn').classList.remove('active');
   const preset = {};
-  const each = splitMode === 'equal' ? null : null;
   group.members.forEach(n => { preset[n] = 0; });
   renderSplitPeople(preset, /*fromQuickSplit*/true);
   saveDraft();
+});
+
+/* ---------- Auto-calculate custom splits ----------
+   In Custom mode, unedited fields auto-fill with an equal share of whatever
+   is left after subtracting any amounts the user has typed by hand — so
+   picking people gives you sensible numbers immediately, but you can still
+   override any individual person's amount and the rest adjust around it. */
+function distributeAutoCustom(){
+  if(splitMode !== 'custom') return;
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  if(isNaN(amount) || amount <= 0) return;
+  const checks = Array.from(document.querySelectorAll('.split-check'));
+  const selectedNames = checks.filter(c => c.checked).map(c => c.dataset.name);
+  if(selectedNames.length === 0) return;
+
+  let editedSum = 0;
+  const uneditedNames = [];
+  selectedNames.forEach(n => {
+    if(customEditedNames.has(n)){
+      const el = document.querySelector(`.split-custom-amt[data-name="${cssEscape(n)}"]`);
+      const v = el ? parseFloat(el.value) : 0;
+      editedSum += isNaN(v) ? 0 : v;
+    } else {
+      uneditedNames.push(n);
+    }
+  });
+  if(uneditedNames.length === 0) return;
+
+  let remaining = amount - editedSum;
+  if(remaining < 0) remaining = 0;
+  const each = Math.floor((remaining / uneditedNames.length) * 100) / 100;
+  const runningSum = each * (uneditedNames.length - 1);
+  uneditedNames.forEach((n, idx) => {
+    const el = document.querySelector(`.split-custom-amt[data-name="${cssEscape(n)}"]`);
+    if(!el) return;
+    const val = (idx === uneditedNames.length - 1)
+      ? Math.round((remaining - runningSum) * 100) / 100
+      : each;
+    el.value = val.toFixed(2);
+  });
+}
+
+document.getElementById('splitPeople').addEventListener('input', (e) => {
+  if(e.target.classList.contains('split-custom-amt')){
+    customEditedNames.add(e.target.dataset.name);
+    distributeAutoCustom();
+    saveDraft();
+  }
+});
+document.getElementById('splitPeople').addEventListener('change', (e) => {
+  if(e.target.classList.contains('split-check')){
+    if(splitMode === 'custom') distributeAutoCustom();
+    saveDraft();
+  }
+});
+document.getElementById('amountInput').addEventListener('input', () => {
+  if(splitMode === 'custom') distributeAutoCustom();
 });
 
 function renderSplitPeople(presetShares, isMembershipOnly){
@@ -858,8 +922,12 @@ function renderGroups(){
   list.innerHTML = groups.map(g => {
     const isEditing = editingGroupId === g.id;
     const memberChips = g.members.map(n => `
-      <span class="group-member-chip">${avatarHtml(n, true)} ${escapeHtml(n)}</span>
+      <span class="group-member-chip">${avatarHtml(n, true)}${n === g.poc ? ' 📍' : ''} ${escapeHtml(n)}</span>
     `).join('') || '<span class="empty" style="padding:0;">No members yet</span>';
+
+    const pocBadge = g.poc
+      ? `<span class="lock-badge" style="color:var(--gold); border-color:rgba(212,162,76,0.4);">📍 POC: ${escapeHtml(g.poc)}</span>`
+      : (isLeader ? `<span class="lock-badge locked">No POC set</span>` : '');
 
     const editorHtml = isEditing ? `
       <div class="group-editor">
@@ -871,8 +939,18 @@ function renderGroups(){
             </label>
           `).join('')}
         </div>
+        <div class="quick-split-row">
+          <label>Point of Contact (POC):</label>
+          <select id="pocSelect_${escapeAttr(g.id)}">
+            <option value="">No POC</option>
+            ${campers.map(c => `<option value="${escapeAttr(c.name)}" ${g.poc === c.name ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="leader-only-note">
+          If this group has a POC, Settle Up will route the whole group's balance through that one person instead of listing every member separately — handy so one person per family handles the actual payment.
+        </div>
         <div class="form-actions">
-          <button class="primary" onclick="saveGroupMembers('${escapeAttr(g.id)}')">Save members</button>
+          <button class="primary" onclick="saveGroupMembers('${escapeAttr(g.id)}')">Save group</button>
           <button class="ghost" onclick="cancelGroupEdit()">Cancel</button>
         </div>
       </div>
@@ -882,9 +960,10 @@ function renderGroups(){
       <div class="group-card">
         <div class="group-card-top">
           <span class="group-name">${escapeHtml(g.name)}</span>
+          ${pocBadge}
           ${isLeader ? `
             <div class="group-actions">
-              <button class="ghost small" onclick="toggleGroupEdit('${escapeAttr(g.id)}')">${isEditing ? 'Close' : 'Edit members'}</button>
+              <button class="ghost small" onclick="toggleGroupEdit('${escapeAttr(g.id)}')">${isEditing ? 'Close' : 'Edit group'}</button>
               <button class="ghost small" onclick="deleteGroup('${escapeAttr(g.id)}')">Delete</button>
             </div>
           ` : ''}
@@ -902,7 +981,7 @@ document.getElementById('addGroupBtn').addEventListener('click', () => {
   const name = input.value.trim();
   if(!name) return;
   const id = 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
-  groups.push({ id, name, members: [] });
+  groups.push({ id, name, members: [], poc: '' });
   input.value = '';
   pushRemote();
   renderAll();
@@ -927,7 +1006,12 @@ function saveGroupMembers(id){
   const group = groups.find(g => g.id === id);
   if(!group) return;
   const checks = Array.from(document.querySelectorAll(`.group-member-check[data-group="${cssEscape(id)}"]`));
-  group.members = checks.filter(c => c.checked).map(c => c.dataset.name);
+  let members = checks.filter(c => c.checked).map(c => c.dataset.name);
+  const pocSelect = document.getElementById(`pocSelect_${id}`);
+  const poc = pocSelect ? pocSelect.value : '';
+  if(poc && !members.includes(poc)) members = members.concat([poc]); // POC should belong to their own group
+  group.members = members;
+  group.poc = poc || '';
   editingGroupId = null;
   pushRemote();
   renderAll();
@@ -1009,6 +1093,7 @@ document.getElementById('camperInput').addEventListener('keydown', e => {
 
 document.getElementById('splitEqualBtn').addEventListener('click', () => {
   splitMode = 'equal';
+  customEditedNames.clear();
   document.getElementById('splitEqualBtn').classList.add('active');
   document.getElementById('splitCustomBtn').classList.remove('active');
   renderSplitPeople();
@@ -1016,14 +1101,17 @@ document.getElementById('splitEqualBtn').addEventListener('click', () => {
 });
 document.getElementById('splitCustomBtn').addEventListener('click', () => {
   splitMode = 'custom';
+  customEditedNames.clear();
   document.getElementById('splitCustomBtn').classList.add('active');
   document.getElementById('splitEqualBtn').classList.remove('active');
   renderSplitPeople();
+  distributeAutoCustom();
   saveDraft();
 });
 
 function resetExpenseForm(){
   editingExpenseId = null;
+  customEditedNames.clear();
   document.getElementById('descInput').value = '';
   document.getElementById('amountInput').value = '';
   document.getElementById('paidByInput').value = '';
@@ -1053,6 +1141,7 @@ function startEditExpense(id){
   const isEqual = shareVals.length > 0 && shareVals.every(v => Math.abs(v - shareVals[0]) < 0.01) &&
                   Math.abs((shareVals[0] * shareVals.length) - e.amount) < 0.02;
   splitMode = isEqual ? 'equal' : 'custom';
+  customEditedNames = new Set(Object.keys(e.shares)); // treat existing amounts as already set by hand
   document.getElementById('splitEqualBtn').classList.toggle('active', splitMode === 'equal');
   document.getElementById('splitCustomBtn').classList.toggle('active', splitMode === 'custom');
   document.getElementById('quickSplitSelect').value = '';
@@ -1210,6 +1299,18 @@ function computeBalances(){
   return balance;
 }
 
+/* Finds whether a camper belongs to a group with a POC assigned — if so,
+   their settle-up balance routes through that one person instead of
+   listing them individually. */
+function getSettleIdentity(name){
+  for(const g of groups){
+    if(g.poc && g.members.includes(name)){
+      return { settleName: g.poc, groupName: g.name };
+    }
+  }
+  return { settleName: name, groupName: null };
+}
+
 function renderBalances(){
   const list = document.getElementById('balancesList');
   if(campers.length === 0){
@@ -1221,9 +1322,13 @@ function renderBalances(){
     const v = balance[c.name] || 0;
     const cls = v >= 0 ? 'pos' : 'neg';
     const label = v >= 0 ? 'is owed' : 'owes';
+    const identity = getSettleIdentity(c.name);
+    const pocNote = (identity.settleName !== c.name)
+      ? `<div class="receipt-meta2">settles via ${escapeHtml(identity.settleName)} (${escapeHtml(identity.groupName)})</div>`
+      : '';
     return `
     <div class="balance-row">
-      <div class="balance-left">${avatarHtml(c.name, true)} <span>${escapeHtml(c.name)}</span></div>
+      <div class="balance-left">${avatarHtml(c.name, true)} <div><span>${escapeHtml(c.name)}</span>${pocNote}</div></div>
       <span class="balance-amt ${cls}">${label} $${Math.abs(v).toFixed(2)}</span>
     </div>`;
   }).join('');
@@ -1236,9 +1341,19 @@ function renderSettle(){
     return;
   }
   const balance = computeBalances();
+
+  // Aggregate each camper's balance under their group's POC, if one is set,
+  // so one person per family handles the actual payment instead of everyone
+  // in that family settling separately.
+  const aggregated = {};
+  Object.entries(balance).forEach(([name, v]) => {
+    const identity = getSettleIdentity(name);
+    aggregated[identity.settleName] = (aggregated[identity.settleName] || 0) + v;
+  });
+
   const creditors = [];
   const debtors = [];
-  Object.entries(balance).forEach(([name, v]) => {
+  Object.entries(aggregated).forEach(([name, v]) => {
     if(v > 0.01) creditors.push({name, amt: v});
     else if(v < -0.01) debtors.push({name, amt: -v});
   });
@@ -1265,13 +1380,19 @@ function renderSettle(){
     return;
   }
 
+  // find group name(s) a settle-name is standing in for, for a small label
+  function pocLabel(name){
+    const g = groups.find(gr => gr.poc === name);
+    return g ? ` <span style="color:var(--muted); font-size:11.5px;">(POC for ${escapeHtml(g.name)})</span>` : '';
+  }
+
   list.innerHTML = transactions.map(t => `
     <div class="settle-item">
       ${avatarHtml(t.from, true)}
-      <span>${escapeHtml(t.from)}</span>
+      <span>${escapeHtml(t.from)}${pocLabel(t.from)}</span>
       <span class="arrow">→</span>
       ${avatarHtml(t.to, true)}
-      <span>${escapeHtml(t.to)}</span>
+      <span>${escapeHtml(t.to)}${pocLabel(t.to)}</span>
       <span class="settle-amt">$${t.amt.toFixed(2)}</span>
     </div>
   `).join('');
