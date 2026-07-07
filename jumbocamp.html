@@ -9,6 +9,7 @@
 <title>Jumbo Camp — Pyaro Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{
     --bg: #0B0B0D;
@@ -311,6 +312,7 @@
     <div class="sync-state" id="syncState"><span class="sync-dot pending" id="syncDot"></span><span id="syncText">Connecting...</span></div>
     <button class="ghost small" id="refreshBtn">↻ Refresh</button>
     <button class="ghost small" id="copyLinkBtn">🔗 Copy shareable link</button>
+    <button class="ghost small" id="screenshotBtn">📸 Save screenshot</button>
     <div class="lock-toggle" id="lockToggle"></div>
   </div>
   <div class="last-change" id="lastChangeText"></div>
@@ -388,6 +390,7 @@
     <div class="sync-row">
       <button class="ghost" id="exportBtn">Export code</button>
       <button class="ghost" id="importBtn">Import code</button>
+      <button class="ghost" id="emailBackupBtn">📧 Email backup to Pyaro Studio</button>
     </div>
     <textarea id="syncBox" rows="3" placeholder="Exported code appears here — or paste a code here and press Import." style="width:100%; margin-top:10px; display:none;"></textarea>
     <div class="status-msg" id="syncStatus"></div>
@@ -1449,9 +1452,13 @@ function attachDraftListeners(){
 attachDraftListeners();
 
 /* ---------- Export / Import (manual backup) ---------- */
+function generateBackupCode(){
+  return btoa(unescape(encodeURIComponent(JSON.stringify({ campers, expenses, groups }))));
+}
+
 document.getElementById('exportBtn').addEventListener('click', () => {
   const box = document.getElementById('syncBox');
-  const code = btoa(unescape(encodeURIComponent(JSON.stringify({ campers, expenses, groups }))));
+  const code = generateBackupCode();
   box.style.display = 'block';
   box.value = code;
   box.select();
@@ -1480,6 +1487,63 @@ document.getElementById('importBtn').addEventListener('click', () => {
   }catch(e){
     statusEl.textContent = 'That code could not be read. Double-check it was copied in full.';
   }
+});
+
+/* ---------- Email backup to Pyaro Studio ----------
+   This is a static page with no mail server, so "email" here means opening
+   the visitor's own mail app with the message pre-filled (a mailto: link) —
+   they still have to hit Send themselves. Mail apps cap how much text a
+   mailto link can carry, so if the code (photos especially) is too long to
+   fit, we copy it to the clipboard instead and ask them to paste it in. */
+document.getElementById('emailBackupBtn').addEventListener('click', () => {
+  const code = generateBackupCode();
+  const statusEl = document.getElementById('syncStatus');
+  const box = document.getElementById('syncBox');
+  box.style.display = 'block';
+  box.value = code;
+
+  const to = 'pyaro@pyaro.studio';
+  const subject = 'Jumbo Camp — Backup Code';
+  const MAILTO_SAFE_LIMIT = 1500;
+
+  if(code.length <= MAILTO_SAFE_LIMIT){
+    const body = `Backup code for the Jumbo Camp ledger:\n\n${code}\n\nPaste this into the Import box on the Jumbo Camp page to restore it.`;
+    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    statusEl.textContent = 'Opening your email app with the backup code filled in...';
+  } else {
+    navigator.clipboard && navigator.clipboard.writeText(code).catch(()=>{});
+    const body = `The backup code was too long to include automatically (it likely has camper photos in it).\n\nI've copied it to my clipboard — pasting it below:\n\n[paste here]`;
+    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    statusEl.textContent = 'Code copied to clipboard (too long to auto-fill — paste it into the email that just opened).';
+  }
+});
+
+/* ---------- Save screenshot ---------- */
+document.getElementById('screenshotBtn').addEventListener('click', () => {
+  const statusEl = document.getElementById('syncStatus');
+  if(typeof html2canvas === 'undefined'){
+    statusEl.textContent = 'Screenshot tool failed to load — check your internet connection and try again.';
+    return;
+  }
+  const target = document.querySelector('.wrap');
+  const btn = document.getElementById('screenshotBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Capturing...';
+  html2canvas(target, {
+    backgroundColor: '#0B0B0D',
+    useCORS: true,
+    scale: 2
+  }).then(canvas => {
+    const link = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    link.download = `jumbo-camp-${stamp}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.textContent = original;
+  }).catch(err => {
+    statusEl.textContent = 'Screenshot failed: ' + err.message;
+    btn.textContent = original;
+  });
 });
 
 /* ---------- Utils ---------- */
