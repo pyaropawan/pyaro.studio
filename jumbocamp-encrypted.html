@@ -698,7 +698,10 @@ async function createRemoteLedger(){
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'email=' + encodeURIComponent(BUCKET_OWNER_EMAIL)
     });
-    if(!bucketRes.ok) throw new Error('bucket create failed (' + bucketRes.status + ')');
+    if(!bucketRes.ok){
+      let detail=''; try{ detail = (await bucketRes.text()).slice(0,140); }catch(_){}
+      throw new Error('bucket create failed (' + bucketRes.status + (detail ? ': ' + detail : '') + ')');
+    }
     const rawBody = (await bucketRes.text()).trim();
     let bucketId = rawBody;
     try{
@@ -714,7 +717,10 @@ async function createRemoteLedger(){
       headers: { 'Content-Type': 'application/json' },
       body: await encodeBody(payload)
     });
-    if(!putRes.ok) throw new Error('initial save failed (' + putRes.status + ')');
+    if(!putRes.ok){
+      let detail=''; try{ detail = (await putRes.text()).slice(0,140); }catch(_){}
+      throw new Error('initial save failed (' + putRes.status + (detail ? ': ' + detail : '') + ')');
+    }
 
     remoteMode = true;
     lastRemoteJson = JSON.stringify({ campers, expenses, groups });
@@ -1046,7 +1052,7 @@ function bindSetupForm(){
       sessionStorage.removeItem('jumbocamp_access');
       needsSetup = true; accessLevel = 'none'; unlocked = false; isLeader = false;
       renderLockUI(); renderGate();
-      setSyncState('bad', 'Could not save the ledger. Check your connection and tap Create again.');
+      // leave createRemoteLedger's specific error visible in the status bar
       return;
     }
     // Verify it really saved and decrypts, so a bad save can't hide until unlock time.
