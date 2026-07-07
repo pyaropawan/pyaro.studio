@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <!-- Security policy (added in remediation). NOTE: on GitHub Pages only CSP and
+       referrer can be set via <meta>. nosniff / X-Frame-Options / HSTS / Permissions-Policy
+       are ignored as meta and need a real header layer (e.g. Cloudflare). See SECURITY_AUDIT_v2.md. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://REPLACE-ME.workers.dev;">
+  <meta name="referrer" content="no-referrer">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="bingbot" content="noindex, nofollow">
+<title>Jumbo Camp — Pyaro Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<!-- SUPPLY-CHAIN: self-host this file (commit html2canvas.min.js and use src="html2canvas.min.js"),
+     then remove cdnjs from the CSP script-src above. Otherwise add integrity="sha384-...". -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+  :root{
+    --bg: #0B0B0D;
+    --bg-2: #131315;
+    --glass: rgba(255,255,255,0.045);
+    --glass-strong: rgba(255,255,255,0.07);
+    --line: rgba(255,255,255,0.10);
+    --text: #F2EFE9;
+    --muted: #9A968E;
+    --red: #C1442E;
+    --red-dim: rgba(193,68,46,0.16);
+    --gold: #D4A24C;
+    --gold-dim: rgba(212,162,76,0.16);
+    --owe: #C1442E;
+    --owed: #7FA97F;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html{ background: var(--bg); }
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 15% -10%, #1c1414 0%, transparent 45%),
+      radial-gradient(ellipse at 90% 10%, #17140f 0%, transparent 40%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    position:relative;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+  body::after{
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    box-shadow: inset 0 0 160px 40px rgba(0,0,0,0.65);
+  }
+  .wrap{
+    max-width: 860px; margin:0 auto; position:relative; z-index:1;
+    padding: calc(44px + env(safe-area-inset-top)) 18px calc(120px + env(safe-area-inset-bottom));
+  }
+  header{ margin-bottom: 24px; }
+  .brandmark{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase;
+    color: var(--muted); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .brandmark .dot{ width:5px; height:5px; border-radius:50%; background: var(--red); display:inline-block; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color: var(--gold); margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-size: clamp(30px, 6.5vw, 46px);
+    font-weight:600; margin:0 0 12px; letter-spacing:-0.01em; line-height:1.08;
+  }
+  .sub{ color: var(--muted); font-size:14.5px; max-width:60ch; line-height:1.6; }
+
+  .status-bar{
+    display:flex; align-items:center; flex-wrap:wrap; gap:10px;
+    background: var(--glass); border:1px solid var(--line); border-radius:14px;
+    padding: 12px 16px; margin-bottom: 8px;
+    backdrop-filter: blur(18px);
+  }
+  .status-bar .sync-state{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; color: var(--muted);
+    display:flex; align-items:center; gap:6px;
+  }
+  .sync-dot{ width:7px; height:7px; border-radius:50%; background: var(--owed); flex-shrink:0; }
+  .sync-dot.bad{ background: var(--red); }
+  .sync-dot.pending{ background: var(--gold); }
+  .lock-toggle{ margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .lock-badge{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; padding:5px 11px; border-radius:20px;
+    border:1px solid var(--line);
+  }
+  .lock-badge.locked{ color: var(--muted); }
+  .lock-badge.unlocked{ color: var(--owed); border-color: rgba(127,169,127,0.4); }
+  .lock-badge.leader{ color: var(--gold); border-color: rgba(212,162,76,0.5); }
+  .lock-form{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  /* setup has two inputs + a button: stack them so the button is always tappable */
+  .setup-form{ flex-direction:column; align-items:stretch; width:100%; max-width:320px; }
+  .setup-form input, .setup-form button{ width:100%; box-sizing:border-box; }
+  .lock-form input{ width:120px; padding:8px 10px; font-size:13px; min-height:36px; }
+  .lock-form button{ padding:8px 12px; min-height:36px; font-size:13px; }
+
+  .last-change{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color: var(--muted);
+    margin: 0 0 8px 4px;
+  }
+  .last-change b{ color: var(--gold); font-weight:600; }
+  .privacy-note{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; color:#6e6b66;
+    margin: 0 0 20px 4px; line-height:1.5;
+  }
+
+  .card{
+    background: var(--glass);
+    border:1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+  .card h2{
+    font-family:'Fraunces', serif; font-weight:600;
+    font-size:17px; margin:0 0 16px;
+    display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  }
+  .card h2 .num{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color: var(--red);
+    font-weight:600;
+  }
+  .card h2 .tag{
+    margin-left:auto;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--muted);
+    border:1px solid var(--line); border-radius:20px; padding:3px 9px; font-weight:500;
+  }
+  .card h2 .tag.editing{ color: var(--gold); border-color: rgba(212,162,76,0.4); }
+  .card h2 .tag.leader-tag{ color: var(--gold); border-color: rgba(212,162,76,0.4); }
+
+  .avatar{
+    width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0;
+    border:1px solid var(--line); background: var(--bg-2);
+  }
+  .avatar-fallback{
+    width:30px; height:30px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--red-dim); color: var(--red);
+    font-family:'Fraunces', serif; font-weight:600; font-size:13px;
+    border:1px solid var(--line);
+  }
+  .avatar-sm, .avatar-fallback-sm{ width:22px; height:22px; font-size:10.5px; }
+  .avatar-stack{ display:flex; }
+  .avatar-stack > *{ margin-left:-8px; border:2px solid var(--bg-2); }
+  .avatar-stack > *:first-child{ margin-left:0; }
+
+  .campers-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .camper-chip{
+    background: var(--glass-strong); border:1px solid var(--line); border-radius: 22px;
+    padding:6px 12px 6px 6px; font-size:13.5px; display:flex; align-items:center; gap:8px;
+  }
+  .camper-chip .photo-btn, .camper-chip .remove-btn{
+    background:none; border:none; color:var(--muted); cursor:pointer; font-size:13px; line-height:1;
+    padding:6px; opacity:0.7; min-width:28px; min-height:28px;
+  }
+  .camper-chip .photo-btn:hover{ color: var(--gold); opacity:1; }
+  .camper-chip .remove-btn:hover{ color: var(--red); opacity:1; }
+  .add-row{ display:flex; gap:8px; }
+
+  input[type=text], input[type=number], input[type=password], select, textarea{
+    background: var(--bg-2); border:1px solid var(--line); color:var(--text);
+    border-radius:10px; padding:12px 13px; font-size:16px; font-family:'Inter',sans-serif;
+    outline:none; min-height:44px;
+  }
+  textarea{ width:100%; resize:vertical; font-family:'JetBrains Mono', monospace; font-size:12.5px; min-height:auto; }
+  input[type=text]:focus, input[type=number]:focus, input[type=password]:focus, select:focus, textarea:focus{ border-color: var(--red); }
+  input::placeholder{ color:#5f5b56; }
+  input:disabled, select:disabled, button:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  button.primary{
+    background: var(--red); color:#FBEFE9; border:none; border-radius:10px;
+    padding:13px 20px; font-size:14.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
+    transition: transform .12s ease, background .12s ease; min-height:46px;
+  }
+  button.primary:hover{ background:#d15139; transform: translateY(-1px); }
+  button.primary:active{ transform: translateY(0); }
+  button.primary.editing-mode{ background: var(--gold); color:#1A1108; }
+  button.primary.editing-mode:hover{ background:#e0b366; }
+  button.ghost{
+    background:transparent; border:1px solid var(--line); color:var(--muted);
+    border-radius:10px; padding:11px 15px; font-size:13.5px; cursor:pointer; min-height:44px;
+  }
+  button.ghost:hover{ border-color: var(--gold); color: var(--gold); }
+  button.ghost.small{ min-height:36px; padding:7px 12px; font-size:12.5px; }
+  .form-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+
+  .form-grid{ display:grid; grid-template-columns: 1.4fr 0.9fr 1fr; gap:10px; margin-bottom:12px; }
+  .split-block{ margin-bottom:14px; }
+  .split-toggle{ display:flex; gap:8px; margin-bottom:10px; }
+  .split-toggle button{
+    flex:1; background: var(--bg-2); border:1px solid var(--line); color:var(--muted);
+    border-radius:10px; padding:10px; font-size:13.5px; cursor:pointer; min-height:44px;
+  }
+  .split-toggle button.active{ border-color: var(--red); color: var(--red); background: var(--red-dim); }
+  .quick-split-row{ display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  .quick-split-row label{ font-size:12.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .quick-split-row select{ min-height:38px; padding:8px 10px; font-size:13px; flex:1; min-width:160px; }
+  .split-people{ display:flex; flex-wrap:wrap; gap:8px; }
+  .split-person{
+    display:flex; align-items:center; gap:8px; background:var(--bg-2); border:1px solid var(--line);
+    border-radius:10px; padding:8px 11px; font-size:13.5px; min-height:44px;
+  }
+  .split-person input[type=checkbox]{ accent-color: var(--red); width:18px; height:18px; }
+  .split-person input[type=number]{ width:74px; padding:6px 8px; font-size:13px; min-height:auto; }
+
+  .receipt{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:13px 0; border-bottom:1px solid var(--line); gap:10px;
+  }
+  .receipt:last-child{ border-bottom:none; }
+  .receipt-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .receipt-text{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .receipt-desc{ font-size:14.5px; font-weight:500; overflow-wrap:anywhere; }
+  .receipt-meta{ font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .receipt-meta2{ font-size:11px; color:#6e6b66; font-family:'JetBrains Mono',monospace; }
+  .receipt-amt{ font-family:'JetBrains Mono', monospace; font-size:15px; font-weight:600; color:var(--gold); white-space:nowrap; }
+  .receipt-actions{ display:flex; align-items:center; flex-shrink:0; gap:4px; }
+  .receipt-edit, .receipt-del{
+    background:none;border:none;color:var(--muted); cursor:pointer; font-size:14px; opacity:0.65;
+    min-width:32px; min-height:32px;
+  }
+  .receipt-edit:hover{ color: var(--gold); opacity:1; }
+  .receipt-del:hover{ color: var(--red); opacity:1; }
+  .empty{ color:var(--muted); font-size:13px; font-style:italic; padding:8px 0; }
+
+  .balance-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:11px 0; border-bottom:1px solid var(--line); font-size:14px;
+  }
+  .balance-row:last-child{ border-bottom:none; }
+  .balance-left{ display:flex; align-items:center; gap:10px; }
+  .balance-amt{ font-family:'JetBrains Mono', monospace; font-weight:600; }
+  .pos{ color: var(--owed); }
+  .neg{ color: var(--owe); }
+
+  .settle-item{
+    display:flex; align-items:center; gap:10px; padding:13px 14px; margin-bottom:8px;
+    background: var(--glass-strong); border:1px solid var(--line); border-radius:12px; font-size:13.5px;
+    flex-wrap:wrap;
+  }
+  .settle-item .arrow{ color: var(--gold); font-family:'JetBrains Mono', monospace; }
+  .settle-amt{ margin-left:auto; font-family:'JetBrains Mono', monospace; font-weight:700; color: var(--gold); }
+
+  .status-msg{ font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; min-height:16px; margin-top:8px; }
+  .sync-row{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+
+  .footer-mark{
+    text-align:center; color: var(--muted); font-family:'JetBrains Mono', monospace;
+    font-size:11px; letter-spacing:0.08em; margin-top:8px; opacity:0.7;
+  }
+
+  .mobile-bar{
+    display:none;
+    position:fixed; left:0; right:0; bottom:0; z-index:5;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(11,11,13,0.96) 70%, rgba(11,11,13,0));
+    backdrop-filter: blur(10px);
+  }
+  .mobile-bar button{ width:100%; display:block; }
+
+  /* Groups */
+  .group-card{
+    background: var(--bg-2); border:1px solid var(--line); border-radius:12px;
+    padding:14px; margin-bottom:10px;
+  }
+  .group-card-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .group-name{ font-family:'Fraunces', serif; font-weight:600; font-size:15px; }
+  .group-actions{ margin-left:auto; display:flex; gap:6px; }
+  .group-members{ display:flex; flex-wrap:wrap; gap:6px; }
+  .group-member-chip{
+    display:flex; align-items:center; gap:6px; background: var(--glass-strong); border:1px solid var(--line);
+    border-radius:16px; padding:4px 10px 4px 4px; font-size:12.5px;
+  }
+  .group-editor{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
+  .group-editor .split-people{ margin-bottom:10px; }
+  .new-group-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .leader-only-note{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color: var(--muted);
+    margin-bottom:12px; line-height:1.5;
+  }
+
+  @media (max-width: 640px){
+    .form-grid{ grid-template-columns: 1fr; }
+    .add-row{ flex-direction:column; }
+    .new-group-row{ flex-direction:column; }
+    .mobile-bar{ display:block; }
+    .wrap{ padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+    .lock-toggle{ margin-left:0; width:100%; }
+    .status-bar{ flex-direction:column; align-items:stretch; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    button.primary{ transition:none; }
+  }
+  .js-hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brandmark"><span class="dot"></span>PYARO STUDIO — INTERNAL TOOL</div>
+    <div class="eyebrow">— A shared ledger for one trip</div>
+    <h1>Jumbo Camp</h1>
+    <div class="sub">Log who bought what, and this works out exactly who owes who — settled in the fewest payments possible. This ledger is private: enter the view password to see it, or the edit password to make changes.</div>
+  </header>
+
+  <div class="status-bar">
+    <div class="sync-state" id="syncState"><span class="sync-dot pending" id="syncDot"></span><span id="syncText">Connecting...</span></div>
+    <button class="ghost small" id="refreshBtn">↻ Refresh</button>
+    <button class="ghost small" id="copyLinkBtn">🔗 Copy shareable link</button>
+    <button class="ghost small" id="screenshotBtn">📸 Save screenshot</button>
+    <div class="lock-toggle" id="lockToggle"></div>
+  </div>
+  <div class="last-change" id="lastChangeText"></div>
+  <div class="privacy-note">Visitors are identified by a per-device tag (public-IP capture is OFF by default) — recorded on every open, visible to the editor.</div>
+
+  <div class="card" id="viewGate">
+    <h2>🔒 Password required</h2>
+    <div class="sub">This trip's ledger is private. Enter the password above (in the bar above this card) to view it — everyone who opens this link is logged either way.</div>
+  </div>
+
+  <div id="mainContent" class="js-hidden">
+  <div class="card">
+    <h2><span class="num">01</span> Campers <span class="tag" id="camperCount">0</span></h2>
+    <div class="campers-row" id="campersRow"></div>
+    <div class="add-row" id="addCamperRow">
+      <input type="text" id="camperInput" placeholder="Add a camper's name..." style="flex:1">
+      <button class="primary" id="addCamperBtn">Add</button>
+    </div>
+    <input type="file" id="photoFileInput" accept="image/*" style="display:none">
+  </div>
+
+  <div class="card" id="groupsCard">
+    <h2><span class="num">02</span> Groups <span class="tag leader-tag" id="groupsTag">edit access</span></h2>
+    <div id="groupsLeaderNote" class="leader-only-note" style="display:none;">
+      With the edit password, you can create sub-groups (e.g. "Tent A", "Kitchen Crew") and reassign who's in each — handy if the trip splits up. Anyone with view access can use a group as a shortcut when logging an expense.
+    </div>
+    <div id="newGroupRow" class="new-group-row" style="display:none;">
+      <input type="text" id="groupNameInput" placeholder="New group name (e.g. Tent A)" style="flex:1">
+      <button class="primary" id="addGroupBtn">Create group</button>
+    </div>
+    <div id="groupsList"><div class="empty">No groups yet. Everyone splits together by default.</div></div>
+  </div>
+
+  <div class="card" id="expenseCard">
+    <h2><span class="num">03</span> Log a Purchase <span class="tag" id="expenseFormTag">expense</span></h2>
+    <div id="expenseForm">
+      <div class="form-grid">
+        <input type="text" id="descInput" placeholder="What was bought (e.g. firewood, groceries)">
+        <input type="number" id="amountInput" placeholder="Amount" step="0.01" min="0" inputmode="decimal">
+        <select id="paidByInput"><option value="">Paid by...</option></select>
+      </div>
+      <div class="split-block">
+        <div class="split-toggle">
+          <button id="splitEqualBtn" class="active">Split equally</button>
+          <button id="splitCustomBtn">Custom amounts</button>
+        </div>
+        <div class="quick-split-row">
+          <label>Quick split:</label>
+          <select id="quickSplitSelect">
+            <option value="">Everyone</option>
+          </select>
+        </div>
+        <div class="split-people" id="splitPeople"></div>
+      </div>
+      <div class="form-actions">
+        <button class="primary" id="addExpenseBtn">Add expense</button>
+        <button class="ghost" id="cancelEditBtn" style="display:none;">Cancel edit</button>
+      </div>
+      <div class="status-msg" id="expenseStatus"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">04</span> Camp Receipts <span class="tag" id="expenseCount">0</span></h2>
+    <div id="receiptsList"><div class="empty">No expenses logged yet.</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">05</span> Balances <span class="tag">who's up, who's down</span></h2>
+    <div id="balancesList"><div class="empty">Add campers and expenses to see balances.</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">06</span> Settle Up <span class="tag">minimum transactions</span></h2>
+    <div id="settleList"><div class="empty">Nothing to settle yet.</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">07</span> Backup copy <span class="tag">export / import</span></h2>
+    <div class="sub" style="margin-bottom:12px;">The ledger already syncs live for everyone with the link. Use this only as a manual backup, or to recover if the shared copy ever needs restoring.</div>
+    <div class="sync-row">
+      <button class="ghost" id="exportBtn">Export code</button>
+      <button class="ghost" id="importBtn">Import code</button>
+      <button class="ghost" id="downloadBackupBtn">💾 Download backup file</button>
+    </div>
+    <textarea id="syncBox" rows="3" placeholder="Exported code appears here — or paste a code here and press Import." style="width:100%; margin-top:10px; display:none;"></textarea>
+    <div class="status-msg" id="syncStatus"></div>
+  </div>
+
+  <div class="card" id="visitorLogCard" style="display:none;">
+    <h2><span class="num">08</span> Visitor Log <span class="tag leader-tag">edit access only</span></h2>
+    <div class="sub" style="margin-bottom:12px;">Everyone who opens this link is recorded here, whether or not they enter a password.</div>
+    <div id="visitorLogList"><div class="empty">No visits recorded yet.</div></div>
+  </div>
+
+  <div class="footer-mark">jumbo camp · pyaro studio · private</div>
+  </div>
+</div>
+
+<div class="mobile-bar">
+  <button class="primary" id="mobileAddBtn">＋ Add expense</button>
+</div>
+
+<script>
+/* ---------- Config ---------- */
+/* Storage = a Cloudflare Worker that checks the view/edit password on the server
+   (see SETUP_CLOUDFLARE.md). EDIT the line below to YOUR Worker URL — and match it
+   in the CSP connect-src up in <head>. */
+const WORKER_BASE = 'https://REPLACE-ME.workers.dev';
+const IP_LOOKUP_API = 'https://api.ipify.org?format=json';
+const COLLECT_IP = false;
+const SESSION_PASS_KEY = 'camping_pass';
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+const LOCAL_CAMPERS_KEY = 'jumbocamp_campers';
+const LOCAL_EXPENSES_KEY = 'jumbocamp_expenses';
+const LOCAL_GROUPS_KEY = 'jumbocamp_groups';
+const LOCAL_VISITS_KEY = 'jumbocamp_visits';
+const LOCAL_LEDGER_KEY = 'jumbocamp_ledger_id';
+const DEVICE_FALLBACK_KEY = 'jumbocamp_device_fallback_id';
+const DEVICE_ID_KEY = 'jumbocamp_device_uuid';
+const DRAFT_KEY = 'jumbocamp_draft_expense';
+const POLL_MS = 20000;
+const MAX_VISITS_STORED = 300;
+
+/* ---------- State ----------
+   accessLevel: 'none' (nothing visible yet) | 'view' (read-only) | 'edit' (full control, including Groups)
+   unlocked / isLeader are kept as separate flags (both true only at 'edit') so the
+   rest of the code — which already checks them — didn't need rewriting. */
+let campers = [];
+let expenses = [];
+let groups = []; // [{ id, name, members: [names], poc }]
+let visits = []; // [{ ip, time }] — every page open, regardless of password
+let splitMode = 'equal';
+let pendingPhotoTarget = null;
+let ledgerId = null;
+let remoteMode = true;
+let accessLevel = sessionStorage.getItem('jumbocamp_access') || 'none';
+let unlocked = accessLevel === 'edit';
+let isLeader = accessLevel === 'edit';
+let pollTimer = null;
+// --- encrypted build state ---
+let pass = sessionStorage.getItem(SESSION_PASS_KEY) || null; // password this session is using
+let lastRemoteJson = null;
+let lastModified = null;
+let pendingDeletedExpenseIds = new Set();
+let pendingDeletedCamperNames = new Set();
+let pendingDeletedGroupIds = new Set();
+let editingExpenseId = null;
+let editingGroupId = null;
+let myIp = null;
+let myDeviceId = null;
+let myDeviceInfo = null; // { type, os, browser }
+let customEditedNames = new Set(); // names the user has manually typed a custom amount for (so we don't overwrite them)
+
+/* ---------- Identity: public IP address (falls back to a random local id) ---------- */
+async function resolveIp(){
+  if(COLLECT_IP){
+    try{
+      const res = await fetch(IP_LOOKUP_API);
+      if(!res.ok) throw new Error('ip lookup failed');
+      const data = await res.json();
+      myIp = data.ip || null;
+    }catch(e){
+      myIp = null;
+    }
+  } else {
+    myIp = null; // no external IP lookup; use a local, non-PII device tag
+  }
+  if(!myIp){
+    let fb = localStorage.getItem(DEVICE_FALLBACK_KEY);
+    if(!fb){
+      fb = 'device-' + Math.random().toString(36).slice(2, 6);
+      localStorage.setItem(DEVICE_FALLBACK_KEY, fb);
+    }
+    myIp = fb;
+  }
+  myDeviceId = getPersistentDeviceId();
+  myDeviceInfo = detectDeviceInfo();
+  return myIp;
+}
+function getDeviceLabel(){ return myIp || 'unknown'; }
+
+/* A random ID saved in this browser's own storage — lets the Visitor Log
+   tell "same device came back" apart from "different device, same IP"
+   (common on shared WiFi/hotspots where IP alone can't tell people apart). */
+function getPersistentDeviceId(){
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if(!id){
+    id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36));
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
+
+/* Best-effort device type / OS / browser from the user agent string.
+   Browsers don't expose a real hardware ID (blocked for privacy), so this
+   is a readable label, not a unique fingerprint. */
+function detectDeviceInfo(){
+  const ua = navigator.userAgent || '';
+  let type = 'Desktop';
+  if(/iPad|Tablet(?!.*Mobile)/i.test(ua)) type = 'Tablet';
+  else if(/Mobi|Android.*Mobile|iPhone|iPod/i.test(ua)) type = 'Mobile';
+  else if(/Android/i.test(ua)) type = 'Tablet';
+
+  let os = 'Unknown OS';
+  if(/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+  else if(/Android/i.test(ua)) os = 'Android';
+  else if(/Windows/i.test(ua)) os = 'Windows';
+  else if(/Mac OS X/i.test(ua)) os = 'macOS';
+  else if(/Linux/i.test(ua)) os = 'Linux';
+
+  let browser = 'Unknown browser';
+  if(/Edg\//i.test(ua)) browser = 'Edge';
+  else if(/OPR\//i.test(ua)) browser = 'Opera';
+  else if(/Chrome\//i.test(ua) && !/Chromium/i.test(ua)) browser = 'Chrome';
+  else if(/Safari\//i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+  else if(/Firefox\//i.test(ua)) browser = 'Firefox';
+
+  return { type, os, browser };
+}
+
+/* ---------- Boot ---------- */
+async function boot(){
+  if(!pass){ accessLevel = 'none'; unlocked = false; isLeader = false; }
+  renderLockUI();
+  renderGate();
+  await resolveIp();
+  loadLocalCache();
+  restoreDraftIfAny();
+
+  if(!pass){
+    accessLevel = 'none'; unlocked = false; isLeader = false;
+    renderLockUI(); renderGate();
+    setSyncState('good', 'Enter the password above to view the ledger');
+    return;
+  }
+
+  const result = await fetchRemote(true);
+
+  if(result === 'locked'){
+    pass = null; sessionStorage.removeItem(SESSION_PASS_KEY);
+    accessLevel = 'none'; unlocked = false; isLeader = false;
+    renderLockUI(); renderGate();
+    setSyncState('bad', 'Session ended — enter the password again');
+    return;
+  }
+
+  if(result === true){
+    renderLockUI(); renderGate(); renderAll();
+    startPolling();
+    recordVisit();
+    return;
+  }
+
+  goOffline('Could not reach the ledger service. Working from this device only.');
+  renderLockUI(); renderGate();
+}
+
+/* Logs this page-open — happens no matter whether a password was ever
+   entered. Only visible to whoever holds the edit password. */
+function recordVisit(){
+  visits.push({
+    ip: getDeviceLabel(),
+    deviceId: myDeviceId,
+    deviceType: myDeviceInfo ? myDeviceInfo.type : 'Unknown',
+    os: myDeviceInfo ? myDeviceInfo.os : 'Unknown',
+    browser: myDeviceInfo ? myDeviceInfo.browser : 'Unknown',
+    time: new Date().toISOString()
+  });
+  if(visits.length > MAX_VISITS_STORED) visits = visits.slice(visits.length - MAX_VISITS_STORED);
+  saveLocalCache();
+  renderVisitorLog();
+  pushRemote();
+}
+
+function ensureUrlHasLedger(){
+  const params = new URLSearchParams(location.search);
+  if(params.get('ledger') !== ledgerId){
+    params.set('ledger', ledgerId);
+    history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
+  }
+  localStorage.setItem(LOCAL_LEDGER_KEY, ledgerId);
+}
+
+function loadLocalCache(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LOCAL_CAMPERS_KEY) || '[]');
+    campers = raw.map(c => typeof c === 'string' ? { name: c, photo: null } : c);
+  }catch(e){ campers = []; }
+  try{ expenses = JSON.parse(localStorage.getItem(LOCAL_EXPENSES_KEY) || '[]'); }catch(e){ expenses = []; }
+  try{ groups = JSON.parse(localStorage.getItem(LOCAL_GROUPS_KEY) || '[]'); }catch(e){ groups = []; }
+  try{ visits = JSON.parse(localStorage.getItem(LOCAL_VISITS_KEY) || '[]'); }catch(e){ visits = []; }
+}
+function saveLocalCache(){
+  localStorage.setItem(LOCAL_CAMPERS_KEY, JSON.stringify(campers));
+  localStorage.setItem(LOCAL_EXPENSES_KEY, JSON.stringify(expenses));
+  localStorage.setItem(LOCAL_GROUPS_KEY, JSON.stringify(groups));
+  localStorage.setItem(LOCAL_VISITS_KEY, JSON.stringify(visits));
+}
+
+/* ---------- Remote sync (kvdb.io) ---------- */
+/* Bucket creation removed — the Worker holds the single shared ledger. */
+
+async function fetchRemote(isInitial){
+  if(!pass){ return 'locked'; }
+  try{
+    if(!isInitial) setSyncState('pending', 'Refreshing...');
+    const res = await fetch(`${WORKER_BASE}/ledger`, { headers: { 'X-Pass': pass } });
+    if(res.status === 401){ return 'locked'; }
+    if(!res.ok) throw new Error('fetch failed (' + res.status + ')');
+    const body = await res.json();
+    const level = body.level === 'edit' ? 'edit' : 'view';
+    accessLevel = level; unlocked = level === 'edit'; isLeader = level === 'edit';
+    const data = body.ledger || { campers:[], expenses:[], groups:[], visits:[] };
+    const json = JSON.stringify({ campers: data.campers, expenses: data.expenses, groups: data.groups });
+    if(json !== lastRemoteJson){
+      campers = (data.campers || []).map(c => typeof c === 'string' ? { name: c, photo: null } : c);
+      expenses = data.expenses || [];
+      groups = data.groups || [];
+      lastRemoteJson = json;
+      saveLocalCache();
+      renderAll();
+    }
+    if(Array.isArray(data.visits)){
+      const seen = new Set(visits.map(v => v.ip + '|' + v.time));
+      data.visits.forEach(v => { const key = v.ip + '|' + v.time; if(!seen.has(key)){ visits.push(v); seen.add(key); } });
+      if(visits.length > MAX_VISITS_STORED) visits = visits.slice(visits.length - MAX_VISITS_STORED);
+      saveLocalCache();
+      renderVisitorLog();
+    }
+    lastModified = data.lastModified || lastModified;
+    renderLastChange();
+    remoteMode = true;
+    setSyncState('good', 'Synced with group');
+    return true;
+  }catch(e){
+    remoteMode = false;
+    setSyncState('bad', 'Offline: ' + e.message);
+    return false;
+  }
+}
+
+async function pushRemote(useBeacon){
+  saveLocalCache();
+  if(!pass || accessLevel !== 'edit'){ return; }
+  try{
+    if(!useBeacon) setSyncState('pending', 'Saving...');
+    let remoteData = null;
+    if(!useBeacon){
+      try{
+        const getRes = await fetch(`${WORKER_BASE}/ledger`, { headers: { 'X-Pass': pass } });
+        if(getRes.ok){ const b = await getRes.json(); remoteData = b.ledger || null; }
+      }catch(e){ /* fall back to local-only push */ }
+    }
+
+    if(remoteData){
+      const camperMap = {};
+      (remoteData.campers || []).forEach(c => { camperMap[c.name] = (typeof c === 'string' ? { name: c, photo: null } : c); });
+      campers.forEach(c => { camperMap[c.name] = c; });
+      pendingDeletedCamperNames.forEach(name => delete camperMap[name]);
+      campers = Object.values(camperMap);
+
+      const expenseMap = {};
+      (remoteData.expenses || []).forEach(e => { expenseMap[e.id] = e; });
+      expenses.forEach(e => { expenseMap[e.id] = e; });
+      pendingDeletedExpenseIds.forEach(id => delete expenseMap[id]);
+      expenses = Object.values(expenseMap);
+
+      const groupMap = {};
+      (remoteData.groups || []).forEach(g => { groupMap[g.id] = g; });
+      groups.forEach(g => { groupMap[g.id] = g; });
+      pendingDeletedGroupIds.forEach(id => delete groupMap[id]);
+      groups = Object.values(groupMap);
+
+      if(Array.isArray(remoteData.visits)){
+        const seen = new Set(visits.map(v => v.ip + '|' + v.time));
+        remoteData.visits.forEach(v => {
+          const key = v.ip + '|' + v.time;
+          if(!seen.has(key)){ visits.push(v); seen.add(key); }
+        });
+        if(visits.length > MAX_VISITS_STORED) visits = visits.slice(visits.length - MAX_VISITS_STORED);
+      }
+    }
+    pendingDeletedCamperNames.clear();
+    pendingDeletedExpenseIds.clear();
+    pendingDeletedGroupIds.clear();
+    saveLocalCache();
+
+    const payload = { campers, expenses, groups, visits, lastModified: stampNow() };
+    const body = JSON.stringify(payload);
+
+    if(useBeacon){
+      fetch(`${WORKER_BASE}/ledger`, { method:'PUT', headers:{'Content-Type':'application/json','X-Pass':pass}, body, keepalive:true }).catch(()=>{});
+      return;
+    }
+
+    const res = await fetch(`${WORKER_BASE}/ledger`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Pass': pass },
+      body
+    });
+    if(!res.ok) throw new Error('save failed (' + res.status + ')');
+    lastRemoteJson = JSON.stringify({ campers, expenses, groups });
+    lastModified = payload.lastModified;
+    renderLastChange();
+    renderAll();
+    renderVisitorLog();
+    setSyncState('good', 'Synced with group');
+  }catch(e){
+    setSyncState('bad', 'Saved on this device — retry pending: ' + e.message);
+  }
+}
+
+function stampNow(){
+  return { time: new Date().toISOString(), deviceLabel: getDeviceLabel() };
+}
+
+function startPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(() => fetchRemote(false), POLL_MS);
+}
+function goOffline(msg){
+  remoteMode = false;
+  setSyncState('bad', msg);
+}
+function setSyncState(kind, text){
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot' + (kind === 'bad' ? ' bad' : kind === 'pending' ? ' pending' : '');
+  txt.textContent = text;
+}
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const s = Math.floor(diffMs / 1000);
+  if(s < 10) return 'just now';
+  if(s < 60) return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if(m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if(h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}
+function renderLastChange(){
+  const el = document.getElementById('lastChangeText');
+  if(!lastModified){ el.textContent = ''; return; }
+  el.innerHTML = `Last change: <b>${timeAgo(lastModified.time)}</b> · by <b>${escapeHtml(lastModified.deviceLabel || 'unknown')}</b>`;
+}
+
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  if(ledgerId) fetchRemote(false);
+});
+document.getElementById('copyLinkBtn').addEventListener('click', () => {
+  const url = location.href;
+  navigator.clipboard ? navigator.clipboard.writeText(url).catch(()=>{}) : null;
+  const btn = document.getElementById('copyLinkBtn');
+  const original = btn.textContent;
+  btn.textContent = '✓ Link copied';
+  setTimeout(() => btn.textContent = original, 1800);
+});
+
+/* ---------- Save on exit ---------- */
+window.addEventListener('pagehide', () => { saveDraft(); pushRemote(true); });
+window.addEventListener('beforeunload', () => { saveDraft(); });
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden'){ saveDraft(); pushRemote(true); }
+});
+
+/* ---------- Password lock ----------
+   Two tiers, checked by comparing a SHA-256 hash of what's typed against
+   the hashes stored above — the real passwords live only in your head,
+   not in this file. Lower tier = read-only access to the whole ledger.
+   Higher tier = everything the lower tier does, plus adding/editing
+   expenses & campers, managing Groups, and seeing the Visitor Log. */
+function renderLockUI(){
+  const wrap = document.getElementById('lockToggle');
+  if(accessLevel === 'edit'){
+    wrap.innerHTML = `
+      <span class="lock-badge leader">✏️ Editing unlocked</span>
+      <button class="ghost small" id="relockBtn">Lock</button>
+    `;
+    document.getElementById('relockBtn').addEventListener('click', () => doLock());
+  } else if(accessLevel === 'view'){
+    wrap.innerHTML = `
+      <span class="lock-badge unlocked">👁 View only</span>
+      <div class="lock-form">
+        <input type="password" id="pwInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Edit password">
+        <button class="ghost small" id="unlockBtn">Unlock editing</button>
+      </div>
+      <button class="ghost small" id="relockBtn">Lock</button>
+    `;
+    bindUnlockForm();
+    document.getElementById('relockBtn').addEventListener('click', () => doLock());
+  } else {
+    wrap.innerHTML = `
+      <span class="lock-badge locked">🔒 Locked</span>
+      <div class="lock-form">
+        <input type="password" id="pwInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Password">
+        <button class="ghost small" id="unlockBtn">Unlock</button>
+      </div>
+    `;
+    bindUnlockForm();
+  }
+  renderGate();
+}
+
+/* Enter a password -> the Worker checks it and returns the access level. */
+function bindUnlockForm(){
+  const pwInput = document.getElementById('pwInput');
+  const tryUnlock = async () => {
+    const p = pwInput.value.trim();
+    if(!p) return;
+    setSyncState('pending', 'Checking...');
+    try{
+      const res = await fetch(`${WORKER_BASE}/ledger`, { headers: { 'X-Pass': p } });
+      if(res.status === 401){
+        pwInput.style.borderColor = 'var(--red)'; pwInput.value = ''; pwInput.placeholder = 'Wrong password — try again';
+        setSyncState('bad', 'Wrong password'); return;
+      }
+      if(!res.ok){ setSyncState('bad', 'Server error (' + res.status + ')'); return; }
+      const body = await res.json();
+      const level = body.level === 'edit' ? 'edit' : 'view';
+      const wasNone = accessLevel === 'none';
+      pass = p; sessionStorage.setItem(SESSION_PASS_KEY, p);
+      const data = body.ledger || { campers:[], expenses:[], groups:[], visits:[] };
+      campers = (data.campers || []).map(c => typeof c === 'string' ? { name: c, photo: null } : c);
+      expenses = data.expenses || [];
+      groups = data.groups || [];
+      if(Array.isArray(data.visits)) visits = data.visits;
+      lastRemoteJson = JSON.stringify({ campers, expenses, groups });
+      lastModified = data.lastModified || lastModified;
+      saveLocalCache();
+      setAccess(level);
+      startPolling();
+      if(wasNone) recordVisit();
+      setSyncState('good', 'Synced with group');
+    }catch(e){
+      pwInput.style.borderColor = 'var(--red)'; pwInput.placeholder = 'Offline — check connection';
+      setSyncState('bad', 'Offline: ' + e.message);
+    }
+  };
+  document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+  pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+}
+
+function setAccess(level){
+  accessLevel = level;
+  sessionStorage.setItem('jumbocamp_access', level);
+  unlocked = level === 'edit';
+  isLeader = level === 'edit';
+  renderLockUI();
+  renderAll();
+  restoreDraftIfAny();
+}
+
+function doLock(){
+  sessionStorage.removeItem('jumbocamp_access');
+  sessionStorage.removeItem(SESSION_PASS_KEY);
+  pass = null;
+  accessLevel = 'none';
+  unlocked = false;
+  isLeader = false;
+  if(pollTimer){ clearInterval(pollTimer); pollTimer = null; }
+  renderLockUI();
+  renderAll();
+}
+
+/* Hides all the actual ledger content until at least the view password has
+   been entered — the status bar (with the password box) always stays visible. */
+function renderGate(){
+  const gate = document.getElementById('viewGate');
+  const main = document.getElementById('mainContent');
+  const mobileBar = document.querySelector('.mobile-bar');
+  const canView = accessLevel !== 'none';
+  if(gate){
+    gate.classList.toggle('js-hidden', canView);
+    const h2 = gate.querySelector('h2');
+    const sub = gate.querySelector('.sub');
+    if(h2) h2.textContent = '🔒 Password required';
+    if(sub) sub.textContent = "This trip's ledger is private. Enter the password in the bar above to view it.";
+  }
+  if(main) main.classList.toggle('js-hidden', !canView);
+  if(mobileBar) mobileBar.classList.toggle('js-hidden', !(canView && unlocked));
+}
+
+/* ---------- Visitor Log (edit access only) ---------- */
+function renderVisitorLog(){
+  const card = document.getElementById('visitorLogCard');
+  const list = document.getElementById('visitorLogList');
+  if(!card || !list) return;
+  card.style.display = isLeader ? 'block' : 'none';
+  if(!isLeader) return;
+  if(visits.length === 0){
+    list.innerHTML = '<div class="empty">No visits recorded yet.</div>';
+    return;
+  }
+  const sorted = [...visits].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0, 50);
+  list.innerHTML = sorted.map(v => {
+    const deviceBits = [v.deviceType, v.os, v.browser].filter(Boolean).join(' · ');
+    const shortId = v.deviceId ? v.deviceId.toString().slice(0, 8) : '';
+    return `
+    <div class="receipt">
+      <div class="receipt-text">
+        <div class="receipt-desc">${escapeHtml(v.ip)}</div>
+        <div class="receipt-meta">${escapeHtml(deviceBits || 'Unknown device')}</div>
+        <div class="receipt-meta2">${timeAgo(v.time)}${shortId ? ' · device id ' + escapeHtml(shortId) : ''}</div>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+/* ---------- Rendering ---------- */
+function getCamper(name){ return campers.find(c => c.name === name) || { name, photo: null }; }
+
+/* Only allow inline base64 image data URIs as avatar sources. Anything else
+   (e.g. a string injected into the shared bucket by an outsider) is rejected,
+   so it can't break out of the src="" attribute. Kills the stored-XSS vector. */
+function safePhoto(p){
+  if(typeof p !== 'string') return '';
+  return /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(p) ? p : '';
+}
+function avatarHtml(name, small){
+  const c = getCamper(name);
+  const sizeCls = small ? ' avatar-sm' : '';
+  const fallbackCls = small ? ' avatar-fallback-sm' : '';
+  const ph = safePhoto(c.photo);
+  if(ph){
+    return `<img class="avatar${sizeCls}" src="${ph}" alt="${escapeAttr(name)}">`;
+  }
+  const initial = (name || '?').trim().charAt(0).toUpperCase() || '?';
+  return `<div class="avatar-fallback${fallbackCls}">${escapeHtml(initial)}</div>`;
+}
+
+function renderAll(){
+  renderCampers();
+  renderPaidBySelect();
+  renderQuickSplitSelect();
+  renderSplitPeople();
+  renderGroups();
+  renderReceipts();
+  renderBalances();
+  renderSettle();
+  renderLastChange();
+  renderVisitorLog();
+  renderGate();
+  document.getElementById('addCamperRow').style.display = unlocked ? 'flex' : 'none';
+  document.getElementById('expenseForm').style.display = unlocked ? 'block' : 'none';
+  document.getElementById('importBtn').style.display = unlocked ? 'inline-block' : 'none';
+  document.getElementById('newGroupRow').style.display = isLeader ? 'flex' : 'none';
+  document.getElementById('groupsLeaderNote').style.display = isLeader ? 'block' : 'none';
+  document.getElementById('groupsTag').style.display = isLeader ? 'inline-block' : 'none';
+}
+
+function renderCampers(){
+  const row = document.getElementById('campersRow');
+  document.getElementById('camperCount').textContent = campers.length;
+  if(campers.length === 0){
+    row.innerHTML = '<div class="empty">No campers yet — add your group above.</div>';
+    return;
+  }
+  row.innerHTML = campers.map(c => `
+    <div class="camper-chip">
+      ${avatarHtml(c.name)}
+      ${escapeHtml(c.name)}
+      ${unlocked ? `<button class="photo-btn" onclick="choosePhoto('${escapeAttr(c.name)}')" title="Add / change photo">📷</button>
+      <button class="remove-btn" onclick="removeCamper('${escapeAttr(c.name)}')" title="Remove camper">✕</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderPaidBySelect(){
+  const sel = document.getElementById('paidByInput');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Paid by...</option>' +
+    campers.map(c => `<option value="${escapeAttr(c.name)}">${escapeHtml(c.name)}</option>`).join('');
+  if(campers.some(c => c.name === current)) sel.value = current;
+}
+
+function renderQuickSplitSelect(){
+  const sel = document.getElementById('quickSplitSelect');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Everyone</option>' +
+    groups.map(g => `<option value="${escapeAttr(g.id)}">${escapeHtml(g.name)} (${g.members.length})</option>`).join('');
+  if(groups.some(g => g.id === current)) sel.value = current;
+}
+
+document.getElementById('quickSplitSelect').addEventListener('change', () => {
+  const sel = document.getElementById('quickSplitSelect');
+  customEditedNames.clear();
+  if(!sel.value){
+    renderSplitPeople(); // Everyone, all checked
+    if(splitMode === 'custom') distributeAutoCustom();
+    saveDraft();
+    return;
+  }
+  const group = groups.find(g => g.id === sel.value);
+  if(!group) return;
+  // picking a group defaults to splitting equally among that group;
+  // switch to Custom afterward if you need to fine-tune individual amounts
+  splitMode = 'equal';
+  document.getElementById('splitEqualBtn').classList.add('active');
+  document.getElementById('splitCustomBtn').classList.remove('active');
+  const preset = {};
+  group.members.forEach(n => { preset[n] = 0; });
+  renderSplitPeople(preset, /*fromQuickSplit*/true);
+  saveDraft();
+});
+
+/* ---------- Auto-calculate custom splits ----------
+   In Custom mode, unedited fields auto-fill with an equal share of whatever
+   is left after subtracting any amounts the user has typed by hand — so
+   picking people gives you sensible numbers immediately, but you can still
+   override any individual person's amount and the rest adjust around it. */
+function distributeAutoCustom(){
+  if(splitMode !== 'custom') return;
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  if(isNaN(amount) || amount <= 0) return;
+  const checks = Array.from(document.querySelectorAll('.split-check'));
+  const selectedNames = checks.filter(c => c.checked).map(c => c.dataset.name);
+  if(selectedNames.length === 0) return;
+
+  let editedSum = 0;
+  const uneditedNames = [];
+  selectedNames.forEach(n => {
+    if(customEditedNames.has(n)){
+      const el = document.querySelector(`.split-custom-amt[data-name="${cssEscape(n)}"]`);
+      const v = el ? parseFloat(el.value) : 0;
+      editedSum += isNaN(v) ? 0 : v;
+    } else {
+      uneditedNames.push(n);
+    }
+  });
+  if(uneditedNames.length === 0) return;
+
+  let remaining = amount - editedSum;
+  if(remaining < 0) remaining = 0;
+  const each = Math.floor((remaining / uneditedNames.length) * 100) / 100;
+  const runningSum = each * (uneditedNames.length - 1);
+  uneditedNames.forEach((n, idx) => {
+    const el = document.querySelector(`.split-custom-amt[data-name="${cssEscape(n)}"]`);
+    if(!el) return;
+    const val = (idx === uneditedNames.length - 1)
+      ? Math.round((remaining - runningSum) * 100) / 100
+      : each;
+    el.value = val.toFixed(2);
+  });
+}
+
+document.getElementById('splitPeople').addEventListener('input', (e) => {
+  if(e.target.classList.contains('split-custom-amt')){
+    customEditedNames.add(e.target.dataset.name);
+    distributeAutoCustom();
+    saveDraft();
+  }
+});
+document.getElementById('splitPeople').addEventListener('change', (e) => {
+  if(e.target.classList.contains('split-check')){
+    if(splitMode === 'custom') distributeAutoCustom();
+    saveDraft();
+  }
+});
+document.getElementById('amountInput').addEventListener('input', () => {
+  if(splitMode === 'custom') distributeAutoCustom();
+});
+
+function renderSplitPeople(presetShares, isMembershipOnly){
+  const wrap = document.getElementById('splitPeople');
+  if(campers.length === 0){ wrap.innerHTML = ''; return; }
+  const preset = presetShares || null;
+  wrap.innerHTML = campers.map(c => {
+    const checked = preset ? (preset.hasOwnProperty(c.name) ? 'checked' : '') : 'checked';
+    const rawVal = preset && preset.hasOwnProperty(c.name) ? preset[c.name] : null;
+    const customVal = (rawVal && !isMembershipOnly) ? rawVal.toFixed(2) : '';
+    return `
+    <label class="split-person">
+      <input type="checkbox" class="split-check" data-name="${escapeAttr(c.name)}" ${checked}>
+      ${avatarHtml(c.name, true)}
+      ${escapeHtml(c.name)}
+      ${splitMode === 'custom' ? `<input type="number" class="split-custom-amt" data-name="${escapeAttr(c.name)}" placeholder="0.00" step="0.01" min="0" inputmode="decimal" value="${customVal}">` : ''}
+    </label>
+  `;
+  }).join('');
+  attachDraftListeners();
+}
+
+/* ---------- Groups (Group Leader feature) ---------- */
+function renderGroups(){
+  const list = document.getElementById('groupsList');
+  if(groups.length === 0){
+    list.innerHTML = '<div class="empty">No groups yet. Everyone splits together by default.</div>';
+    return;
+  }
+  list.innerHTML = groups.map(g => {
+    const isEditing = editingGroupId === g.id;
+    const memberChips = g.members.map(n => `
+      <span class="group-member-chip">${avatarHtml(n, true)}${n === g.poc ? ' 📍' : ''} ${escapeHtml(n)}</span>
+    `).join('') || '<span class="empty" style="padding:0;">No members yet</span>';
+
+    const pocBadge = g.poc
+      ? `<span class="lock-badge" style="color:var(--gold); border-color:rgba(212,162,76,0.4);">📍 POC: ${escapeHtml(g.poc)}</span>`
+      : (isLeader ? `<span class="lock-badge locked">No POC set</span>` : '');
+
+    const editorHtml = isEditing ? `
+      <div class="group-editor">
+        <div class="split-people">
+          ${campers.map(c => `
+            <label class="split-person">
+              <input type="checkbox" class="group-member-check" data-group="${escapeAttr(g.id)}" data-name="${escapeAttr(c.name)}" ${g.members.includes(c.name) ? 'checked' : ''}>
+              ${avatarHtml(c.name, true)} ${escapeHtml(c.name)}
+            </label>
+          `).join('')}
+        </div>
+        <div class="quick-split-row">
+          <label>Point of Contact (POC):</label>
+          <select id="pocSelect_${escapeAttr(g.id)}">
+            <option value="">No POC</option>
+            ${campers.map(c => `<option value="${escapeAttr(c.name)}" ${g.poc === c.name ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="leader-only-note">
+          If this group has a POC, Settle Up will route the whole group's balance through that one person instead of listing every member separately — handy so one person per family handles the actual payment.
+        </div>
+        <div class="form-actions">
+          <button class="primary" onclick="saveGroupMembers('${escapeAttr(g.id)}')">Save group</button>
+          <button class="ghost" onclick="cancelGroupEdit()">Cancel</button>
+        </div>
+      </div>
+    ` : '';
+
+    return `
+      <div class="group-card">
+        <div class="group-card-top">
+          <span class="group-name">${escapeHtml(g.name)}</span>
+          ${pocBadge}
+          ${isLeader ? `
+            <div class="group-actions">
+              <button class="ghost small" onclick="toggleGroupEdit('${escapeAttr(g.id)}')">${isEditing ? 'Close' : 'Edit group'}</button>
+              <button class="ghost small" onclick="deleteGroup('${escapeAttr(g.id)}')">Delete</button>
+            </div>
+          ` : ''}
+        </div>
+        <div class="group-members">${memberChips}</div>
+        ${editorHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+document.getElementById('addGroupBtn').addEventListener('click', () => {
+  if(!isLeader) return;
+  const input = document.getElementById('groupNameInput');
+  const name = input.value.trim();
+  if(!name) return;
+  const id = 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  groups.push({ id, name, members: [], poc: '' });
+  input.value = '';
+  pushRemote();
+  renderAll();
+  editingGroupId = id;
+  renderGroups();
+});
+document.getElementById('groupNameInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('addGroupBtn').click();
+});
+
+function toggleGroupEdit(id){
+  if(!isLeader) return;
+  editingGroupId = (editingGroupId === id) ? null : id;
+  renderGroups();
+}
+function cancelGroupEdit(){
+  editingGroupId = null;
+  renderGroups();
+}
+function saveGroupMembers(id){
+  if(!isLeader) return;
+  const group = groups.find(g => g.id === id);
+  if(!group) return;
+  const checks = Array.from(document.querySelectorAll(`.group-member-check[data-group="${cssEscape(id)}"]`));
+  let members = checks.filter(c => c.checked).map(c => c.dataset.name);
+  const pocSelect = document.getElementById(`pocSelect_${id}`);
+  const poc = pocSelect ? pocSelect.value : '';
+  if(poc && !members.includes(poc)) members = members.concat([poc]); // POC should belong to their own group
+  group.members = members;
+  group.poc = poc || '';
+  editingGroupId = null;
+  pushRemote();
+  renderAll();
+}
+function deleteGroup(id){
+  if(!isLeader) return;
+  const group = groups.find(g => g.id === id);
+  if(group && !confirm(`Delete the group "${group.name}"? This won't affect any expenses already logged.`)) return;
+  groups = groups.filter(g => g.id !== id);
+  pendingDeletedGroupIds.add(id);
+  if(editingGroupId === id) editingGroupId = null;
+  pushRemote();
+  renderAll();
+}
+
+function choosePhoto(name){
+  if(!unlocked) return;
+  pendingPhotoTarget = name;
+  document.getElementById('photoFileInput').click();
+}
+
+document.getElementById('photoFileInput').addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if(!file || !pendingPhotoTarget) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 128;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size / img.width, size / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const c = campers.find(c => c.name === pendingPhotoTarget);
+      if(c){
+        c.photo = dataUrl;
+        pushRemote();
+        renderAll();
+      }
+      pendingPhotoTarget = null;
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function removeCamper(name){
+  if(!unlocked) return;
+  const involved = expenses.some(e => e.paidBy === name || Object.prototype.hasOwnProperty.call(e.shares, name));
+  if(involved){
+    const ok = confirm(`${name} is tied to existing expenses. Removing them from the camper list won't delete those expenses, but they'll drop out of future splits. Remove anyway?`);
+    if(!ok) return;
+  }
+  campers = campers.filter(c => c.name !== name);
+  pendingDeletedCamperNames.add(name);
+  groups.forEach(g => { g.members = g.members.filter(n => n !== name); });
+  pushRemote();
+  renderAll();
+}
+
+document.getElementById('addCamperBtn').addEventListener('click', () => {
+  if(!unlocked) return;
+  const input = document.getElementById('camperInput');
+  const name = input.value.trim();
+  if(!name) return;
+  if(campers.some(c => c.name === name)){ input.value=''; return; }
+  campers.push({ name, photo: null });
+  input.value = '';
+  pushRemote();
+  renderAll();
+});
+document.getElementById('camperInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('addCamperBtn').click();
+});
+
+document.getElementById('splitEqualBtn').addEventListener('click', () => {
+  splitMode = 'equal';
+  customEditedNames.clear();
+  document.getElementById('splitEqualBtn').classList.add('active');
+  document.getElementById('splitCustomBtn').classList.remove('active');
+  renderSplitPeople();
+  saveDraft();
+});
+document.getElementById('splitCustomBtn').addEventListener('click', () => {
+  splitMode = 'custom';
+  customEditedNames.clear();
+  document.getElementById('splitCustomBtn').classList.add('active');
+  document.getElementById('splitEqualBtn').classList.remove('active');
+  renderSplitPeople();
+  distributeAutoCustom();
+  saveDraft();
+});
+
+function resetExpenseForm(){
+  editingExpenseId = null;
+  customEditedNames.clear();
+  document.getElementById('descInput').value = '';
+  document.getElementById('amountInput').value = '';
+  document.getElementById('paidByInput').value = '';
+  document.getElementById('quickSplitSelect').value = '';
+  splitMode = 'equal';
+  document.getElementById('splitEqualBtn').classList.add('active');
+  document.getElementById('splitCustomBtn').classList.remove('active');
+  renderSplitPeople();
+  document.getElementById('addExpenseBtn').textContent = 'Add expense';
+  document.getElementById('addExpenseBtn').classList.remove('editing-mode');
+  document.getElementById('cancelEditBtn').style.display = 'none';
+  document.getElementById('expenseFormTag').textContent = 'expense';
+  document.getElementById('expenseFormTag').classList.remove('editing');
+  clearDraft();
+}
+
+function startEditExpense(id){
+  if(!unlocked) return;
+  const e = expenses.find(x => x.id === id);
+  if(!e) return;
+  editingExpenseId = id;
+  document.getElementById('descInput').value = e.description;
+  document.getElementById('amountInput').value = e.amount;
+  document.getElementById('paidByInput').value = e.paidBy;
+
+  const shareVals = Object.values(e.shares);
+  const isEqual = shareVals.length > 0 && shareVals.every(v => Math.abs(v - shareVals[0]) < 0.01) &&
+                  Math.abs((shareVals[0] * shareVals.length) - e.amount) < 0.02;
+  splitMode = isEqual ? 'equal' : 'custom';
+  customEditedNames = new Set(Object.keys(e.shares)); // treat existing amounts as already set by hand
+  document.getElementById('splitEqualBtn').classList.toggle('active', splitMode === 'equal');
+  document.getElementById('splitCustomBtn').classList.toggle('active', splitMode === 'custom');
+  document.getElementById('quickSplitSelect').value = '';
+  renderSplitPeople(e.shares);
+
+  document.getElementById('addExpenseBtn').textContent = 'Save changes';
+  document.getElementById('addExpenseBtn').classList.add('editing-mode');
+  document.getElementById('cancelEditBtn').style.display = 'inline-block';
+  document.getElementById('expenseFormTag').textContent = 'editing';
+  document.getElementById('expenseFormTag').classList.add('editing');
+
+  document.getElementById('expenseCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+document.getElementById('cancelEditBtn').addEventListener('click', () => {
+  resetExpenseForm();
+  document.getElementById('expenseStatus').textContent = '';
+});
+
+document.getElementById('addExpenseBtn').addEventListener('click', () => {
+  if(!unlocked) return;
+  const statusEl = document.getElementById('expenseStatus');
+  const desc = document.getElementById('descInput').value.trim();
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  const paidBy = document.getElementById('paidByInput').value;
+
+  if(!desc){ statusEl.textContent = 'Add a description for this expense.'; return; }
+  if(!paidBy){ statusEl.textContent = 'Choose who paid.'; return; }
+  if(isNaN(amount) || amount <= 0){ statusEl.textContent = 'Enter a valid amount.'; return; }
+
+  const checks = Array.from(document.querySelectorAll('.split-check'));
+  const selected = checks.filter(c => c.checked).map(c => c.dataset.name);
+  if(selected.length === 0){ statusEl.textContent = 'Select at least one person to split with.'; return; }
+
+  let shares = {};
+  if(splitMode === 'equal'){
+    const each = amount / selected.length;
+    selected.forEach(n => shares[n] = each);
+  } else {
+    let total = 0;
+    let missing = false;
+    selected.forEach(n => {
+      const el = document.querySelector(`.split-custom-amt[data-name="${cssEscape(n)}"]`);
+      const v = el ? parseFloat(el.value) : NaN;
+      if(isNaN(v)){ missing = true; return; }
+      shares[n] = v;
+      total += v;
+    });
+    if(missing){ statusEl.textContent = 'Fill in a custom amount for every selected person.'; return; }
+    if(Math.abs(total - amount) > 0.01){
+      statusEl.textContent = `Custom amounts total $${total.toFixed(2)}, but the expense is $${amount.toFixed(2)}. Adjust to match.`;
+      return;
+    }
+  }
+
+  if(editingExpenseId){
+    const idx = expenses.findIndex(e => e.id === editingExpenseId);
+    if(idx !== -1){
+      expenses[idx] = {
+        ...expenses[idx],
+        description: desc,
+        amount: amount,
+        paidBy: paidBy,
+        shares: shares,
+        editedBy: getDeviceLabel(),
+        editedAt: new Date().toISOString()
+      };
+    }
+    statusEl.textContent = '';
+    resetExpenseForm();
+  } else {
+    expenses.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      description: desc,
+      amount: amount,
+      paidBy: paidBy,
+      shares: shares,
+      date: new Date().toISOString(),
+      addedBy: getDeviceLabel()
+    });
+    document.getElementById('descInput').value = '';
+    document.getElementById('amountInput').value = '';
+    document.getElementById('quickSplitSelect').value = '';
+    statusEl.textContent = '';
+    clearDraft();
+  }
+
+  pushRemote();
+  renderAll();
+});
+
+document.getElementById('mobileAddBtn').addEventListener('click', () => {
+  if(!unlocked){
+    document.getElementById('lockToggle').scrollIntoView({ behavior:'smooth', block:'start' });
+    return;
+  }
+  document.getElementById('expenseCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => document.getElementById('descInput').focus(), 400);
+});
+
+function deleteExpense(id){
+  if(!unlocked) return;
+  if(editingExpenseId === id) resetExpenseForm();
+  expenses = expenses.filter(e => e.id !== id);
+  pendingDeletedExpenseIds.add(id);
+  pushRemote();
+  renderAll();
+}
+
+function renderReceipts(){
+  const list = document.getElementById('receiptsList');
+  document.getElementById('expenseCount').textContent = expenses.length;
+  if(expenses.length === 0){
+    list.innerHTML = '<div class="empty">No expenses logged yet.</div>';
+    return;
+  }
+  const sorted = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+  list.innerHTML = sorted.map(e => {
+    const splitNames = Object.keys(e.shares);
+    const splitLabel = splitNames.length === campers.length
+      ? 'split evenly, all campers'
+      : `split with ${splitNames.join(', ')}`;
+    let metaLine = e.addedBy ? `logged by ${escapeHtml(e.addedBy)} · ${timeAgo(e.date)}` : timeAgo(e.date);
+    if(e.editedBy){ metaLine += ` · edited by ${escapeHtml(e.editedBy)} ${timeAgo(e.editedAt)}`; }
+    return `
+    <div class="receipt">
+      <div class="receipt-left">
+        ${avatarHtml(e.paidBy)}
+        <div class="receipt-text">
+          <div class="receipt-desc">${escapeHtml(e.description)}</div>
+          <div class="receipt-meta">paid by ${escapeHtml(e.paidBy)} · ${escapeHtml(splitLabel)}</div>
+          <div class="receipt-meta2">${metaLine}</div>
+        </div>
+      </div>
+      <div class="receipt-actions">
+        <div class="receipt-amt">$${e.amount.toFixed(2)}</div>
+        ${unlocked ? `<button class="receipt-edit" onclick="startEditExpense('${e.id}')" title="Edit expense">✎</button>
+        <button class="receipt-del" onclick="deleteExpense('${e.id}')" title="Delete expense">✕</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function computeBalances(){
+  const balance = {};
+  campers.forEach(c => balance[c.name] = 0);
+  expenses.forEach(e => {
+    if(balance[e.paidBy] === undefined) balance[e.paidBy] = 0;
+    balance[e.paidBy] += e.amount;
+    Object.entries(e.shares).forEach(([name, share]) => {
+      if(balance[name] === undefined) balance[name] = 0;
+      balance[name] -= share;
+    });
+  });
+  return balance;
+}
+
+/* Finds whether a camper belongs to a group with a POC assigned — if so,
+   their settle-up balance routes through that one person instead of
+   listing them individually. */
+function getSettleIdentity(name){
+  for(const g of groups){
+    if(g.poc && g.members.includes(name)){
+      return { settleName: g.poc, groupName: g.name };
+    }
+  }
+  return { settleName: name, groupName: null };
+}
+
+function renderBalances(){
+  const list = document.getElementById('balancesList');
+  if(campers.length === 0){
+    list.innerHTML = '<div class="empty">Add campers and expenses to see balances.</div>';
+    return;
+  }
+  const balance = computeBalances();
+  list.innerHTML = campers.map(c => {
+    const v = balance[c.name] || 0;
+    const cls = v >= 0 ? 'pos' : 'neg';
+    const label = v >= 0 ? 'is owed' : 'owes';
+    const identity = getSettleIdentity(c.name);
+    const pocNote = (identity.settleName !== c.name)
+      ? `<div class="receipt-meta2">settles via ${escapeHtml(identity.settleName)} (${escapeHtml(identity.groupName)})</div>`
+      : '';
+    return `
+    <div class="balance-row">
+      <div class="balance-left">${avatarHtml(c.name, true)} <div><span>${escapeHtml(c.name)}</span>${pocNote}</div></div>
+      <span class="balance-amt ${cls}">${label} $${Math.abs(v).toFixed(2)}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderSettle(){
+  const list = document.getElementById('settleList');
+  if(campers.length === 0 || expenses.length === 0){
+    list.innerHTML = '<div class="empty">Nothing to settle yet.</div>';
+    return;
+  }
+  const balance = computeBalances();
+
+  // Aggregate each camper's balance under their group's POC, if one is set,
+  // so one person per family handles the actual payment instead of everyone
+  // in that family settling separately.
+  const aggregated = {};
+  Object.entries(balance).forEach(([name, v]) => {
+    const identity = getSettleIdentity(name);
+    aggregated[identity.settleName] = (aggregated[identity.settleName] || 0) + v;
+  });
+
+  const creditors = [];
+  const debtors = [];
+  Object.entries(aggregated).forEach(([name, v]) => {
+    if(v > 0.01) creditors.push({name, amt: v});
+    else if(v < -0.01) debtors.push({name, amt: -v});
+  });
+  creditors.sort((a,b) => b.amt - a.amt);
+  debtors.sort((a,b) => b.amt - a.amt);
+
+  const transactions = [];
+  let ci = 0, di = 0;
+  while(ci < creditors.length && di < debtors.length){
+    const c = creditors[ci];
+    const d = debtors[di];
+    const amt = Math.min(c.amt, d.amt);
+    if(amt > 0.01){
+      transactions.push({ from: d.name, to: c.name, amt });
+    }
+    c.amt -= amt;
+    d.amt -= amt;
+    if(c.amt <= 0.01) ci++;
+    if(d.amt <= 0.01) di++;
+  }
+
+  if(transactions.length === 0){
+    list.innerHTML = '<div class="empty">Everyone is even — nothing owed.</div>';
+    return;
+  }
+
+  // find group name(s) a settle-name is standing in for, for a small label
+  function pocLabel(name){
+    const g = groups.find(gr => gr.poc === name);
+    return g ? ` <span style="color:var(--muted); font-size:11.5px;">(POC for ${escapeHtml(g.name)})</span>` : '';
+  }
+
+  list.innerHTML = transactions.map(t => `
+    <div class="settle-item">
+      ${avatarHtml(t.from, true)}
+      <span>${escapeHtml(t.from)}${pocLabel(t.from)}</span>
+      <span class="arrow">→</span>
+      ${avatarHtml(t.to, true)}
+      <span>${escapeHtml(t.to)}${pocLabel(t.to)}</span>
+      <span class="settle-amt">$${t.amt.toFixed(2)}</span>
+    </div>
+  `).join('');
+}
+
+/* ---------- Draft autosave (protects against navigating away mid-entry) ---------- */
+function currentDraftSnapshot(){
+  if(editingExpenseId) return null;
+  const desc = document.getElementById('descInput').value;
+  const amount = document.getElementById('amountInput').value;
+  const paidBy = document.getElementById('paidByInput').value;
+  const checks = Array.from(document.querySelectorAll('.split-check'));
+  const selected = checks.filter(c => c.checked).map(c => c.dataset.name);
+  const customAmounts = {};
+  document.querySelectorAll('.split-custom-amt').forEach(el => { customAmounts[el.dataset.name] = el.value; });
+  if(!desc && !amount && !paidBy) return null;
+  return { desc, amount, paidBy, splitMode, selected, customAmounts };
+}
+function saveDraft(){
+  const snap = currentDraftSnapshot();
+  if(snap) localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+  else localStorage.removeItem(DRAFT_KEY);
+}
+function clearDraft(){ localStorage.removeItem(DRAFT_KEY); }
+function restoreDraftIfAny(){
+  if(!unlocked) return;
+  let draft = null;
+  try{ draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); }catch(e){ draft = null; }
+  if(!draft) return;
+  document.getElementById('descInput').value = draft.desc || '';
+  document.getElementById('amountInput').value = draft.amount || '';
+  if(draft.paidBy) document.getElementById('paidByInput').value = draft.paidBy;
+  splitMode = draft.splitMode || 'equal';
+  document.getElementById('splitEqualBtn').classList.toggle('active', splitMode === 'equal');
+  document.getElementById('splitCustomBtn').classList.toggle('active', splitMode === 'custom');
+  const preset = {};
+  (draft.selected || []).forEach(n => { preset[n] = parseFloat(draft.customAmounts && draft.customAmounts[n]) || 0; });
+  renderSplitPeople(Object.keys(preset).length ? preset : null);
+  document.getElementById('expenseStatus').textContent = 'Restored your unsaved draft from before you left.';
+}
+function attachDraftListeners(){
+  ['descInput','amountInput','paidByInput'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && !el.dataset.draftBound){
+      el.addEventListener('input', saveDraft);
+      el.dataset.draftBound = '1';
+    }
+  });
+  document.querySelectorAll('.split-check, .split-custom-amt').forEach(el => {
+    el.addEventListener('input', saveDraft);
+    el.addEventListener('change', saveDraft);
+  });
+}
+attachDraftListeners();
+
+/* ---------- Export / Import (manual backup) ---------- */
+function generateBackupCode(){
+  return btoa(unescape(encodeURIComponent(JSON.stringify({ campers, expenses, groups }))));
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const box = document.getElementById('syncBox');
+  const code = generateBackupCode();
+  box.style.display = 'block';
+  box.value = code;
+  box.select();
+  navigator.clipboard && navigator.clipboard.writeText(code).catch(()=>{});
+  document.getElementById('syncStatus').textContent = 'Code copied. This is a manual backup — the live ledger already syncs automatically.';
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  if(!unlocked) return;
+  const box = document.getElementById('syncBox');
+  const statusEl = document.getElementById('syncStatus');
+  box.style.display = 'block';
+  if(!box.value.trim()){
+    statusEl.textContent = 'Paste a code into the box first, then press Import again.';
+    return;
+  }
+  try{
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(box.value.trim()))));
+    if(!decoded.campers || !decoded.expenses) throw new Error('bad format');
+    campers = decoded.campers.map(c => typeof c === 'string' ? { name: c, photo: null } : c);
+    expenses = decoded.expenses;
+    groups = decoded.groups || [];
+    pushRemote();
+    renderAll();
+    statusEl.textContent = 'Imported and synced to the shared ledger.';
+  }catch(e){
+    statusEl.textContent = 'That code could not be read. Double-check it was copied in full.';
+  }
+});
+
+/* ---------- Download backup file ----------
+   Simpler than email: saves the backup code straight to the device as a
+   .txt file, no mail app, no character limits, works even with photos. */
+document.getElementById('downloadBackupBtn').addEventListener('click', () => {
+  const code = generateBackupCode();
+  const statusEl = document.getElementById('syncStatus');
+  const stamp = new Date().toISOString().slice(0,10);
+  const fileContent = `Jumbo Camp backup — ${stamp}\n\nPaste the line below into the Import box on the Jumbo Camp page to restore it:\n\n${code}\n`;
+  const blob = new Blob([fileContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `jumbo-camp-backup-${stamp}.txt`;
+  link.click();
+  URL.revokeObjectURL(url);
+  statusEl.textContent = 'Backup file downloaded — save it somewhere safe (e.g. email it to yourself, or drop it in a shared drive).';
+});
+
+/* ---------- Save screenshot ---------- */
+document.getElementById('screenshotBtn').addEventListener('click', () => {
+  const statusEl = document.getElementById('syncStatus');
+  if(typeof html2canvas === 'undefined'){
+    statusEl.textContent = 'Screenshot tool failed to load — check your internet connection and try again.';
+    return;
+  }
+  const target = document.querySelector('.wrap');
+  const btn = document.getElementById('screenshotBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Capturing...';
+  html2canvas(target, {
+    backgroundColor: '#0B0B0D',
+    useCORS: true,
+    scale: 2
+  }).then(canvas => {
+    const link = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    link.download = `jumbo-camp-${stamp}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.textContent = original;
+  }).catch(err => {
+    statusEl.textContent = 'Screenshot failed: ' + err.message;
+    btn.textContent = original;
+  });
+});
+
+/* ---------- Utils ---------- */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+function cssEscape(s){ return String(s).replace(/(["\\])/g, '\\$1'); }
+
+boot();
+</script>
+</body>
+</html>
