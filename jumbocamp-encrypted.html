@@ -444,6 +444,10 @@ const COLLECT_IP = false;
 // gated by an editor PIN whose hash is kept INSIDE the encrypted payload
 // (settings.editorPinHash), so it isn't in page source either.
 const SESSION_PASS_KEY = 'jumbocamp_trippass';
+// kvdb.io now requires an email to create a bucket (a bare POST returns 500).
+// This is just an owner tag kvdb keeps on file — it is NOT a password, and the
+// ledger is encrypted regardless. Change it to any email you control.
+const BUCKET_OWNER_EMAIL = 'design@pyaro.studio';
 
 async function sha256Hex(text){
   const enc = new TextEncoder().encode(text);
@@ -687,7 +691,11 @@ async function decodeBody(rawText){
 async function createRemoteLedger(){
   try{
     setSyncState('pending', 'Setting up shared ledger...');
-    const bucketRes = await fetch(`${KVDB_BASE}/`, { method: 'POST' });
+    const bucketRes = await fetch(`${KVDB_BASE}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'email=' + encodeURIComponent(BUCKET_OWNER_EMAIL)
+    });
     if(!bucketRes.ok) throw new Error('bucket create failed (' + bucketRes.status + ')');
     const rawBody = (await bucketRes.text()).trim();
     let bucketId = rawBody;
