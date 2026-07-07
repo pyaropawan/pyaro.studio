@@ -5,7 +5,7 @@
   <!-- Security policy (added in remediation). NOTE: on GitHub Pages only CSP and
        referrer can be set via <meta>. nosniff / X-Frame-Options / HSTS / Permissions-Policy
        are ignored as meta and need a real header layer (e.g. Cloudflare). See SECURITY_AUDIT_v2.md. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://camping-ledger.design-14e.workers.dev;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://camping-ledger.design-14e.workers.dev/;">
   <meta name="referrer" content="no-referrer">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -433,7 +433,7 @@
 /* Storage = a Cloudflare Worker that checks the view/edit password on the server
    (see SETUP_CLOUDFLARE.md). EDIT the line below to YOUR Worker URL — and match it
    in the CSP connect-src up in <head>. */
-const WORKER_BASE = 'https://camping-ledger.design-14e.workers.dev';
+const WORKER_BASE = 'https://camping-ledger.design-14e.workers.dev/';
 const IP_LOOKUP_API = 'https://api.ipify.org?format=json';
 const COLLECT_IP = false;
 const SESSION_PASS_KEY = 'camping_pass';
