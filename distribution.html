@@ -2,6 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
+  <!-- Security policy (added in remediation). NOTE: on GitHub Pages only CSP and
+       referrer can be set via <meta>. nosniff / X-Frame-Options / HSTS / Permissions-Policy
+       are ignored as meta and need a real header layer (e.g. Cloudflare). See SECURITY_AUDIT_v2.md. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="A practical guide to digital music distribution, streaming platforms, and getting paid for independent artists in Nepal — by Pyaro Studio." />
   <title>Digital Music Distribution for Nepali Artists — Pyaro Studio</title>
@@ -331,7 +337,6 @@
       <a href="index.html#work">Work</a>
       <a href="index.html#about">About</a>
       <a href="distribution.html" class="current">Distribution</a>
-      <a href="upload.html">Tools</a>
       <a href="index.html#contact">Contact</a>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
       <button class="text-scale" id="textScale" aria-label="Adjust text size" title="Text size: 100%">Aa</button>
@@ -345,7 +350,6 @@
     <a href="index.html#work">Work</a>
     <a href="index.html#about">About</a>
     <a href="distribution.html" class="current">Distribution</a>
-    <a href="upload.html">Tools</a>
     <a href="index.html#contact">Contact</a>
   </div>
 
@@ -629,7 +633,6 @@ Unauthorized downloading and re-uploading on any streaming platform is strictly 
     <div class="cta-right">
       <a class="cta-link" href="mailto:design@pyaro.studio">design@pyaro.studio</a>
       <a class="cta-link" href="index.html#contact">Talk to Pyaro Studio</a>
-      <a class="cta-link" href="upload.html">Upload artwork or a brief</a>
     </div>
   </section>
 
