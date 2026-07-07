@@ -948,7 +948,7 @@ function bindUnlockForm(){
       pwInput.placeholder = 'Needs HTTPS to unlock — try the live site';
       return;
     }
-    const pass = pwInput.value;
+    const pass = pwInput.value.trim();
     if(!pass) return;
     setSyncState('pending', 'Unlocking...');
     let env = pendingEnvelope;
@@ -991,7 +991,7 @@ function bindUnlockForm(){
 function bindEditForm(){
   const pinInput = document.getElementById('pinInput');
   const tryEdit = async () => {
-    const h = await sha256Hex(pinInput.value);
+    const h = await sha256Hex(pinInput.value.trim());
     if(editorPinHash && h === editorPinHash){
       setAccess('edit');
     } else {
