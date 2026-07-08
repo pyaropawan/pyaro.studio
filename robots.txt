@@ -1,4 +1,0 @@
-# Public marketing pages may be indexed. The private trip ledger must not be.
-# (jumbocamp.html also carries a <meta name="robots" content="noindex"> tag.)
-User-agent: *
-Disallow: /jumbocamp.html
